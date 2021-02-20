@@ -1,0 +1,23 @@
+[credential]
+	helper = libsecret
+[push]
+	default = current
+[merge]
+	conflictstyle = diff3
+	renameLimit = 999999
+[user]
+	email = sumwale@gmail.com
+	name = Sumedh Wale
+[status]
+	submoduleSummary = true
+[diff]
+	submodule = log
+[fetch]
+	recurseSubmodules = on-demand
+[pull]
+	rebase = false
+[alias]
+	spull = !git pull && git submodule sync --recursive && git submodule update --init --recursive
+	spush = push --recurse-submodules=on-demand
+	lrevert = !git reset HEAD -- "$1" && git checkout -- "$1"
+        slog = log --graph --oneline --decorate

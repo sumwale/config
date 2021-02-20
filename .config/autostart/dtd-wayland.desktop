@@ -1,0 +1,8 @@
+[Desktop Entry]
+Exec=dtd-wayland
+Name=dtd-wayland
+Comment=Workaround for use dash to dock in wayland and gnome v3.36
+Type=Application
+Icon=applications-system
+StartupNotify=false
+X-GNOME-Autostart-enabled=false

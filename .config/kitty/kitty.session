@@ -1,0 +1,20 @@
+# first tab with four terminals in a grid
+enabled_layouts grid, stack
+layout grid
+
+cd ~/product/lightspeed-spark
+launch
+focus
+launch
+launch
+launch
+
+# second tab
+new_tab
+enabled_layouts grid, stack
+layout grid
+
+cd ~
+launch
+cd ~/product/panama-vector
+launch

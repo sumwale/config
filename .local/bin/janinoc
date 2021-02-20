@@ -1,0 +1,50 @@
+#!/bin/bash
+
+declare -a compiler_args
+declare -a java_args
+declare -a main_args
+do_nothing=0
+
+lib="$HOME/lib"
+
+# Fix CYGWIN pathnames to WINDOWS pathnames.
+lib=`echo $lib | sed -e 's,/cygdrive/\(\w\),\1:,g'`
+
+while (( $# > 0 )); do
+    arg=$1; shift;
+    case $arg in
+
+    -d | -sourcepath | -classpath | -cp | -extdirs | -bootclasspath | -encoding)
+        compiler_args[${#compiler_args[*]}]="$arg"
+        compiler_args[${#compiler_args[*]}]="$1"; shift
+        ;;
+
+    -verbose | -g* | -warn* | -rebuild | -help)
+        compiler_args[${#compiler_args[*]}]="$arg"
+        ;;
+
+    -n)
+        do_nothing=1
+        ;;
+
+    -D* | -version | -X*)
+        java_args[${#java_args[*]}]="$arg"
+        ;;
+
+    -*)
+        echo >&2 "Unrecognized command line option \"$arg\"; try \"-help\".";
+        exit 1
+        ;;
+
+    *)
+        class_name="$arg"
+        main_args=($*)
+        break
+        ;;
+    esac
+done
+
+java="$JAVA_HOME/jre/bin/java"
+
+"$java" -classpath "$lib/janino.jar:$lib/commons-compiler.jar" ${java_args[@]} org.codehaus.janino.Compiler ${compiler_args[@]} $class_name ${main_args[@]}
+

@@ -1,0 +1,101 @@
+[global_config]
+  borderless = True
+  tab_position = hidden
+  inactive_color_offset = 0.6083333333333334
+[keybindings]
+[profiles]
+  [[default]]
+    visible_bell = True
+    background_darkness = 0.9
+    background_type = transparent
+    cursor_color = "#aaaaaa"
+    font = Terminus (TTF) Medium 11
+    show_titlebar = False
+    scrollbar_position = hidden
+    scrollback_lines = 5000
+    use_system_font = False
+[layouts]
+  [[default]]
+    [[[child0]]]
+      type = Window
+      parent = ""
+      order = 0
+      position = 0:36
+      maximised = True
+      fullscreen = False
+      size = 1920, 1044
+      title = sumedh@sumedh-laptop lightspeed-spark
+      last_active_window = True
+    [[[child1]]]
+      type = Notebook
+      parent = child0
+      order = 0
+      labels = None, None
+      last_active_term = 0205d7fd-9fd4-4cfe-a55e-f9389035737b, a087c181-42e3-4d99-a887-5f93fc77e0f1
+      active_page = 0
+    [[[child2]]]
+      type = VPaned
+      parent = child1
+      order = 0
+      position = 518
+      ratio = 0.49951783992285437
+    [[[child3]]]
+      type = HPaned
+      parent = child2
+      order = 0
+      position = 957
+      ratio = 0.5002613695765813
+    [[[terminal4]]]
+      type = Terminal
+      parent = child3
+      order = 0
+      profile = default
+      uuid = f234e10b-4f60-4c51-ad20-339dc4c1a94a
+      directory = /home/sumedh/product/lightspeed-spark
+    [[[terminal5]]]
+      type = Terminal
+      parent = child3
+      order = 1
+      profile = default
+      uuid = cf8fde83-7293-467e-873a-cb91eac07152
+      directory = /home/sumedh/product/lightspeed-spark
+    [[[child6]]]
+      type = HPaned
+      parent = child2
+      order = 1
+      position = 957
+      ratio = 0.5002613695765813
+    [[[terminal7]]]
+      type = Terminal
+      parent = child6
+      order = 0
+      profile = default
+      uuid = 22cf787c-9682-4a21-b920-35ef71334fbf
+      directory = /home/sumedh/product/lightspeed-spark
+    [[[terminal8]]]
+      type = Terminal
+      parent = child6
+      order = 1
+      profile = default
+      uuid = 0205d7fd-9fd4-4cfe-a55e-f9389035737b
+      directory = /home/sumedh/product/lightspeed-spark
+    [[[child9]]]
+      type = HPaned
+      parent = child1
+      order = 1
+      position = 956
+      ratio = 0.4997301672962763
+    [[[terminal10]]]
+      type = Terminal
+      parent = child9
+      order = 0
+      profile = default
+      uuid = a087c181-42e3-4d99-a887-5f93fc77e0f1
+    [[[terminal11]]]
+      type = Terminal
+      parent = child9
+      order = 1
+      profile = default
+      uuid = 22cabe56-63e7-489b-b1b6-bc3a3239f8a8
+      directory = /home/sumedh/product/panama-vector
+[plugins]

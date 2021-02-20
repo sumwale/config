@@ -1,0 +1,3 @@
+#!/bin/sh
+
+ssh -t sumedh@home-rpi sudo /sbin/shutdown -h now

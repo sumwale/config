@@ -1,0 +1,55 @@
+# .vsdrc is written whenever vsd exits normally.
+# Each time vsd is started it reads .vsdrc and will use the configuration
+# values in it. If you want to always have some other default put it
+# in .vsdconfig. Any user changes to .vsdrc will be lost the next time
+# vsd exits.
+
+set vsd(confirmonexit) 1
+set vsd(warningGiven) 0
+set vsd(geometry:.monitors) {}
+set vsd(geometry:.monstatus) {}
+set vsd(geometry:.ctrinfo) 1x1+0+0
+set vsd(geometry:.datawin) {}
+set vsd(def:geometry) 1865x1018+55+34
+set vsd(autoUpdateTime) 10000
+set vsd(def:showlegend) 1
+set vsd(def:xformat) time
+set vsd(def:linestyle) linear
+set vsd(def:xaxis:showtitle) 1
+set vsd(def:yaxis:showtitle) 1
+set vsd(def:y2axis:showtitle) 1
+set vsd(def:showcrosshairs) 0
+set vsd(def:showgridlines) 0
+set vsd(def:showcurxy) 1
+set vsd(def:showminmax) 0
+set vsd(def:showlinestats) 1
+set vsd(def:sortbytype) Type
+set vsd(def:sortdecreasing) 0
+set vsd(showCtrInfo) 0
+set vsd(absoluteTSMode) 1
+set vsd(copyChildren) 1
+set vsd(singleFileMode) 1
+set vsd(templatesUseSelection) 0
+set vsd(wv:statmoninterval) 20
+set vsd(wv:statmonflush) 0
+set vsd(wv:statmonlevel) 1
+set vsd(wv:statmonappstats) 0
+set vsd(wv:statmonsessions) {}
+set vsd(wv:statmonpids) {}
+set vsd(wv:statmoncompress) 0
+set vsd(activecolor) red
+set vsd(combineInstances) 0
+set vsd(combineFiles) 0
+set vsd(noFlatlines) 1
+set vsd(traceAPICalls) 0
+set vsd(lastVersionRun) 207.06
+set vsd(instancePaneSize) 616
+set vsd(statisticPaneSize) 223
+set vsd(0:graphgeometry) 1865x1018+55+34
+set vsd(smallfont) {-family fixed -size 8 -weight normal -slant roman -underline 0 -overstrike 0}
+set vsd(textfont) {-family fixed -size 12 -weight normal -slant roman -underline 0 -overstrike 0}
+set vsd(filelist) {/home/sumedh/product/SnappyData/customers/Kore/debug_data_11.29.03.41.22/172.186.11.84-server/snappyserver.gfs /home/sumedh/product/SnappyData/customers/Kore/debug_data_11.29.03.41.22/172.186.11.75-server/snappyserver.gfs /home/sumedh/product/SnappyData/customers/Kore/debug_data_11.29.03.41.22/172.186.11.53-server/snappyserver.gfs /home/sumedh/product/SnappyData/customers/Kore/debug_data_11.29.03.41.22/172.186.11.47-server/snappyserver.gfs /home/sumedh/product/SnappyData/customers/Kore/debug_data_11.29.03.41.22/172.186.11.206-server/snappyserver.gfs /home/sumedh/product/SnappyData/customers/Kore/debug_data_11.29.03.41.22/172.186.11.197-server/snappyserver.gfs /home/sumedh/product/SnappyData/customers/Kore/debug_data_11.29.03.41.22/172.186.11.168-server/snappyserver.gfs /home/sumedh/product/SnappyData/customers/Kore/debug_data_11.29.03.41.22/172.186.11.158-server/snappyserver.gfs /home/sumedh/product/SnappyData/customers/Kore/debug_data_11.29.03.41.22/172.186.11.132-server/snappyserver.gfs /home/sumedh/product/SnappyData/snappydata/../customers/Kore/snappyserver.gfs}
+sl_stat -level advanced
+
+# templates are now stored in ~/.vsdtemplates.
+

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=kitty single
+GenericName=Terminal emulator
+Comment=A fast, feature full, GPU based terminal emulator
+TryExec=kitty
+Exec=kitty --session /home/sumedh/.config/kitty/kitty-single.session
+Icon=kitty
+Categories=System;TerminalEmulator;

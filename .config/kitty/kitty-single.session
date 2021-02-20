@@ -1,0 +1,5 @@
+enabled_layouts grid, stack, splits, horizontal, vertical
+layout grid
+
+cd ~
+launch

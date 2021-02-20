@@ -1,0 +1,1 @@
+/home/sumedh/.config/nvim/init.vim

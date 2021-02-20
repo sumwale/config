@@ -1,0 +1,13 @@
+[Unit]
+Description=Manage your network connections
+Wants=network-online.target
+ConditionEnvironment=DISPLAY
+
+[Service]
+Type=simple
+ExecStart=nm-applet
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

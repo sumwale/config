@@ -1,0 +1,63 @@
+
+# See the vsd help section 'Template Syntax' for a guide to editing this file.
+
+set vsdtemplates(CPU) {
+	{+ {*} UserTime 1 persecond y}
+	{SolarisSystem {*} PercentCpuActive 1 none y2}
+	{SolarisSystem {*} PercentCpuWaiting 1 none y2}
+	{+ {*} ProcessorTime 1 persecond y}
+	{NtSystem {*} TotalProcessorTime 1 persecond y}
+	{NtSystem {*} ProcessorQueueLength 1 none y2}
+    }
+set vsdtemplates(CacheMix) {
+	{Shrpc {*} FreeFrameCount 1 none y2}
+	{Shrpc {*} LocalDirtyPageCount 1 none y}
+	{Shrpc {*} FreeFrameLimit 1 none y}
+	{Shrpc {*} BitlistPagesWrittenByGem 1 none y}
+	{Shrpc {*} BitlistPagesWrittenByStone 1 none y}
+	{Shrpc {*} BmInternalPagesWrittenByGem 1 none y}
+	{Shrpc {*} BmInternalPagesWrittenByStone 1 none y}
+	{Shrpc {*} BmLeafPagesWrittenByGem 1 none y}
+	{Shrpc {*} BmLeafPagesWrittenByStone 1 none y}
+	{Shrpc {*} CommitRecordPagesWrittenByGem 1 none y}
+	{Shrpc {*} CommitRecordPagesWrittenByStone 1 none y}
+	{Shrpc {*} DataPagesWrittenByGem 1 none y}
+	{Shrpc {*} OtInternalPagesWrittenByGem 1 none y}
+	{Shrpc {*} OtInternalPagesWrittenByStone 1 none y}
+	{Shrpc {*} OtLeafPagesWrittenByGem 1 none y}
+	{Shrpc {*} OtLeafPagesWrittenByStone 1 none y}
+    }
+set vsdtemplates(CacheToSmall) {
+	{Shrpc {*} FreeFrameCount 1 none y2}
+	{Shrpc {*} FramesFromFindFree 1 persecond y}
+	{Shrpc {*} FramesFromFreeList 1 persecond y}
+    }
+set vsdtemplates(CommitInfo) {
+	{Stn {*} TotalCommits 1 persecond y}
+	{Stn {*} CommitRecordCount 1 none y2}
+	{Stn {*} CommitQueueSize 1 none y2}
+    }
+set vsdtemplates(EpochSweeps) {
+	{Vm+ {*GC} RGCEpochCount 1 persecond y}
+	{Vm+ {*GC} RGCEpochScannedObjs 1 none y2}
+	{Vm+ {*GC} RGCEpochNewObjsSize 1 none y2}
+	{Vm+ {*GC} RGCEpochPossibleDeadSize 1 none y2}
+	{Vm+ {*GC} RGCPossibleDeadSize 1 none y2}
+    }
+set vsdtemplates(Garbage) {
+	{Vm+ {*GC} RGCPagesNeedReclaiming 1 none y2}
+	{Vm+ {*GC} RGCReclaimedPagesCount 1 none y2}
+	{Vm+ {*GC} RGCReclaimNewDataPagesCount 1 none y2}
+	{Vm+ {*GC} RGCEpochCount 1 persecond y}
+	{Vm+ {*GC} RGCReclaimCount 1 persecond y}
+	{Session+ {*Gc} CommitCount 1 persecond y}
+    }
+set vsdtemplates(PageServer) {
+	{Pgsvr+ {*} AioDirtyCount 1 persecond y}
+	{Pgsvr+ {*} AioCkptCount 1 persecond y}
+	{Shrpc {*} LocalDirtyPageCount 1 none y}
+    }
+set vsdtemplates(SpaceFree) {
+	{Shrpc {*} FreeFrameCount 1 none y}
+	{Stn {*} FreePages 1 none y2}
+    }

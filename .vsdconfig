@@ -1,0 +1,33 @@
+# .vsdconfig is never changed by vsd. If the user deletes it then
+# the next time vsd is started it will be recreated with default values.
+# Users can configure vsd by setting default values in this file.
+# Any value set in .vsdconfig will override the same definition in .vsdrc.
+# Make sure and put braces around the value if it contains whitespace.
+# For example: set vsd(exec:lpr) {lpr -h}
+
+# vsd(exec:lpr) is the name of the command used to print.
+# It is called with one argument; the name of the file to be printed.
+set vsd(exec:lpr) lpr
+
+# vsd(exec:mail) is the name of the command used to send mail.
+# It is called with one argument; the name of the user to send mail to.
+# It also expects the message to mail from stdin.
+set vsd(exec:mail) /usr/lib/sendmail
+
+# vsd(exec:date) is the name of the command used to get the date.
+# It is called with no arguments.
+set vsd(exec:date) date
+
+# vsd(exec:uname) is the name of the command used to get system info.
+# It is called with no arguments.
+set vsd(exec:uname) {uname -a}
+
+# Uncomment the next line if you do not want the cursor to blink.
+# set vsd(cursorblink) 0
+
+# See the vsd help section "Statistic Definitions" for a guide to adding
+# your own definitions to this file.
+#
+# See the vsd help section "Statistic Aliases" for a guide to adding
+# your own aliases to this file.
+
