@@ -200,6 +200,9 @@ export LESS_TERMCAP_so=$'\e[01;33m'
 export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_us=$'\e[1;4;31m'
 
+export LESS="-R"
+export LESSOPEN="|/usr/bin/lesspipe.sh %s"
+
 # completions for tldr
 tldr_cachedir=~/.local/share/tldr
 complete -W "$(q=($tldr_cachedir/*/*/*); sed 's,\.md\>,,g' <<<${q[@]##*/})" tldr
