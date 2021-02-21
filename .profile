@@ -1,6 +1,3 @@
-export QT_QPA_PLATFORMTHEME="qt5ct"
-export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
-
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
   # include .bashrc if it exists
@@ -13,7 +10,7 @@ else
   export PATH
 fi
 
-#if [ "$DESKTOP_SESSION" = "gnome" ]; then
+if [ "$DESKTOP_SESSION" = "gnome" ]; then
 #  QT_AUTO_SCREEN_SCALE_FACTOR=1
 #  QT_QPA_PLATFORMTHEME=gnome
 #  QT_STYLE_OVERRIDE=kvantum
@@ -23,9 +20,9 @@ fi
 #  # set the kvantum theme
 #  perl -pi -e 's/theme=.*/theme=WhiteSur-dark#/' "$HOME/.config/Kvantum/kvantum.kvconfig"
 #
-#  # reduce backlight for the theme
-#  xbacklight -set 50
+  # reduce backlight for the theme
+  xbacklight -set 50
 #elif [ -n "$DESKTOP_SESSION" ]; then
 #  # set the kvantum theme
 #  perl -pi -e 's/theme=.*/theme=Sweet#/' "$HOME/.config/Kvantum/kvantum.kvconfig"
-#fi
+fi
