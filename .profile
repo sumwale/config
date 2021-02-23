@@ -10,7 +10,7 @@ else
   export PATH
 fi
 
-if [ "$DESKTOP_SESSION" = "gnome" ]; then
+#if [ "$DESKTOP_SESSION" = "gnome" ]; then
 #  QT_AUTO_SCREEN_SCALE_FACTOR=1
 #  QT_QPA_PLATFORMTHEME=gnome
 #  QT_STYLE_OVERRIDE=kvantum
@@ -21,8 +21,8 @@ if [ "$DESKTOP_SESSION" = "gnome" ]; then
 #  perl -pi -e 's/theme=.*/theme=WhiteSur-dark#/' "$HOME/.config/Kvantum/kvantum.kvconfig"
 #
   # reduce backlight for the theme
-  xbacklight -set 50
+#  xbacklight -set 50
 #elif [ -n "$DESKTOP_SESSION" ]; then
 #  # set the kvantum theme
 #  perl -pi -e 's/theme=.*/theme=Sweet#/' "$HOME/.config/Kvantum/kvantum.kvconfig"
-fi
+#fi

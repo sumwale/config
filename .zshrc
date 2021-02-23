@@ -81,4 +81,4 @@ export LESSOPEN="|/usr/bin/lesspipe.sh %s"
 tldr_cachedir=~/.local/share/tldr
 compctl -k "($(q=($tldr_cachedir/*/*/*); sed 's,\.md\>,,g' <<<${q[@]##*/}))" tldr
 
-setopt autocd autopushd pushdignoredups
+setopt autocd autopushd pushdignoredups no_auto_remove_slash

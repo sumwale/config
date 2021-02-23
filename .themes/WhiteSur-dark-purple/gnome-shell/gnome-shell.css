@@ -1,6 +1,5 @@
-/* This stylesheet is generated, DO NOT EDIT */
 stage {
-  font-size: 9.75pt;
+  font-size: 11.75pt;
   font-weight: 400;
   color: #dedede;
 }
@@ -186,7 +185,7 @@ stage {
   padding: 0 16px;
   border-width: 0;
   border-radius: 6px;
-  font-size: 9.75pt;
+  font-size: 11.75pt;
   font-weight: 500;
   color: #afafaf;
   background-color: transparent;
@@ -325,13 +324,13 @@ stage {
 }
 
 .datemenu-today-button .day-label {
-  font-size: 15pt;
+  font-size: 16pt;
   font-weight: 500;
   font-weight: bold;
 }
 
 .datemenu-today-button .date-label {
-  font-size: 18pt;
+  font-size: 16pt;
   font-weight: 400;
 }
 
@@ -390,7 +389,7 @@ stage {
 }
 
 .calendar-day-base {
-  font-size: 9pt;
+  font-size: 11pt;
   font-weight: 400;
   text-align: center;
   width: 28px;
@@ -426,7 +425,7 @@ stage {
   border-radius: 100px;
   background-color: transparent;
   color: #999999;
-  font-size: 9pt;
+  font-size: 11pt;
   font-weight: 400;
   font-weight: bold;
   text-align: center;
@@ -538,13 +537,13 @@ stage {
 .world-clocks-button .world-clocks-city {
   color: #999999;
   font-weight: bold;
-  font-size: 0.9em;
+  font-size: 1em;
 }
 
 .world-clocks-button .world-clocks-time {
   color: #999999;
   font-feature-settings: "tnum";
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 
 .world-clocks-button .world-clocks-time:ltr {
@@ -558,7 +557,7 @@ stage {
 .world-clocks-button .world-clocks-timezone {
   color: #999999;
   font-feature-settings: "tnum";
-  font-size: 0.9em;
+  font-size: 1em;
 }
 
 .world-clocks-grid,
@@ -597,7 +596,7 @@ stage {
 .weather-button .weather-forecast-time {
   color: #afafaf;
   font-feature-settings: "tnum";
-  font-size: 9pt;
+  font-size: 11pt;
   font-weight: normal;
   padding-top: 0.2em;
   padding-bottom: 0.4em;
@@ -1237,7 +1236,7 @@ StWidget.focused .app-well-app-running-dot {
 }
 
 .headline {
-  font-size: 15pt;
+  font-size: 18pt;
   font-weight: 500;
 }
 
@@ -1252,7 +1251,7 @@ StWidget.focused .app-well-app-running-dot {
   margin: 3px 3px;
   border: none !important;
   border-radius: 6px;
-  font-size: 9.75pt;
+  font-size: 11.75pt;
   font-weight: 500;
   color: #afafaf;
   background-color: transparent;
@@ -1335,7 +1334,7 @@ StWidget.focused .app-well-app-running-dot {
 }
 
 .message-dialog-content .message-dialog-title.leightweight {
-  font-size: 13pt;
+  font-size: 15.5pt;
   font-weight: 800;
 }
 
@@ -1370,7 +1369,7 @@ StWidget.focused .app-well-app-running-dot {
 
 .dialog-list .dialog-list-box .dialog-list-item .dialog-list-item-description {
   color: #afafaf;
-  font-size: 15pt;
+  font-size: 18pt;
   font-weight: 500;
 }
 
@@ -1386,7 +1385,7 @@ StWidget.focused .app-well-app-running-dot {
 .run-dialog .run-dialog-description {
   text-align: center;
   color: #afafaf;
-  font-size: 15pt;
+  font-size: 18pt;
   font-weight: 500;
 }
 
@@ -1506,7 +1505,7 @@ StWidget.focused .app-well-app-running-dot {
 .prompt-dialog-info-label,
 .prompt-dialog-null-label {
   text-align: center;
-  font-size: 15pt;
+  font-size: 18pt;
   font-weight: 500;
   margin: 6px;
 }
@@ -1632,7 +1631,7 @@ StWidget.focused .app-well-app-running-dot {
 }
 
 .nm-dialog-header {
-  font-size: 15pt;
+  font-size: 18pt;
   font-weight: 500;
 }
 
@@ -1720,7 +1719,7 @@ StEntry StLabel.hint-text {
 }
 
 .word-suggestions {
-  font-size: 14pt;
+  font-size: 17pt;
   spacing: 12px;
   min-height: 20pt;
 }
@@ -1749,7 +1748,7 @@ StEntry StLabel.hint-text {
   min-height: 1.2em;
   min-width: 1.2em;
   font-weight: bold;
-  font-size: 16pt;
+  font-size: 19pt;
   border-radius: 10px;
   border: none;
   color: #afafaf;
@@ -2297,7 +2296,7 @@ StEntry StLabel.hint-text {
   padding: 0 16px;
   border: none;
   border-radius: 6px;
-  font-size: 9.75pt;
+  font-size: 11.75pt;
   font-weight: 500;
   color: #afafaf;
   background-color: transparent;
@@ -2402,7 +2401,7 @@ StEntry StLabel.hint-text {
 .caps-lock-warning-label {
   text-align: center;
   padding-bottom: 8px;
-  font-size: 9.75pt;
+  font-size: 11.75pt;
   font-weight: 400;
   color: #F27835;
 }
@@ -2561,7 +2560,7 @@ StEntry StLabel.hint-text {
 
 .chat-meta-message {
   padding-left: 4px;
-  font-size: 9pt;
+  font-size: 11pt;
   font-weight: 400;
   color: #999999;
 }
@@ -2887,7 +2886,7 @@ StEntry StLabel.hint-text {
 }
 
 .list-search-result-title {
-  font-size: 11.25pt;
+  font-size: 13.5pt;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.85);
   spacing: 12px;
@@ -3574,7 +3573,7 @@ StEntry StLabel.hint-text {
 }
 
 .unlock-dialog-clock-date {
-  font-size: 16pt;
+  font-size: 19pt;
   font-weight: normal;
 }
 
