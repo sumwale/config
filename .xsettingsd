@@ -1,4 +1,4 @@
-Gdk/UnscaledDPI 98304
+Gdk/UnscaledDPI 122880
 Gdk/WindowScalingFactor 1
 Gtk/AutoMnemonics 1
 Gtk/ButtonImages 0
@@ -12,7 +12,7 @@ Gtk/DecorationLayout "close,minimize,maximize:menu"
 Gtk/DialogsUseHeader 1
 Gtk/EnableAnimations 1
 Gtk/EnablePrimaryPaste 1
-Gtk/FontName "Cantarell 12"
+Gtk/FontName "Cantarell 10"
 Gtk/IMModule "gtk-im-context-simple"
 Gtk/IMPreeditStyle "callback"
 Gtk/IMStatusStyle "callback"
@@ -46,7 +46,7 @@ Net/IconThemeName "Tela-circle-purple-dark"
 Net/SoundThemeName "__custom"
 Net/ThemeName "WhiteSur-dark-purple"
 Xft/Antialias 1
-Xft/DPI 98304
+Xft/DPI 122880
 Xft/Hinting 1
 Xft/HintStyle "hintfull"
 Xft/RGBA "rgb"

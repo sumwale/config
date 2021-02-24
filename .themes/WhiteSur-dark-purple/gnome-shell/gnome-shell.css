@@ -1,5 +1,6 @@
+/* This stylesheet is generated, DO NOT EDIT */
 stage {
-  font-size: 11.75pt;
+  font-size: 9.75pt;
   font-weight: 400;
   color: #dedede;
 }
@@ -65,8 +66,7 @@ stage {
 
 .message, .world-clocks-button,
 .weather-button,
-.events-button,
-.events-section-title {
+.events-button {
   border-radius: 10px;
   border: none;
   box-shadow: none;
@@ -78,11 +78,9 @@ stage {
 
 .message:hover, .world-clocks-button:hover,
 .weather-button:hover,
-.events-button:hover,
-.events-section-title:hover, .message:focus, .world-clocks-button:focus,
+.events-button:hover, .message:focus, .world-clocks-button:focus,
 .weather-button:focus,
-.events-button:focus,
-.events-section-title:focus {
+.events-button:focus {
   color: #dedede;
   background-color: rgba(74, 74, 74, 0.75);
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
@@ -90,8 +88,7 @@ stage {
 
 .message:active, .world-clocks-button:active,
 .weather-button:active,
-.events-button:active,
-.events-section-title:active {
+.events-button:active {
   color: #dedede;
   background-color: rgba(62, 62, 62, 0.75);
   box-shadow: none;
@@ -156,12 +153,12 @@ stage {
   border-radius: 0 0 6px 6px;
 }
 
-.candidate-popup-boxpointer, .popup-menu .popup-menu-content, .modal-dialog {
+.candidate-popup-content, .popup-menu .popup-menu-content, .modal-dialog {
   background-color: rgba(36, 36, 36, 0.95);
   border-radius: 12px;
-  box-shadow: inset 0 0 1px 0 rgba(255, 255, 255, 0.2);
   border: solid rgba(0, 0, 0, 0.75);
   border-width: 1px;
+  box-shadow: 3px 3px 8px -3px rgba(0, 0, 0, 0.65);
 }
 
 #screenShieldNotifications StScrollBar StBin#trough, #overview StScrollBar StBin#trough {
@@ -185,7 +182,7 @@ stage {
   padding: 0 16px;
   border-width: 0;
   border-radius: 6px;
-  font-size: 11.75pt;
+  font-size: 9.75pt;
   font-weight: 500;
   color: #afafaf;
   background-color: transparent;
@@ -324,13 +321,13 @@ stage {
 }
 
 .datemenu-today-button .day-label {
-  font-size: 16pt;
+  font-size: 14pt;
   font-weight: 500;
   font-weight: bold;
 }
 
 .datemenu-today-button .date-label {
-  font-size: 16pt;
+  font-size: 14pt;
   font-weight: 400;
 }
 
@@ -389,7 +386,7 @@ stage {
 }
 
 .calendar-day-base {
-  font-size: 11pt;
+  font-size: 9pt;
   font-weight: 400;
   text-align: center;
   width: 28px;
@@ -425,7 +422,7 @@ stage {
   border-radius: 100px;
   background-color: transparent;
   color: #999999;
-  font-size: 11pt;
+  font-size: 9pt;
   font-weight: 400;
   font-weight: bold;
   text-align: center;
@@ -448,7 +445,7 @@ stage {
 }
 
 .calendar-today {
-  font-weight: bold !important;
+  font-weight: bold;
   color: rgba(255, 255, 255, 0.85);
   background-color: #9A57A3;
   border: none;
@@ -499,8 +496,7 @@ stage {
 
 .world-clocks-button,
 .weather-button,
-.events-button,
-.events-section-title {
+.events-button {
   padding: 12px;
   margin: 2px 4px;
 }
@@ -512,7 +508,6 @@ stage {
   font-weight: bold;
 }
 
-/* Events */
 .events-button .events-box {
   spacing: 6px;
 }
@@ -596,7 +591,7 @@ stage {
 .weather-button .weather-forecast-time {
   color: #afafaf;
   font-feature-settings: "tnum";
-  font-size: 11pt;
+  font-size: 9pt;
   font-weight: normal;
   padding-top: 0.2em;
   padding-bottom: 0.4em;
@@ -654,11 +649,7 @@ stage {
 }
 
 .message {
-  margin: 2px 4px 6px;
-}
-
-.message:first-child {
-  margin-top: 8px;
+  margin: 0 4px 6px;
 }
 
 .message .message-icon-bin {
@@ -1116,7 +1107,7 @@ StWidget.focused .app-well-app-running-dot {
 }
 
 .app-folder-dialog .folder-name-container .folder-name-label, .app-folder-dialog .folder-name-container .folder-name-entry {
-  font-size: 18pt;
+  font-size: 15pt;
   font-weight: bold;
 }
 
@@ -1236,7 +1227,7 @@ StWidget.focused .app-well-app-running-dot {
 }
 
 .headline {
-  font-size: 18pt;
+  font-size: 14pt;
   font-weight: 500;
 }
 
@@ -1251,7 +1242,7 @@ StWidget.focused .app-well-app-running-dot {
   margin: 3px 3px;
   border: none !important;
   border-radius: 6px;
-  font-size: 11.75pt;
+  font-size: 9.75pt;
   font-weight: 500;
   color: #afafaf;
   background-color: transparent;
@@ -1329,12 +1320,12 @@ StWidget.focused .app-well-app-running-dot {
 
 .message-dialog-content .message-dialog-title {
   text-align: center;
-  font-size: 18pt;
+  font-size: 13pt;
   font-weight: 800;
 }
 
 .message-dialog-content .message-dialog-title.leightweight {
-  font-size: 15.5pt;
+  font-size: 11pt;
   font-weight: 800;
 }
 
@@ -1369,7 +1360,7 @@ StWidget.focused .app-well-app-running-dot {
 
 .dialog-list .dialog-list-box .dialog-list-item .dialog-list-item-description {
   color: #afafaf;
-  font-size: 18pt;
+  font-size: 12pt;
   font-weight: 500;
 }
 
@@ -1385,7 +1376,7 @@ StWidget.focused .app-well-app-running-dot {
 .run-dialog .run-dialog-description {
   text-align: center;
   color: #afafaf;
-  font-size: 18pt;
+  font-size: 12pt;
   font-weight: 500;
 }
 
@@ -1505,7 +1496,7 @@ StWidget.focused .app-well-app-running-dot {
 .prompt-dialog-info-label,
 .prompt-dialog-null-label {
   text-align: center;
-  font-size: 18pt;
+  font-size: 12pt;
   font-weight: 500;
   margin: 6px;
 }
@@ -1631,7 +1622,7 @@ StWidget.focused .app-well-app-running-dot {
 }
 
 .nm-dialog-header {
-  font-size: 18pt;
+  font-size: 12pt;
   font-weight: 500;
 }
 
@@ -1719,7 +1710,7 @@ StEntry StLabel.hint-text {
 }
 
 .word-suggestions {
-  font-size: 17pt;
+  font-size: 12pt;
   spacing: 12px;
   min-height: 20pt;
 }
@@ -1748,7 +1739,7 @@ StEntry StLabel.hint-text {
   min-height: 1.2em;
   min-width: 1.2em;
   font-weight: bold;
-  font-size: 19pt;
+  font-size: 14pt;
   border-radius: 10px;
   border: none;
   color: #afafaf;
@@ -1988,9 +1979,7 @@ StEntry StLabel.hint-text {
   text-align: center;
   margin-bottom: 8px;
   padding: 2px 6px;
-  color: white;
-  background-color: #F27835;
-  border-radius: 9999px;
+  color: #F27835;
 }
 
 .login-dialog-logo-bin {
@@ -2296,7 +2285,7 @@ StEntry StLabel.hint-text {
   padding: 0 16px;
   border: none;
   border-radius: 6px;
-  font-size: 11.75pt;
+  font-size: 9.75pt;
   font-weight: 500;
   color: #afafaf;
   background-color: transparent;
@@ -2360,7 +2349,7 @@ StEntry StLabel.hint-text {
 }
 
 .lg-extension-name {
-  font-size: 18pt;
+  font-size: 14pt;
   font-weight: 400;
 }
 
@@ -2401,7 +2390,7 @@ StEntry StLabel.hint-text {
 .caps-lock-warning-label {
   text-align: center;
   padding-bottom: 8px;
-  font-size: 11.75pt;
+  font-size: 9.75pt;
   font-weight: 400;
   color: #F27835;
 }
@@ -2560,7 +2549,7 @@ StEntry StLabel.hint-text {
 
 .chat-meta-message {
   padding-left: 4px;
-  font-size: 11pt;
+  font-size: 9pt;
   font-weight: 400;
   color: #999999;
 }
@@ -2886,7 +2875,7 @@ StEntry StLabel.hint-text {
 }
 
 .list-search-result-title {
-  font-size: 13.5pt;
+  font-size: 11.25pt;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.85);
   spacing: 12px;
@@ -2943,7 +2932,6 @@ StEntry StLabel.hint-text {
 
 #panel {
   background-color: rgba(0, 0, 0, 0.16);
-  /* transition from solid to transparent */
   transition-duration: 250ms;
   font-weight: bold;
   height: 28px;
@@ -3098,7 +3086,6 @@ StEntry StLabel.hint-text {
 
 #panel.solid {
   background-color: rgba(0, 0, 0, 0.16);
-  /* transition from transparent to solid */
   transition-duration: 250ms;
   background-gradient-direction: none;
   text-shadow: none;
@@ -3166,7 +3153,7 @@ StEntry StLabel.hint-text {
   padding: 6px 0 !important;
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(0, 0, 0, 0.75);
-  margin: 4px 8px !important;
+  margin: 4px 8px 4px 12px !important;
 }
 
 .popup-menu .popup-menu-item {
@@ -3293,21 +3280,12 @@ StEntry StLabel.hint-text {
   selected-color: #9A57A3;
 }
 
-.candidate-popup-boxpointer {
-  -arrow-border-radius: 2px;
-  -arrow-background-color: rgba(36, 36, 36, 0.95);
-  -arrow-border-width: 0;
-  -arrow-border-color: transparent;
-  -arrow-base: 5px;
-  -arrow-rise: 5px;
-  background-color: transparent;
-}
-
 .popup-separator-menu-item {
   margin: 0 0;
   padding: 0 0;
   background: none;
   border: none;
+  height: 1px;
 }
 
 .popup-separator-menu-item .popup-separator-menu-item-separator {
@@ -3320,6 +3298,7 @@ StEntry StLabel.hint-text {
 .popup-sub-menu .popup-separator-menu-item .popup-separator-menu-item-separator {
   padding: 0 0;
   margin: 0 32px 0 0;
+  height: 1px;
 }
 
 .system-switch-user-submenu-icon.user-icon {
@@ -3414,7 +3393,19 @@ StEntry StLabel.hint-text {
   background-color: #9A57A3;
 }
 
+.candidate-popup-boxpointer {
+  -arrow-border-radius: 2px;
+  -arrow-background-color: transparent;
+  -arrow-border-width: 0;
+  -arrow-border-color: transparent;
+  -arrow-base: 64px;
+  -arrow-rise: 12px;
+  background-color: transparent;
+}
+
 .candidate-popup-content {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(0, 0, 0, 0.75);
   padding: 8px;
   spacing: 0;
 }
@@ -3432,6 +3423,7 @@ StEntry StLabel.hint-text {
   transition-duration: 0ms;
   min-height: 28px;
   padding: 0 8px;
+  margin-right: 2px;
   border-radius: 6px;
 }
 
@@ -3573,7 +3565,7 @@ StEntry StLabel.hint-text {
 }
 
 .unlock-dialog-clock-date {
-  font-size: 19pt;
+  font-size: 16pt;
   font-weight: normal;
 }
 

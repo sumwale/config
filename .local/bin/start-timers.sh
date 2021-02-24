@@ -8,3 +8,6 @@ if [ "$DESKTOP_SESSION" = "gnome" ]; then
 else
   systemctl --user start nm-applet.service
 fi
+
+# override pulseaudio settings with those of alsa
+sudo alsactl restore

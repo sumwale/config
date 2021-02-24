@@ -1,4 +1,5 @@
-# first tab with four terminals in a grid
+# first tab with four terminals laid out using grid
+
 enabled_layouts grid, stack
 layout grid
 
@@ -9,10 +10,10 @@ launch
 launch
 launch
 
-# second tab
+# second tab using the generic splits layout
 new_tab
-enabled_layouts grid, stack
-layout grid
+enabled_layouts splits, stack
+layout splits
 
 cd ~
 launch
