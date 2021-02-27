@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=User services
+Comment=User defined services like remote home backup etc
+Exec=user-services.sh
+Icon=services
+Terminal=false
+Type=Application
+Categories=System;

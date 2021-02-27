@@ -1,4 +1,4 @@
-enabled_layouts splits, stack, grid, horizontal, vertical
+enabled_layouts splits, stack
 layout splits
 
 cd ~

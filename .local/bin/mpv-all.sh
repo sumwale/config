@@ -16,7 +16,7 @@ else
 fi
 
 if [ -z "${RND}" ]; then
-  ls ${LS_ARGS} | sed 's/^/"/;s/$/"/;' | xargs mpv "$@"
+  /bin/ls ${LS_ARGS} | sed 's/^/"/;s/$/"/;' | xargs mpv "$@"
 else
-  ls ${LS_ARGS} | sort -R | sed 's/^/"/;s/$/"/;' | xargs mpv "$@"
+  /bin/ls ${LS_ARGS} | sort -R | sed 's/^/"/;s/$/"/;' | xargs mpv "$@"
 fi
