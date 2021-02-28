@@ -136,6 +136,14 @@ local globalKeys =
     {description = 'Take a screenshot of your active monitor and save to Pictures', group = 'screenshots'}
   ),
   awful.key(
+    {altkey},
+    'Print',
+    function()
+      awful.util.spawn_with_shell(apps.default.screenshot_save_win)
+    end,
+    {description = 'Take a screenshot of the active window and save to Pictures', group = 'screenshots'}
+  ),
+  awful.key(
     {'Control'},
     'Print',
     function()
@@ -150,6 +158,14 @@ local globalKeys =
       awful.util.spawn_with_shell(apps.default.screenshot_clip)
     end,
     {description = 'Take a screenshot of your active monitor and save to clipboard', group = 'screenshots (clipboard)'}
+  ),
+  awful.key(
+    {altkey, 'Shift'},
+    'Print',
+    function()
+      awful.util.spawn_with_shell(apps.default.screenshot_clip_win)
+    end,
+    {description = 'Take a screenshot of the active window and save to clipboard', group = 'screenshots (clipboard)'}
   ),
   awful.key(
     {'Control', 'Shift'},

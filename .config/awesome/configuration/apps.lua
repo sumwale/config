@@ -13,8 +13,10 @@ return {
     lock = 'i3lock-fancy -- scrot -z -o',
     quake = 'kitty',
     screenshot_save = 'gnome-screenshot',
+    screenshot_save_win = 'scrot -u -z -o ~/Pictures/Screenshot_of_window_from_%F-%T.png -e "paplay /usr/share/sounds/gnome/default/alerts/sonar.ogg"',
     screenshot_save_area = 'scrot -s -z -f -o ~/Pictures/Screenshot_of_area_from_%F-%T.png -e "paplay /usr/share/sounds/gnome/default/alerts/sonar.ogg"',
     screenshot_clip = 'gnome-screenshot -c',
+    screenshot_clip_win = 'scrot -u -z -o /tmp/Screenshot_of_window_from_%F-%T.png -e "xclip -selection clipboard -target image/png -i \\$f && paplay /usr/share/sounds/gnome/default/alerts/sonar.ogg && rm \\$f"',
     screenshot_clip_area = 'scrot -s -z -f -o /tmp/Screenshot_of_area_from_%F-%T.png -e "xclip -selection clipboard -target image/png -i \\$f && paplay /usr/share/sounds/gnome/default/alerts/sonar.ogg && rm \\$f"',
     screenshot = 'gnome-screenshot -i',
     browser = 'firefox',
@@ -37,7 +39,7 @@ return {
     'xfce4-power-manager', -- Power manager
     'xss-lock -- i3lock-fancy -- scrot -z -o', -- xfce4-power-manager does not handle lid
     'pamac-tray',
-    'nitrogen --random --set-zoom-fill ~/Pictures/wallpapers',
+    --'nitrogen --random --set-zoom-fill ~/Pictures/wallpapers', -- run by conky periodically
     -- Add applications that need to be killed between reloads
     -- to avoid multipled instances, inside the awspawn script
     --'~/.config/awesome/configuration/awspawn' -- Spawn "dirty" apps that can linger between sessions
