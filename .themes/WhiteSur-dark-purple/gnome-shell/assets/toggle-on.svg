@@ -11,7 +11,7 @@
    <stop stop-color="#ffffff" stop-opacity="0" offset="1"/>
   </linearGradient>
  </defs>
- <rect width="40" height="24" rx="12" ry="12" fill="#9A57A3" stroke-linecap="round" stroke-linejoin="round" stroke-width=".495" style="paint-order:markers stroke fill"/>
+ <rect width="40" height="24" rx="12" ry="12" fill="#8A47B3" stroke-linecap="round" stroke-linejoin="round" stroke-width=".495" style="paint-order:markers stroke fill"/>
  <rect width="40" height="24" rx="12" ry="12" fill="url(#linearGradient862)" opacity=".3" stroke-linecap="round" stroke-linejoin="round" stroke-width=".495" style="paint-order:markers stroke fill"/>
  <rect y="-.038" width="40" height="24" opacity="0" stroke-width=".87706"/>
  <circle cx="28" cy="12.5" r="11.5" fill="#000000" filter="url(#filter1034)" opacity=".1" stroke-width="1.2778"/>

@@ -9,5 +9,6 @@ else
   systemctl --user start nm-applet.service
 fi
 
-# override pulseaudio settings with those of alsa
-sudo alsactl restore
+# override pulseaudio settings with those of alsa that unmute both internal
+# speaker and headphone allowing one to switch between the two seemlessly
+alsactl restore -f $HOME/.asound.state

@@ -1,7 +1,7 @@
 <svg width="24" height="24" version="1.1" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:osb="http://www.openswatchbook.org/uri/2009/osb" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <linearGradient id="j" x1="18" x2="32" y1="38.362" y2="38.362" gradientUnits="userSpaceOnUse">
-   <stop stop-color="#9A57A3" offset="0"/>
+   <stop stop-color="#8A47B3" offset="0"/>
   </linearGradient>
   <linearGradient id="be" x1="24" x2="24" y1="45.362" y2="32.253" gradientTransform="matrix(1 0 0 .99168 0 .3776)" gradientUnits="userSpaceOnUse">
    <stop stop-color="#000000" stop-opacity=".25" offset="0"/>

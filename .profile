@@ -26,3 +26,6 @@ fi
 #  # set the kvantum theme
 #  perl -pi -e 's/theme=.*/theme=Sweet#/' "$HOME/.config/Kvantum/kvantum.kvconfig"
 #fi
+
+SSH_AUTH_SOCK=/run/user/`id -u`/keyring/ssh
+export SSH_AUTH_SOCK
