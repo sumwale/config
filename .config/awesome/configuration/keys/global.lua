@@ -6,6 +6,8 @@ local hotkeys_popup = require('awful.hotkeys_popup').widget
 local modkey = require('configuration.keys.mod').modKey
 local altkey = require('configuration.keys.mod').altKey
 local apps = require('configuration.apps')
+local switcher = require('awesome-switcher')
+
 -- Key bindings
 local globalKeys =
   awful.util.table.join(
@@ -94,7 +96,7 @@ local globalKeys =
     {description = 'Log Out Screen', group = 'awesome'}
   ),
   awful.key({modkey}, 'u', awful.client.urgent.jumpto, {description = 'jump to urgent client', group = 'client'}),
-  awful.key(
+  --[[awful.key(
     {altkey},
     'Tab',
     function()
@@ -117,7 +119,24 @@ local globalKeys =
       end
     end,
     {description = 'Switch to previous window', group = 'client'}
+  ),--]]
+  awful.key(
+    {altkey},
+    'Tab',
+    function()
+      switcher.switch(1, altkey, 'Alt_L', 'Shift', 'Tab')
+    end,
+    {description = 'Switch to next window', group = 'client'}
   ),
+  awful.key(
+    {altkey, 'Shift'},
+    'Tab',
+    function()
+      switcher.switch(-1, altkey, 'Alt_L', 'Shift', 'Tab')
+    end,
+    {description = 'Switch to previous window', group = 'client'}
+  ),
+
   -- Programms
   awful.key(
     {modkey},
@@ -456,7 +475,7 @@ local globalKeys =
     function()
       awful.util.spawn(apps.default.files)
     end,
-    {description = 'filebrowser', group = 'hotkeys'}
+    {description = 'filebrowser', group = 'launcher'}
   ),
   -- Software Manager
   awful.key(
@@ -465,7 +484,7 @@ local globalKeys =
     function()
       awful.util.spawn(apps.default.software)
     end,
-    {description = 'software manager', group = 'hotkeys'}
+    {description = 'software manager', group = 'launcher'}
   ),
   -- Raise conky
   awful.key(

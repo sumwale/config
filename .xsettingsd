@@ -6,7 +6,7 @@ Gtk/CanChangeAccels 0
 Gtk/ColorPalette "black:white:gray50:red:purple:blue:light blue:green:yellow:orange:lavender:brown:goldenrod4:dodger blue:pink:light green:gray10:gray30:gray75:gray90"
 Gtk/ColorScheme ""
 Gtk/CursorBlinkTimeout 10
-Gtk/CursorThemeName "WhiteSur-cursors"
+Gtk/CursorThemeName "xcursor-breeze-snow"
 Gtk/CursorThemeSize 24
 Gtk/DecorationLayout "close,minimize,maximize:menu"
 Gtk/DialogsUseHeader 1

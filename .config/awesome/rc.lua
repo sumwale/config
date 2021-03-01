@@ -4,6 +4,9 @@ local wibox = require("wibox")
 require('awful.autofocus')
 local beautiful = require('beautiful')
 
+-- Better alt-tab switcher
+local switcher = require('awesome-switcher')
+
 -- Theme
 beautiful.init(require('theme'))
 
@@ -45,6 +48,12 @@ _G.client.connect_signal(
     end
   end
 )
+
+-- Switcher settings
+switcher.settings.preview_box_title_font = {'Cantarell', 'italic', 'normal'}
+switcher.settings.preview_box_bg = '#1a1a1acc'
+switcher.settings.preview_box_border = '#8a47b3'
+switcher.settings.preview_box_title_color = {255, 255, 255, 1}
 
 -- Enable sloppy focus, so that focus follows mouse.
 --[[
