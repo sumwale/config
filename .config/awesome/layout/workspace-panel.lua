@@ -14,7 +14,7 @@ local icons = require('theme.icons')
 local WorkspacePanel = function(s, offset)
   local offsetx = 0
   if offset == true then
-    offsetx = dpi(50)
+    offsetx = dpi(48)
     offsety = dpi(4)
   end
   local panel =

@@ -31,13 +31,11 @@ awful.rules.rules = {
   },
   -- Conky
   {
-    rule = { class = 'conky' },
+    rule_any = { class = 'conky' },
     properties = {
       floating = true,
       maximized = false
-    },
-    screen = awful.screen.focused,
-    tags = { "1", "2", "3", "4", "5", "6", "7" }
+    }
   },
   -- Titlebars
   {

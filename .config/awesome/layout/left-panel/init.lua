@@ -13,8 +13,8 @@ local left_panel = function(screen)
     screen = screen,
     width = dpi(24),
     height = dpi(24),
-    x = screen.geometry.x + 12,
-    y = screen.geometry.y + 4,
+    x = screen.geometry.x + dpi(12),
+    y = screen.geometry.y + dpi(4),
     ontop = false,
     bg = beautiful.primary.hue_900,
     fg = beautiful.fg_normal
@@ -75,8 +75,8 @@ local left_panel = function(screen)
     panel:get_children_by_id('panel_content')[1].visible = false
     backdrop.visible = false
     panel.ontop = false
-    panel.x = screen.geometry.x + 12
-    panel.y = screen.geometry.y + 4
+    panel.x = screen.geometry.x + dpi(12)
+    panel.y = screen.geometry.y + dpi(4)
     panel:emit_signal('closed')
   end
 

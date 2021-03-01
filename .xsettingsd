@@ -31,7 +31,7 @@ Gtk/ShowUnicodeMenu 0
 Gtk/TimeoutInitial 200
 Gtk/TimeoutRepeat 20
 Gtk/TitlebarDoubleClick "toggle-maximize"
-Gtk/TitlebarMiddleClick "none"
+Gtk/TitlebarMiddleClick "lower"
 Gtk/TitlebarRightClick "menu"
 Gtk/ToolbarIconSize "large"
 Gtk/ToolbarStyle "both-horiz"

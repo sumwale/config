@@ -48,9 +48,7 @@ local LayoutBox = function(s)
 end
 
 local ModePanel = function(s, offset)
-  local offsetx = 0
   if offset == true then
-    offsetx = dpi(512)
     offsety = dpi(4)
   end
   local panel =
@@ -60,7 +58,7 @@ local ModePanel = function(s, offset)
       screen = s,
       height = dpi(24),
       width = dpi(24),
-      x = s.geometry.width - dpi(44),
+      x = s.geometry.width - dpi(36),
       y = s.geometry.y  + offsety,
       stretch = false,
       bg = beautiful.primary.hue_900,

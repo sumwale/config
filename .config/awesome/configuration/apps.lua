@@ -16,8 +16,8 @@ return {
     screenshot_save_win = 'scrot -u -z -o ~/Pictures/Screenshot_of_window_from_%F-%T.png -e "paplay /usr/share/sounds/gnome/default/alerts/sonar.ogg"',
     screenshot_save_area = 'scrot -s -z -f -o ~/Pictures/Screenshot_of_area_from_%F-%T.png -e "paplay /usr/share/sounds/gnome/default/alerts/sonar.ogg"',
     screenshot_clip = 'gnome-screenshot -c',
-    screenshot_clip_win = 'scrot -u -z -o /tmp/Screenshot_of_window_from_%F-%T.png -e "xclip -selection clipboard -target image/png -i \\$f && paplay /usr/share/sounds/gnome/default/alerts/sonar.ogg && rm \\$f"',
-    screenshot_clip_area = 'scrot -s -z -f -o /tmp/Screenshot_of_area_from_%F-%T.png -e "xclip -selection clipboard -target image/png -i \\$f && paplay /usr/share/sounds/gnome/default/alerts/sonar.ogg && rm \\$f"',
+    screenshot_clip_win = 'scrot -u -z -o /tmp/Screenshot_of_window_from_%F-%T.png -e "xclip -selection clipboard -target image/png -i \\$f && rm \\$f && paplay /usr/share/sounds/gnome/default/alerts/sonar.ogg"',
+    screenshot_clip_area = 'scrot -s -z -f -o /tmp/Screenshot_of_area_from_%F-%T.png -e "xclip -selection clipboard -target image/png -i \\$f && rm \\$f && paplay /usr/share/sounds/gnome/default/alerts/sonar.ogg"',
     screenshot = 'gnome-screenshot -i',
     browser = 'firefox',
     mail = 'thunderbird',
@@ -25,7 +25,8 @@ return {
     social = 'signal-desktop',
     game = rofi_command,
     files = 'nautilus --new-window',
-    music = 'smplayer'
+    music = 'smplayer',
+    software = 'pamac-manager'
   },
   -- List of apps to start once on start-up
   run_on_start_up = {

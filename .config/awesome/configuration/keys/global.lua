@@ -67,7 +67,7 @@ local globalKeys =
     function()
       awful.spawn('rofi -combi-modi window,drun -show combi -modi combi')
     end,
-    {description = 'Show main menu', group = 'awesome'}
+    {description = 'Detailed main menu', group = 'awesome'}
   ),
   awful.key(
     {'Control', altkey},
@@ -182,14 +182,6 @@ local globalKeys =
       awful.util.spawn_with_shell(apps.default.screenshot)
     end,
     {description = 'Open screenshot tool', group = 'screenshots'}
-  ),
-  awful.key(
-    {modkey},
-    'c',
-    function()
-      awful.util.spawn(apps.default.editor)
-    end,
-    {description = 'Open a text/code editor', group = 'launcher'}
   ),
   awful.key(
     {modkey},
@@ -349,17 +341,17 @@ local globalKeys =
     {},
     'XF86MonBrightnessUp',
     function()
-      awful.spawn('xbacklight -inc 10')
+      awful.spawn('xbacklight -inc 1')
     end,
-    {description = '+10%', group = 'hotkeys'}
+    {description = '+1%', group = 'hotkeys'}
   ),
   awful.key(
     {},
     'XF86MonBrightnessDown',
     function()
-      awful.spawn('xbacklight -dec 10')
+      awful.spawn('xbacklight -dec 1')
     end,
-    {description = '-10%', group = 'hotkeys'}
+    {description = '-1%', group = 'hotkeys'}
   ),
   -- ALSA volume control
   awful.key(
@@ -394,7 +386,7 @@ local globalKeys =
     end,
     {description = 'toggle microphone mute', group = 'hotkeys'}
   ),
-  awful.key(
+  --[[awful.key(
     {},
     'XF86AudioNext',
     function()
@@ -417,7 +409,7 @@ local globalKeys =
       _G.exit_screen_show()
     end,
     {description = 'toggle mute', group = 'hotkeys'}
-  ),
+  ),--]]
   -- Screen management
   awful.key(
     {modkey},
@@ -465,6 +457,29 @@ local globalKeys =
       awful.util.spawn(apps.default.files)
     end,
     {description = 'filebrowser', group = 'hotkeys'}
+  ),
+  -- Software Manager
+  awful.key(
+    {modkey},
+    'p',
+    function()
+      awful.util.spawn(apps.default.software)
+    end,
+    {description = 'software manager', group = 'hotkeys'}
+  ),
+  -- Raise conky
+  awful.key(
+    {modkey},
+    'c',
+    function()
+      for _, c in ipairs(_G.client.get()) do
+        if c.class == 'conky' then
+          c:jump_to(false)
+          break
+        end
+      end
+    end,
+    {description = 'raise conky', group = 'hotkeys'}
   )
 )
 

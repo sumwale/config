@@ -13,7 +13,7 @@ local dpi = require('beautiful').xresources.apply_dpi
 local icons = require('theme.icons')
 
 -- Clock / Calendar 24h format
-local textclock = wibox.widget.textclock('<span font="Fira Code bold 9.5">%H:%M</span>')
+local textclock = wibox.widget.textclock('<span font="Fira Code bold 9">%H:%M</span>')
 
 local month_calendar = awful.widget.calendar_popup.month({
 screen = s,
@@ -24,7 +24,6 @@ month_calendar:attach(textclock)
 local clock_widget = wibox.container.margin(textclock, dpi(4), dpi(4), dpi(4), dpi(4))
 
 local ClockPanel = function(s, offset)
-  local offsetx = 0
   if offset == true then
     offsety = dpi(4)
   end
@@ -34,8 +33,8 @@ local ClockPanel = function(s, offset)
       ontop = false,
       screen = s,
       height = dpi(24),
-      width = dpi(48),
-      x = s.geometry.width - dpi(98),
+      width = dpi(44),
+      x = s.geometry.width - dpi(92),
       y = s.geometry.y  + offsety,
       stretch = false,
       bg = beautiful.primary.hue_500,
