@@ -33,13 +33,13 @@ return {
     'xsettingsd',
     'picom --config ' .. filesystem.get_configuration_dir() .. '/configuration/picom.conf',
     '/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)', -- credential manager
-    '~/.local/bin/user-services.sh', -- includes wifi, alsa restore
     'conky',
     'pa-applet', -- shows an audiocontrol applet in systray when installed.
     'redshift',
     'xfce4-power-manager', -- Power manager
     'xss-lock -- i3lock-fancy -- scrot -z -o', -- xfce4-power-manager does not handle lid
     'pamac-tray',
+    '~/.local/bin/user-services.sh', -- includes wifi, alsa restore
     --'nitrogen --random --set-zoom-fill ~/Pictures/wallpapers', -- run by conky periodically
     -- Add applications that need to be killed between reloads
     -- to avoid multipled instances, inside the awspawn script

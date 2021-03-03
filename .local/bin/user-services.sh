@@ -11,4 +11,4 @@ fi
 
 # override pulseaudio settings with those of alsa that unmute both internal
 # speaker and headphone allowing one to switch between the two seemlessly
-alsactl restore -f $HOME/.asound.state
+( sleep 5 && alsactl restore -f $HOME/.asound.state ) &
