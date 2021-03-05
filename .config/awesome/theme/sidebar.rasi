@@ -46,7 +46,8 @@
     highlight:     bold #ffffff;
 }
 window {
-    height:   100%;
+    y-offset: 19px;
+    height:   1042px;
     width: 30em;
     location: west;
     anchor:   west;

@@ -13,6 +13,8 @@ local globalKeys =
   awful.util.table.join(
   -- Hotkeys
   awful.key({modkey}, 'F1', hotkeys_popup.show_help, {description = 'Show help', group = 'awesome'}),
+  awful.key({modkey, 'Control'}, 'r', _G.awesome.restart, {description = 'reload awesome', group = 'awesome'}),
+  awful.key({modkey, 'Control'}, 'q', _G.awesome.quit, {description = 'quit awesome', group = 'awesome'}),
   -- Tag browsing
   awful.key({modkey}, 'w', awful.tag.viewprev, {description = 'view previous', group = 'tag'}),
   awful.key({modkey}, 's', awful.tag.viewnext, {description = 'view next', group = 'tag'}),
@@ -67,7 +69,7 @@ local globalKeys =
     {altkey},
     'space',
     function()
-      awful.spawn('rofi -combi-modi window,drun -show combi -modi combi')
+      awful.spawn('rofi -combi-modi window,drun -show combi -modi combi -display-combi ""')
     end,
     {description = 'Detailed main menu', group = 'awesome'}
   ),
@@ -208,9 +210,16 @@ local globalKeys =
     function()
       awful.util.spawn(apps.default.browser)
     end,
-    {description = 'Open a browser', group = 'launcher'}
+    {description = 'Open browser', group = 'launcher'}
   ),
-  -- Standard program
+  awful.key(
+    {modkey},
+    'e',
+    function()
+      awful.util.spawn(apps.default.mail)
+    end,
+    {description = 'Open email client', group = 'launcher'}
+  ),
   awful.key(
     {modkey},
     'x',
@@ -219,8 +228,7 @@ local globalKeys =
     end,
     {description = 'Open a terminal', group = 'launcher'}
   ),
-  awful.key({modkey, 'Control'}, 'r', _G.awesome.restart, {description = 'reload awesome', group = 'awesome'}),
-  awful.key({modkey, 'Control'}, 'q', _G.awesome.quit, {description = 'quit awesome', group = 'awesome'}),
+  -- Change layout
   awful.key(
     {altkey, 'Shift'},
     'Right',

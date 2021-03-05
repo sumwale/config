@@ -12,6 +12,8 @@ theme.font = 'Cantarell Regular 10'
 -- Primary
 theme.primary = mat_colors.grey
 theme.primary.hue_500 = '#8a47b3'
+theme.primary.hue_600 = '#452460'
+--theme.primary.hue_600 = '#e53935'
 -- theme.primary = mat_colors.indigo
 -- Accent
 theme.accent = mat_colors.orange

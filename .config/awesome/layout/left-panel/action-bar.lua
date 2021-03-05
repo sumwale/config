@@ -5,10 +5,10 @@ local gears = require('gears')
 local mat_icon = require('widget.material.icon')
 local dpi = require('beautiful').xresources.apply_dpi
 local icons = require('theme.icons')
-local TagList = require('widget.tag-list')
 local clickable_container = require('widget.material.clickable-container')
+local left_panel = require('layout.left-panel')
 
-return function(screen, panel, action_bar_width)
+local menu_widget = function(screen, menu, action_bar_width)
   local menu_icon =
     wibox.widget {
     icon = icons.menu,
@@ -23,16 +23,17 @@ return function(screen, panel, action_bar_width)
       widget = clickable_container
     },
     visible = true,
-    bg = beautiful.primary.hue_500,
+    --bg = beautiful.primary.hue_500,
     widget = wibox.container.background
   }
 
+  local panel = left_panel(screen)
+
   home_button:buttons(
-    gears.table.join(
+    awful.util.table.join(
       awful.button(
         {},
         1,
-        nil,
         function()
           panel:toggle()
         end
@@ -43,16 +44,18 @@ return function(screen, panel, action_bar_width)
   panel:connect_signal(
     'opened',
     function()
-      menu_icon.icon = icons.close
-      home_button.visible = false
+      -- menu_icon.icon = icons.close
+      menu.ontop = true
+      menu.bg = beautiful.primary.hue_600
     end
   )
 
   panel:connect_signal(
     'closed',
     function()
-      menu_icon.icon = icons.menu
-      home_button.visible = true
+      -- menu_icon.icon = icons.menu
+      menu.ontop = false
+      menu.bg = beautiful.primary.hue_500
     end
   )
 
@@ -66,3 +69,33 @@ return function(screen, panel, action_bar_width)
     }
   }
 end
+
+local menu_button = function(screen)
+   local action_bar_width = dpi(24)
+
+  local menu =
+    wibox {
+    screen = screen,
+    width = dpi(24),
+    height = dpi(24),
+    x = screen.geometry.x + dpi(12),
+    y = screen.geometry.y + dpi(4),
+    ontop = false,
+    bg = beautiful.primary.hue_500,
+    fg = beautiful.fg_normal
+  }
+
+  menu:struts(
+    {
+      left = dpi(0)
+    }
+  )
+
+  menu:setup {
+    layout = wibox.layout.align.horizontal,
+    menu_widget(screen, menu, action_bar_width)
+  }
+  return menu
+end
+
+return menu_button

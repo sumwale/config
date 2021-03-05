@@ -2,19 +2,20 @@ local awful = require('awful')
 local beautiful = require('beautiful')
 local wibox = require('wibox')
 local apps = require('configuration.apps')
+
 local dpi = require('beautiful').xresources.apply_dpi
 
 local left_panel = function(screen)
-  local action_bar_width = dpi(24)
   local panel_content_width = dpi(400)
 
   local panel =
     wibox {
     screen = screen,
-    width = dpi(24),
-    height = dpi(24),
-    x = screen.geometry.x + dpi(12),
-    y = screen.geometry.y + dpi(4),
+    width = 1,
+    height = 1,
+    x = screen.geometry.x,
+    y = screen.geometry.y + dpi(30),
+    visible = false,
     ontop = false,
     bg = beautiful.primary.hue_900,
     fg = beautiful.fg_normal
@@ -55,12 +56,9 @@ local left_panel = function(screen)
 
   local openPanel = function(should_run_rofi)
     panel.width = panel_content_width
-    panel.height = screen.geometry.height
+    panel.height = screen.geometry.height - dpi(30)
     backdrop.visible = true
-    panel.visible = false
     panel.visible = true
-    panel.x = screen.geometry.x
-    panel.y = screen.geometry.y
     panel.ontop = true
     panel:get_children_by_id('panel_content')[1].visible = true
     if should_run_rofi then
@@ -70,13 +68,12 @@ local left_panel = function(screen)
   end
 
   local closePanel = function()
-    panel.width = action_bar_width
-    panel.height = dpi(24)
-    panel:get_children_by_id('panel_content')[1].visible = false
+    panel.width = 1
+    panel.height = 1
     backdrop.visible = false
+    panel.visible = false
     panel.ontop = false
-    panel.x = screen.geometry.x + dpi(12)
-    panel.y = screen.geometry.y + dpi(4)
+    panel:get_children_by_id('panel_content')[1].visible = false
     panel:emit_signal('closed')
   end
 
@@ -102,8 +99,8 @@ local left_panel = function(screen)
   )
 
   panel:setup {
-    require('layout.left-panel.action-bar')(screen, panel, action_bar_width),
     layout = wibox.layout.align.vertical,
+    nil,
     {
       id = 'panel_content',
       bg = beautiful.primary.hue_900,
@@ -114,7 +111,7 @@ local left_panel = function(screen)
         require('layout.left-panel.dashboard')(screen, panel),
         layout = wibox.layout.stack
       }
-    },
+    }
   }
   return panel
 end

@@ -1,12 +1,8 @@
 local awful = require('awful')
 local beautiful = require('beautiful')
 local wibox = require('wibox')
-local gears = require('gears')
-local clickable_container = require('widget.material.clickable-container')
 
 local dpi = require('beautiful').xresources.apply_dpi
-
-local icons = require('theme.icons')
 
 local textclock = wibox.widget.textclock('<span font="Fira Code 9">%a, %b %e %Y</span>')
 

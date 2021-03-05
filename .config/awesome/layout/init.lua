@@ -1,4 +1,5 @@
 local awful = require('awful')
+local menu_button = require('layout.left-panel.action-bar')
 local left_panel = require('layout.left-panel')
 local workspace_panel = require('layout.workspace-panel')
 local tasklist_panel = require('layout.tasklist-panel')
@@ -11,6 +12,7 @@ local systemtray_panel = require('layout.systemtray-panel')
 awful.screen.connect_for_each_screen(
   function(s)
     if s.index == 1 then
+      s.menu_button = menu_button(s)
       s.left_panel = left_panel(s)
       s.mode_panel = mode_panel(s, true)
       s.tasklist_panel = tasklist_panel(s, true)
@@ -41,6 +43,7 @@ function updateBarsVisibility()
       s.clock_panel.visible = not fullscreen
       s.date_panel.visible = not fullscreen
       s.systemtray_panel.visible = not fullscreen
+      s.menu_button.visible = not fullscreen
       if s.left_panel then
         s.left_panel.visible = not fullscreen
       end
