@@ -59,19 +59,31 @@ local globalKeys =
   ),
   awful.key(
     {modkey},
+    'm',
+    function()
+      for s in screen do
+        if s.left_panel then
+          s.left_panel:toggle()
+        end
+      end
+    end,
+    {description = 'Main menu', group = 'awesome'}
+  ),
+  awful.key(
+    {modkey},
     'r',
     function()
       awful.spawn(apps.default.rofi)
     end,
-    {description = 'Main menu', group = 'awesome'}
+    {description = 'Run menu', group = 'awesome'}
   ),
   awful.key(
     {altkey},
     'space',
     function()
-      awful.spawn('rofi -combi-modi window,drun -show combi -modi combi -display-combi ""')
+      awful.spawn('rofi -combi-modi window,drun,ssh -show combi -modi combi -display-combi ""')
     end,
-    {description = 'Detailed main menu', group = 'awesome'}
+    {description = 'Detailed run menu', group = 'awesome'}
   ),
   awful.key(
     {'Control', altkey},

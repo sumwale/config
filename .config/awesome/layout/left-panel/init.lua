@@ -5,6 +5,14 @@ local apps = require('configuration.apps')
 
 local dpi = require('beautiful').xresources.apply_dpi
 
+local left_panel_grabber
+
+function left_panel_grabber_stop()
+  if left_panel_grabber then
+    awful.keygrabber.stop(left_panel_grabber)
+  end
+end
+
 local left_panel = function(screen)
   local panel_content_width = dpi(400)
 
@@ -54,7 +62,7 @@ local left_panel = function(screen)
     )
   end
 
-  local openPanel = function(should_run_rofi)
+  local open_panel = function(should_run_rofi)
     panel.width = panel_content_width
     panel.height = screen.geometry.height - dpi(30)
     backdrop.visible = true
@@ -65,9 +73,29 @@ local left_panel = function(screen)
       panel:run_rofi()
     end
     panel:emit_signal('opened')
+
+    left_panel_grabber = awful.keygrabber.run(
+      function(_, key, event)
+        if event == 'release' then
+          return
+        end
+
+        if key == 'Escape' or key == 'm' then
+          panel:toggle()
+        elseif key == 's' or key == 'f' then
+          left_panel_grabber_stop()
+          panel:run_rofi()
+        elseif key == 'e' or key == 'q' or key == 'x' then
+          panel:toggle()
+          _G.exit_screen_show()
+        end
+      end
+    )
+
   end
 
-  local closePanel = function()
+  local close_panel = function()
+    left_panel_grabber_stop()
     panel.width = 1
     panel.height = 1
     backdrop.visible = false
@@ -80,9 +108,9 @@ local left_panel = function(screen)
   function panel:toggle(should_run_rofi)
     self.opened = not self.opened
     if self.opened then
-      openPanel(should_run_rofi)
+      open_panel(should_run_rofi)
     else
-      closePanel()
+      close_panel()
     end
   end
 

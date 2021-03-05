@@ -43,8 +43,8 @@ function updateBarsVisibility()
       s.clock_panel.visible = not fullscreen
       s.date_panel.visible = not fullscreen
       s.systemtray_panel.visible = not fullscreen
-      s.menu_button.visible = not fullscreen
-      if s.left_panel then
+      if s.menu_button then
+        s.menu_button.visible = not fullscreen
         s.left_panel.visible = not fullscreen
       end
     end
