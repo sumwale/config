@@ -81,7 +81,7 @@ local globalKeys =
     {altkey},
     'space',
     function()
-      awful.spawn('rofi -combi-modi window,drun,ssh -show combi -modi combi -display-combi ""')
+      awful.spawn(apps.default.rofi_combi)
     end,
     {description = 'Detailed run menu', group = 'awesome'}
   ),

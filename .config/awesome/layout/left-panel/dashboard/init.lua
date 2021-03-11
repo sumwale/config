@@ -15,7 +15,7 @@ return function(_, panel)
       widget = mat_icon
     },
     wibox.widget {
-      text = 'Search Applications',
+      markup = '<u>S</u>earch <u>A</u>pplications',
       font = 'Cantarell Regular 12',
       widget = wibox.widget.textbox
     },
@@ -43,7 +43,7 @@ return function(_, panel)
       widget = mat_icon
     },
     wibox.widget {
-      text = 'End work session',
+      markup = '<u>E</u>nd work session',
       font = 'Cantarell Regular 13',
       widget = wibox.widget.textbox
     },

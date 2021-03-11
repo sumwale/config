@@ -51,7 +51,7 @@ local left_panel = function(screen)
 
   function panel:run_rofi()
     _G.awesome.spawn(
-      apps.default.rofi,
+      apps.default.rofi_combi,
       false,
       false,
       false,
@@ -62,16 +62,13 @@ local left_panel = function(screen)
     )
   end
 
-  local open_panel = function(should_run_rofi)
+  local open_panel = function()
     panel.width = panel_content_width
     panel.height = screen.geometry.height - dpi(30)
     backdrop.visible = true
     panel.visible = true
     panel.ontop = true
     panel:get_children_by_id('panel_content')[1].visible = true
-    if should_run_rofi then
-      panel:run_rofi()
-    end
     panel:emit_signal('opened')
 
     left_panel_grabber = awful.keygrabber.run(
@@ -82,7 +79,7 @@ local left_panel = function(screen)
 
         if key == 'Escape' or key == 'm' then
           panel:toggle()
-        elseif key == 's' or key == 'f' then
+        elseif key == 's' or key == 'f' or key == 'a' then
           left_panel_grabber_stop()
           panel:run_rofi()
         elseif key == 'e' or key == 'q' or key == 'x' then
@@ -105,10 +102,10 @@ local left_panel = function(screen)
     panel:emit_signal('closed')
   end
 
-  function panel:toggle(should_run_rofi)
+  function panel:toggle()
     self.opened = not self.opened
     if self.opened then
-      open_panel(should_run_rofi)
+      open_panel()
     else
       close_panel()
     end

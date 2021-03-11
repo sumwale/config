@@ -10,6 +10,7 @@ return {
   default = {
     terminal = 'kitty-custom.sh',
     rofi = rofi_command,
+    rofi_combi = 'rofi -combi-modi window,drun,ssh -show combi -modi combi -display-combi ""',
     lock = 'i3lock-fancy -- scrot -z -o',
     quake = 'kitty',
     screenshot_save = 'gnome-screenshot',
@@ -38,7 +39,7 @@ return {
     'redshift',
     'xfce4-power-manager', -- Power manager
     'xss-lock -- i3lock-fancy -- scrot -z -o', -- xfce4-power-manager does not handle lid
-    'pamac-tray',
+    -- 'pamac-tray', -- now handled by update-notifier.sh run by conky
     '~/.local/bin/user-services.sh', -- includes wifi, alsa restore
     --'nitrogen --random --set-zoom-fill ~/Pictures/wallpapers', -- run by conky periodically
     -- Add applications that need to be killed between reloads
