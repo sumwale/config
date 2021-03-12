@@ -40,14 +40,14 @@ end
 
 function suspend_command()
   exit_screen_hide()
-  awful.spawn.with_shell(apps.default.lock .. ' & systemctl suspend')
+  awful.spawn.with_shell('sleep 0.5 && systemctl suspend')
 end
 function exit_command()
   _G.awesome.quit()
 end
 function lock_command()
   exit_screen_hide()
-  awful.spawn.with_shell('sleep 1 && ' .. apps.default.lock)
+  awful.spawn.with_shell('sleep 0.5 && ' .. apps.default.lock)
 end
 function poweroff_command()
   awful.spawn.with_shell('poweroff')
@@ -116,7 +116,7 @@ exit_screen =
   }
 )
 
-exit_screen.bg = beautiful.background.hue_800 .. 'dd'
+exit_screen.bg = '#0a0a0abb'
 exit_screen.fg = beautiful.exit_screen_fg or beautiful.wibar_fg or '#FEFEFE'
 
 local exit_screen_grabber
