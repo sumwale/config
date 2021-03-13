@@ -113,7 +113,7 @@ local TasklistPanel = function(s, offset)
 
   panel:struts(
     {
-      top = dpi(30)
+      top = dpi(32)
     }
   )
 

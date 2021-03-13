@@ -488,6 +488,51 @@ local globalKeys =
       awful.util.spawn_with_shell('sleep 0.5; xdotool type `secret-tool lookup mozilla thunderbird-master`')
     end
   ),
+  -- toggle airplane mode (toggle wifi and bluetooth)
+  awful.key(
+    {modkey},
+    'F10',
+    function()
+      awful.util.spawn_with_shell('dunstify "Airplane mode has been `airplane-toggle.sh`"')
+    end,
+    {description = 'toggle airplane mode', group = 'hotkeys'}
+  ),
+  -- blank the screen
+  awful.key(
+    {modkey},
+    'F11',
+    function()
+      awful.util.spawn_with_shell('xblank.sh')
+    end,
+    {description = 'blank the screen', group = 'hotkeys'}
+  ),
+  -- suspend
+  awful.key(
+    {modkey},
+    'F12',
+    function()
+      awful.util.spawn('systemctl suspend')
+    end,
+    {description = 'suspend the system', group = 'hotkeys'}
+  ),
+  -- hibernate (honour inhibitions)
+  awful.key(
+    {modkey, 'Shift'},
+    'F12',
+    function()
+      awful.util.spawn('systemctl hibernate')
+    end,
+    {description = 'hibernate the system', group = 'hotkeys'}
+  ),
+  -- force hibernate (ignore inhibitions)
+  awful.key(
+    {modkey, 'Control'},
+    'F12',
+    function()
+      awful.util.spawn('systemctl hibernate -i')
+    end,
+    {description = 'force hibernate the system ignoring inhibitions', group = 'hotkeys'}
+  ),
   -- File Manager
   awful.key(
     {modkey},
