@@ -26,6 +26,7 @@ local TopPanel = function(s, offset)
       stretch = false,
       bg = beautiful.primary.hue_900,
       fg = beautiful.fg_normal,
+      opacity = 0.8,
       struts = {
         top = dpi(24)
       }

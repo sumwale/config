@@ -1,10 +1,11 @@
 local wibox = require('wibox')
 local mat_list_item = require('widget.material.list-item')
 local mat_slider = require('widget.material.slider')
-local mat_icon_button = require('widget.material.icon-button')
+local mat_icon = require('widget.material.icon')
 local clickable_container = require('widget.material.clickable-container')
 local icons = require('theme.icons')
 local watch = require('awful.widget.watch')
+local dpi = require('beautiful').xresources.apply_dpi
 local spawn = require('awful.spawn')
 
 local slider =
@@ -16,13 +17,13 @@ local slider =
 slider:connect_signal(
   'property::value',
   function()
-    spawn('xbacklight -set ' .. math.max(slider.value, 5))
+    spawn.easy_async('xbacklight -set ' .. math.max(slider.value, 5), function() end)
   end
 )
 
 watch(
-  [[bash -c "xbacklight -get"]],
-  1,
+  'xbacklight -get',
+  3,
   function(widget, stdout, stderr, exitreason, exitcode)
     local brightness = string.match(stdout, '(%d+)')
 
@@ -31,17 +32,13 @@ watch(
   end
 )
 
-local icon =
-  wibox.widget {
-  image = icons.brightness,
-  widget = wibox.widget.imagebox
-}
-
-local button = mat_icon_button(icon)
-
 local brightness_setting =
   wibox.widget {
-  button,
+  wibox.widget {
+    icon = icons.brightness,
+    size = dpi(24),
+    widget = mat_icon
+  },
   slider,
   widget = mat_list_item
 }

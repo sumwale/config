@@ -1,1 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="240" height="240" viewBox="0 0 24 24"><path fill="#ffffff" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z" /></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64pt" height="64pt" viewBox="0 0 64 64" version="1.1">
+<g id="surface1">
+<path style=" stroke:none;fill-rule:nonzero;fill:rgb(87.45098%,87.45098%,87.45098%);fill-opacity:1;" d="M 32 4 L 16 20 L 4 20 L 4 44 L 16 44 L 32 60 Z M 40 4 L 40 10 C 49.28125 12.960938 56 21.71875 56 32 C 56 42.28125 49.28125 51.039062 40 54 L 40 60 C 52.601562 56.878906 62 45.601562 62 32 C 62 18.398438 52.601562 7.121094 40 4 Z M 40 20 L 40 44 C 44.238281 41.679688 47.15625 37.199219 47.15625 32 C 47.15625 26.800781 44.28125 22.320312 40 20 Z M 40 20 "/>
+</g>
+</svg>

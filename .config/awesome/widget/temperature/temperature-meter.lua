@@ -12,13 +12,13 @@ local slider =
   widget = mat_slider
 }
 
-local max_temp = 80
+local max_temp = 95.0
 watch(
-  'bash -c "cat /sys/class/thermal/thermal_zone0/temp"',
-  1,
+  'cat /sys/class/thermal/thermal_zone0/temp',
+  3,
   function(_, stdout)
     local temp = stdout:match('(%d+)')
-    slider:set_value((temp / 1000) / max_temp * 100)
+    slider:set_value((temp / 1000.0) / max_temp * 100)
     collectgarbage('collect')
   end
 )

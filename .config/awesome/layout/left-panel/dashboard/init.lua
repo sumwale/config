@@ -16,7 +16,7 @@ return function(_, panel)
     },
     wibox.widget {
       markup = '<u>S</u>earch <u>A</u>pplications',
-      font = 'Cantarell Regular 12',
+      font = 'Cantarell Regular 13',
       widget = wibox.widget.textbox
     },
     clickable = true,

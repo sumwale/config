@@ -7,22 +7,15 @@ function build(imagebox, args)
   -- return wibox.container.margin(container, 6, 6, 6, 6)
   return wibox.widget {
     wibox.widget {
-      wibox.widget {
-        imagebox,
-        top = dpi(4),
-        left = dpi(4),
-        right = dpi(4),
-        bottom = dpi(4),
-        widget = wibox.container.margin
-      },
-      shape = gears.shape.circle,
-      widget = clickable_container
+      imagebox,
+      top = dpi(10),
+      left = dpi(6),
+      right = dpi(6),
+      bottom = dpi(6),
+      widget = wibox.container.margin
     },
-    top = dpi(4),
-    left = dpi(4),
-    right = dpi(4),
-    bottom = dpi(4),
-    widget = wibox.container.margin
+    shape = gears.shape.circle,
+    widget = clickable_container
   }
 end
 

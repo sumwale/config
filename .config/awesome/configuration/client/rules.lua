@@ -29,14 +29,6 @@ awful.rules.rules = {
     rule_any = {name = {'QuakeTerminal'}},
     properties = {skip_decoration = true}
   },
-  -- Conky
-  {
-    rule_any = { class = 'conky' },
-    properties = {
-      floating = true,
-      maximized = false
-    }
-  },
   -- Titlebars
   {
     rule_any = {type = {'dialog'}, class = {'Wicd-client.py', 'calendar.google.com'}},

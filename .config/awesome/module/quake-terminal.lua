@@ -47,13 +47,15 @@ _G.client.connect_signal(
       quake_client = c
       c.x = c.screen.geometry.x
       c.y = c.screen.geometry.height - dpi(408)
-      c.opacity = 0.9
+      c.height = dpi(408)
       c.floating = true
       c.skip_taskbar = true
       c.ontop = true
       c.above = true
       c.sticky = true
       c.hidden = not opened
+      c.maximized = false
+      c.maximized_vertical = false
       c.maximized_horizontal = true
     end
   end

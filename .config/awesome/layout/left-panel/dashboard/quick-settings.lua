@@ -5,12 +5,13 @@ return wibox.widget {
   wibox.widget {
     wibox.widget {
       text = 'Quick settings',
-      font = 'Cantarell Regular 12',
+      font = 'Cantarell Regular 13',
       widget = wibox.widget.textbox
     },
     widget = mat_list_item
   },
   require('widget.volume.volume-slider'),
+  require('widget.microphone.microphone-slider'),
   require('widget.brightness.brightness-slider'),
   layout = wibox.layout.fixed.vertical
 }

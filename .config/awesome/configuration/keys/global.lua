@@ -1,12 +1,62 @@
 local awful = require('awful')
 require('awful.autofocus')
-local beautiful = require('beautiful')
+--local beautiful = require('beautiful')
 local hotkeys_popup = require('awful.hotkeys_popup').widget
 
 local modkey = require('configuration.keys.mod').modKey
 local altkey = require('configuration.keys.mod').altKey
 local apps = require('configuration.apps')
 local switcher = require('awesome-switcher')
+local naughty = require('naughty')
+local icons = require('theme.icons')
+
+-- Utility functions to display notifications for hotkeys
+
+function volume_change(arg)
+  awful.spawn.easy_async('volume-change.sh ' .. arg, function(stdout)
+    local volume = string.match(stdout, '%d+')
+    local icon
+    if string.match(arg, '--microphone') then
+      icon = string.match(stdout, 'off') and icons.microphone_muted or icons.microphone
+    else
+      icon = string.match(stdout, 'off') and icons.volume_muted or icons.volume
+    end
+    if volume_notification ~= nil then
+      volume_notification = naughty.notify({
+        replaces_id = volume_notification.id,
+        title  = 'Volume',
+        text   = volume .. '%',
+        icon   = icon
+      })
+    else
+      volume_notification = naughty.notify({
+        title  = 'Volume',
+        text   = volume .. '%',
+        icon   = icon
+      })
+    end
+  end)
+end
+
+function brightness_change(arg)
+  awful.spawn.easy_async_with_shell('xbacklight -steps 1 -time 10 ' .. arg .. ' && canberra-gtk-play -i dialog-information -d brightness_change && xbacklight -get', function(stdout)
+    local brightness = string.match(stdout, '%d+')
+    if brightness_notification ~= nil then
+      brightness_notification = naughty.notify({
+        replaces_id = brightness_notification.id,
+        title  = 'Brightness',
+        text   = brightness,
+        icon   = icons.brightness
+      })
+    else
+      brightness_notification = naughty.notify({
+        title  = 'Brightness',
+        text   = brightness,
+        icon   = icons.brightness
+      })
+    end
+  end)
+end
 
 -- Key bindings
 local globalKeys =
@@ -78,8 +128,8 @@ local globalKeys =
     {description = 'Run menu', group = 'awesome'}
   ),
   awful.key(
-    {altkey},
-    'space',
+    {modkey, 'Shift'},
+    'r',
     function()
       awful.spawn(apps.default.rofi_combi)
     end,
@@ -240,6 +290,106 @@ local globalKeys =
     end,
     {description = 'Open a terminal', group = 'launcher'}
   ),
+  -- Floating window operations
+  awful.key(
+    {modkey, 'Shift'},
+    'm',
+    function()
+      local c = _G.client.focus
+      if c then
+        c.maximized = not c.maximized
+      end
+    end,
+    {description = 'toggle maximized', group = 'floating'}
+  ),
+  awful.key(
+    {modkey},
+    'Left',
+    function()
+      local c = _G.client.focus
+      if c and c.x + c.width > 10 then
+        c.x = c.x - 10
+      end
+    end,
+    {description = 'Move window left', group = 'floating'}
+  ),
+  awful.key(
+    {modkey},
+    'Right',
+    function()
+      local c = _G.client.focus
+      if c and c.x + 10 < c.screen.geometry.width then
+        c.x = c.x + 10
+      end
+    end,
+    {description = 'Move window right', group = 'floating'}
+  ),
+  awful.key(
+    {modkey},
+    'Up',
+    function()
+      local c = _G.client.focus
+      if c and c.y + c.height > 10 then
+        c.y = c.y - 10
+      end
+    end,
+    {description = 'Move window up', group = 'floating'}
+  ),
+  awful.key(
+    {modkey},
+    'Down',
+    function()
+      local c = _G.client.focus
+      if c and c.y + 10 < c.screen.geometry.height then
+        c.y = c.y + 10
+      end
+    end,
+    {description = 'Move window down', group = 'floating'}
+  ),
+  awful.key(
+    {modkey, altkey},
+    'Left',
+    function()
+      local c = _G.client.focus
+      if c and c.width > 10 then
+        c.width = c.width - 10
+      end
+    end,
+    {description = 'Decrease window width', group = 'floating'}
+  ),
+  awful.key(
+    {modkey, altkey},
+    'Right',
+    function()
+      local c = _G.client.focus
+      if c and c.width + 10 <= c.screen.geometry.width then
+        c.width = c.width + 10
+      end
+    end,
+    {description = 'Increase window width', group = 'floating'}
+  ),
+  awful.key(
+    {modkey, altkey},
+    'Up',
+    function()
+      local c = _G.client.focus
+      if c and c.height > 10 then
+        c.height = c.height - 10
+      end
+    end,
+    {description = 'Decrease window height', group = 'floating'}
+  ),
+  awful.key(
+    {modkey, altkey},
+    'Down',
+    function()
+      local c = _G.client.focus
+      if c and c.height + 10 <= c.screen.geometry.height then
+        c.height = c.height + 10
+      end
+    end,
+    {description = 'Increase window height', group = 'floating'}
+  ),
   -- Change layout
   awful.key(
     {altkey, 'Shift'},
@@ -352,7 +502,7 @@ local globalKeys =
     function()
       _G.toggle_quake()
     end,
-    {description = 'dropdown application', group = 'launcher'}
+    {description = 'dropdown terminal', group = 'launcher'}
   ),
   -- Widgets popups
   --[[awful.key(
@@ -380,24 +530,24 @@ local globalKeys =
     {},
     'XF86MonBrightnessUp',
     function()
-      awful.spawn('xbacklight -inc 1')
+      brightness_change('-inc 1')
     end,
-    {description = '+1%', group = 'hotkeys'}
+    {description = 'brightness up', group = 'hotkeys'}
   ),
   awful.key(
     {},
     'XF86MonBrightnessDown',
     function()
-      awful.spawn('xbacklight -dec 1')
+      brightness_change('-dec 1')
     end,
-    {description = '-1%', group = 'hotkeys'}
+    {description = 'brightness down', group = 'hotkeys'}
   ),
   -- ALSA volume control
   awful.key(
     {},
     'XF86AudioRaiseVolume',
     function()
-      awful.spawn('amixer -q -D pulse sset Master 1%+')
+      volume_change('+1%')
     end,
     {description = 'volume up', group = 'hotkeys'}
   ),
@@ -405,7 +555,7 @@ local globalKeys =
     {},
     'XF86AudioLowerVolume',
     function()
-      awful.spawn('amixer -q -D pulse sset Master 1%-')
+      volume_change('-1%')
     end,
     {description = 'volume down', group = 'hotkeys'}
   ),
@@ -413,17 +563,33 @@ local globalKeys =
     {},
     'XF86AudioMute',
     function()
-      awful.spawn('amixer -q -D pulse set Master 1+ toggle')
+      volume_change('toggle')
     end,
     {description = 'toggle mute', group = 'hotkeys'}
   ),
   awful.key(
-    {modkey, 'Shift'},
-    'm',
+    {'Shift'},
+    'XF86AudioRaiseVolume',
     function()
-      awful.spawn('amixer -q -D pulse set Capture 1+ toggle')
+      volume_change('--microphone +1%')
     end,
-    {description = 'toggle microphone mute', group = 'hotkeys'}
+    {description = 'microphone volume up', group = 'hotkeys'}
+  ),
+  awful.key(
+    {'Shift'},
+    'XF86AudioLowerVolume',
+    function()
+      volume_change('--microphone -1%')
+    end,
+    {description = 'microphone volume down', group = 'hotkeys'}
+  ),
+  awful.key(
+    {'Shift'},
+    'XF86AudioMute',
+    function()
+      volume_change('--microphone toggle')
+    end,
+    {description = 'microphone toggle mute', group = 'hotkeys'}
   ),
   --[[awful.key(
     {},
@@ -493,7 +659,7 @@ local globalKeys =
     {modkey},
     'F10',
     function()
-      awful.util.spawn_with_shell('dunstify "Airplane mode has been `airplane-toggle.sh`"')
+      awful.util.spawn_with_shell('notify-send "Airplane mode has been `airplane-toggle.sh`"')
     end,
     {description = 'toggle airplane mode', group = 'hotkeys'}
   ),

@@ -1,20 +1,18 @@
-Configuration files on the Manjaro Linux installation including configuration for awesome, neovim, borgmatic backup, custom scripts, customized themes among others. Some of these are specific to my hardware so cannot be used without modifications on other systems.
+This is the set of current configuration files on my Manjaro Linux installation including those for awesome, conky, kitty, neovim, borgmatic backup, custom scripts, customized themes among others. Some of these are specific to my hardware so cannot be used without modifications on other systems.
 
 Some of the specific customizations include:
 
 * .zshrc, .bashrc use PATH and aliases specific to data and require manjaro-zsh-config to work as expected
-* .Xresources, .xsettingsd use 120dpi and whitesur theme with tela-circle icons
+* .Xresources, .xsettingsd use 120dpi and whitesur-purple-dark theme with tela-circle-purple-dark icons
 * .gitconfig obviously contains my information in the [user] section and requires git-credential-libsecret to be installed (Arch package has it while for others it may need to be built e.g. ubunu/debian have the source in /usr/share/doc/git/contrib)
-* .asound.state is specific to my soundcard configuration
-* borgmatic backup configuration is specific to my borgbase account and uses secret-tool
-  to obtain password
+* .asound.state is specific to my soundcard configuration and is restored on startup overriding any changes that pulseaudio may have done
+* borgmatic backup configuration is specific to my borgbase account and uses secret-tool to obtain password
 * conky configuration uses:
   * CPU count of 12 (from /proc/cpuinfo which includes hyper-threading) is specific to my hardware so change the count/layout as per your setup
   * network devices named enp2s0 and wlp3s0 that may need to be changed
   * disk devices nvme0n1, sda, sdb are also specific to my hardware
-  * nitrogen with random wallpaper assumed to be in ~/Pictures/wallpapers
-  * update-notifier.sh script in .local/bin for awesome wm which assumes ARCH based
-    system having pamac and dunstify installed
+  * nitrogen with random wallpaper picked from ~/Pictures/wallpapers
+  * update-notifier.sh script in .local/bin for awesome wm which assumes ARCH based system having pamac and dunstify installed
   * user-services.sh in .local/bin that invokes the borgmatic service timer to ensure that backup is never missed and loads .asound.state
 * awesome wm configuration has many machine specific customizations noted in the next section
 
@@ -63,7 +61,7 @@ SMplayer in sixth tag having tiled layout
 
 ### Setup
 
-The layout works best for 1920x1080 screen and uses 120dpi with base font size of 10pt that looks the best overall on my laptop and desktop. I will suggest starting with this setup and adjusting later if you would rather prefer default 96dpi with 11/12pt fonts  or something else. Note that with default 96dpi some apps and GUI elements use their own font sizes ignoring the GTK/X configuration and may look too small.
+The layout works is designed for a 1920x1080 screen and uses 120dpi with base font size of 10pt that looks the best overall on my laptop and desktop. I will suggest starting with this setup and adjusting later if you would rather prefer default 96dpi with 11/12pt fonts  or something else. Note that with default 96dpi some apps and GUI elements use their own font sizes ignoring the GTK/X configuration and may look too small.
 
 Changing dpi/fonts requires changing .Xresources, .xsettingsd (or use lxappearance), awesome and kitty configuration files.
 
@@ -112,10 +110,13 @@ Either add these to your .profile or remove "export" and add to /etc/environment
  * xset from xorg-xset, rfkill from util-linux
  * conky -- note that floating layout is required for this to work acceptably which is setup in this awesome configuration for the first tag. Use conky-lua-nv if you have NVIDIA card.
  * nitrogen for wallpaper which is invoked by conky at interval of 1 day to choose a random wallpaper from ~/Pictures/wallpapers so you can place all your wallpapers there. Alternatively one can use feh+variety or similar which will need appropriate changes to configuration/apps.lua and conky.conf
+ * the following custom scripts from .local/bin: airplane-toggle.sh, volume-change.sh
+ * notify-send to display notifications (libnotify in Arch)
+ * canberra-gtk-play for alert sounds (libcanberra in Arch)
  * pulseaudio and alsa-utils for sound related shortcuts
  * i3lock-fancy (package i3lock-fancy-git in Arch) for screen locking, with scrot and imagemagick
  * Arch: pamac-gtk, dunstify for update-notifier.sh script launched by conky periodically; see more in conky subsection
- * Fonts: cantarell, fira-code, terminus-ttf. On Arch use: pamac install cantarell-fonts ttf-fira-code terminus-font-ttf. If you prefer some others then change awesome, conky, .xsettingsd and kitty configurations
+ * Fonts: cantarell, fira-code, terminus-ttf. On Arch: pamac install cantarell-fonts ttf-fira-code terminus-font-ttf. If you prefer some others then change awesome, conky, .xsettingsd and kitty configurations
  * nm-applet for network management
  * xfce4-power-manager, xss-lock for power management and screen locking. Can be skipped if the system is not a laptop. My /etc/systemd/logind.conf has HandleLidSwitch and HandleLidSwitchExternalPower set to lock.
  * xbacklight for brightness control
@@ -124,15 +125,16 @@ On Arch use this to get the required and recommended packages:
 
 pacman -S pamac-gtk
 
-pamac install awesome rofi picom lxappearance xsettingsd pulseaudio-alsa alsa-utils whitesur-gtk-theme-git whitesur-kvantum-theme-git kvantum-qt5 vimix-cursors tela-circle-icon-theme-git polkit-gnome gnome-keyring conky-lua-nv i3lock-fancy-git scrot imagemagick dunstify cantarell-fonts ttf-fira-code terminus-font-ttf network-manager-applet xfce4-power-manager xss-lock xorg-xbacklight xorg-xset util-linux
+pamac install awesome rofi picom lxappearance xsettingsd pulseaudio-alsa alsa-utils whitesur-gtk-theme-git whitesur-kvantum-theme-git kvantum-qt5 vimix-cursors tela-circle-icon-theme-git polkit-gnome gnome-keyring conky-lua-nv i3lock-fancy-git scrot imagemagick libnotify libcanberra cantarell-fonts ttf-fira-code terminus-font-ttf network-manager-applet xfce4-power-manager xss-lock xorg-xbacklight xorg-xset util-linux
+
+Use equivalent for other distributions.
 
 The .local/bin/user-services.sh script launches few custom services for borgmatic backup. You would want to remove those but can retain nm-applet. This is launched as as a respawnable service because on my system this occasionally crashes after suspend. To use that copy the service file from .config/systemd/user/nm-applet.service to your ~/.config/systemd/user directory (create latter if not present). Additionally it overrides the alsa settings from ~/.asound.state since in my system pulseaudio overrides those in a way that disables seemless switching between internal speaker and headphones. If you want to also override then you can do the required setup using alsamixer and then save using "alsactl store -f ~/.asound.state".
 
 #### Optional apps in configuration/apps.lua
 
- * the following custom scripts from .local/bin: kitty-custom.sh, borgmatic-setup.sh, update-notifier.sh, user-services.sh
+ * the following custom scripts from .local/bin: borgmatic-setup.sh, kitty-custom.sh, update-notifier.sh, user-services.sh
  * Kitty for terminal. Instead of doing tiled windows manually, I find kitty or terminator that provide split windows and saved layouts to be way better. I will highly recommend using one of these two. Besides the first tag is supposed to be for terminal which is deliberately in floating mode for conky to work acceptably. The default session in kitty uses a single terminal with split layout, no tab bar or window decorations etc so looks identical in all DEs. Use Ctrl-Shift-Tab to create a new tab, Ctrl-Shift-Enter to add a new vertical split terminal, Ctrl-Shift-p for horizontal split. Use Ctrl-Shift-l to go to next layout which is Stack by default that will effectively maximize the current window (and hit the same again to go back to Split layout). The apps.lua uses kitty with custom.session that uses a specific layout with directories specific to my home that will not work OOTB for you, so change that as per your needs. Else change terminal in apps.lua to use just kitty instead of kitty-cusom.sh. Use Ctrl-Shift-F10 to maximize kitty window. See kitty.conf for other custom keyboard shortcuts.
- * pa-applet for volume applet (right click for more options)
  * Firefox for the browser. Personally I find firefox to be the most comfortable to use with the best look and feel.
  * Thunderbird for email. Still the best email client with Monterail and Conversations extensions giving it the modern touch.
  * SMPlayer using mpv for backend. Mpv is by far the best command-line client that I prefer over GUIs with "Video DownloadHelper" extension in firefox/chrome to download videos from most of the sites.
