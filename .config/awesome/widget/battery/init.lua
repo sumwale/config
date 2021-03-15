@@ -53,8 +53,7 @@ local battery_popup =
   {
     objects = {widget_button},
     mode = 'mouse',
-    align = 'left',
-    preferred_positions = {'right', 'left', 'top', 'bottom'}
+    align = 'left'
   }
 )
 

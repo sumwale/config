@@ -9,6 +9,7 @@ location:
         - /home/sumedh
         - /etc
         - /usr/local
+        - /boot/grub/themes
 
     # Paths to local or remote repositories (required). Tildes are
     # expanded. Multiple repositories are backed up to in

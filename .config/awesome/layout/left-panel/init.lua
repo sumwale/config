@@ -51,7 +51,7 @@ local left_panel = function(screen)
 
   function panel:run_rofi()
     _G.awesome.spawn(
-      apps.default.rofi_combi,
+      apps.default.rofi,
       false,
       false,
       false,
@@ -79,7 +79,7 @@ local left_panel = function(screen)
 
         if key == 'Escape' or key == 'm' then
           panel:toggle()
-        elseif key == 's' or key == 'f' or key == 'a' then
+        elseif key == 's' or key == 'r' or key == 'f' or key == 'a' then
           left_panel_grabber_stop()
           panel:run_rofi()
         elseif key == 'e' or key == 'q' or key == 'x' then
