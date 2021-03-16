@@ -9,5 +9,5 @@ Type=Application
 Categories=Utility;TrayIcon;DesktopUtility
 Keywords=Screensaver,Power,DPMS,Blank,Idle
 StartupNotify=false
-X-GNOME-Autostart-enabled=false
 Hidden=true
+X-GNOME-Autostart-enabled=false

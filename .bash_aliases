@@ -1,0 +1,8 @@
+alias cdl='cd ~/product/lightspeed-spark'
+alias cds='cd ~/product/snappy-spark'
+alias cds1='cd ~/product/SnappyData/1.snappydata'
+alias cdd='cd /shared/sumedh/Downloads'
+alias lessdp='less *dunit*/*progress*.txt'
+alias lessR='less -RL'
+alias q='QHOME=~/q rlwrap -r ~/q/l32/q'
+alias rmvmtmp='rm -rf vm_* .attach_pid* spark-warehouse target'

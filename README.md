@@ -67,7 +67,7 @@ Changing dpi/fonts requires changing .Xresources, .xsettingsd (or use lxappearan
 
 * Copy the following directories from .config to your ~/.config: awesome, rofi, conky and kitty (skip latter two if you don't intend to use those two). Optionally Kvantum for Kvantum QT theme.
 * Copy .themes/WhiteSur-dark-purple to your ~/.themes. Skip if you intend to use some other GTK theme.
-* Copy .Xresources and .xsettingsd to your home. If you don't use GNOME, then you can use lxappearance to configure instead. For that case avoid kvantum for QT apps and stick to using qt5ct for configure the fonts for QT apps or use gtk2 at the QT\_QPA\_PLATFORMTHEME.
+* Copy .Xresources and .xsettingsd to your home. If you don't use GNOME, then you can use lxappearance to configure instead. For that case avoid kvantum for QT apps and instead use qt5ct to configure look-and-feel for QT apps with QT\_QPA\_PLATFORMTHEME as qt5ct or use gtk2 for the QT\_QPA\_PLATFORMTHEME.
 
 #### Required
 

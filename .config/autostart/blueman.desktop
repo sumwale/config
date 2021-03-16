@@ -97,4 +97,5 @@ Exec=blueman-applet
 Terminal=false
 Type=Application
 Categories=
+Hidden=true
 X-GNOME-Autostart-enabled=false

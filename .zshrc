@@ -24,16 +24,16 @@ alias la='exa -a --color=always --group-directories-first'
 alias ll='exa -l --color=always --group-directories-first'
 alias lt='exa -smod -r --color=always --group-directories-first'
 
-alias cdl='cd ~/product/lightspeed-spark'
-alias cds='cd ~/product/snappy-spark'
-alias cds1='cd ~/product/SnappyData/1.snappydata'
-alias cdd='cd /shared/sumedh/Downloads'
-alias lessdp='less *dunit*/*progress*.txt'
-alias lessR='less -RL'
-alias q='QHOME=~/q rlwrap -r ~/q/l32/q'
-alias rmvmtmp='rm -rf vm_* .attach_pid* spark-warehouse target'
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
-export PATH="$PATH:$HOME/.cargo/bin:$HOME/product/SnappyData/thirdparty/vsd/70/vsd/bin"
+# common aliases
+if [ -f ~/.bash_aliases ]; then
+  . ~/.bash_aliases
+fi
+
+export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/product/SnappyData/thirdparty/vsd/70/vsd/bin"
 
 export GCMDIR=/gcm
 export JAVA_HOME=$GCMDIR/where/software/jdk8
@@ -75,10 +75,24 @@ export LESS_TERMCAP_ue=$'\e[0m'
 export LESS_TERMCAP_us=$'\e[1;4;31m'
 
 export LESS="-R"
-export LESSOPEN="|/usr/bin/lesspipe.sh %s"
+
+if [ -z "$LESSOPEN" ]; then
+  if type lesspipe.sh 2>/dev/null >/dev/null; then
+    export LESSOPEN="| /usr/bin/lesspipe.sh %s"
+  elif type lesspipe 2>/dev/null >/dev/null; then
+    export LESSOPEN="| /usr/bin/lesspipe %s"
+  fi
+fi
 
 # completions for tldr
-tldr_cachedir=~/.local/share/tldr
-compctl -k "($(q=($tldr_cachedir/*/*/*); sed 's,\.md\>,,g' <<<${q[@]##*/}))" tldr
+tldr_cachedir=
+if [ -d ~/.local/share/tldr ]; then
+  tldr_cachedir=~/.local/share/tldr
+elif [ -d ~/.tldr ]; then
+  tldr_cachedir=~/.tldr
+fi
+if [ -n "$tldr_cachedir" ]; then
+  compctl -k "($(q=($tldr_cachedir/*/*/*); sed 's,\.md\>,,g' <<<${q[@]##*/}))" tldr
+fi
 
 setopt autocd autopushd pushdignoredups no_auto_remove_slash

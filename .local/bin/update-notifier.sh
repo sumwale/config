@@ -4,6 +4,16 @@ INTERVAL=28800
 STAMP_FILE_NAME=.update-notifier.sh.stamp
 STAMP_FILE="$HOME/$STAMP_FILE_NAME"
 
+if ! type pamac 2>/dev/null >/dev/null; then
+  echo "pamac not available"
+  exit 1
+fi
+
+if ! type dunstify 2>/dev/null >/dev/null; then
+  echo "dunstify not available"
+  exit 1
+fi
+
 force=false
 
 show_help() {
