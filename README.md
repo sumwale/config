@@ -65,13 +65,14 @@ The layout works is designed for a 1920x1080 screen and uses 120dpi with base fo
 
 Changing dpi/fonts requires changing .Xresources, .xsettingsd (or use lxappearance), awesome and kitty configuration files.
 
-* Copy the following directories from .config to your ~/.config: awesome, rofi, conky and kitty (skip latter two if you don't intend to use those two). Optionally Kvantum for Kvantum QT theme.
+* Copy the following directories from .config to your ~/.config: awesome, rofi, gimplecal, conky and kitty (skip latter three if you don't intend to use those). Optionally Kvantum for Kvantum QT theme.
 * Copy .themes/WhiteSur-dark-purple to your ~/.themes. Skip if you intend to use some other GTK theme.
 * Copy .Xresources and .xsettingsd to your home. If you don't use GNOME, then you can use lxappearance to configure instead. For that case avoid kvantum for QT apps and instead use qt5ct to configure look-and-feel for QT apps with QT\_QPA\_PLATFORMTHEME as qt5ct or use gtk2 for the QT\_QPA\_PLATFORMTHEME.
 
 #### Required
 
   * awesome, rofi, picom
+  * gsimplecal for calendar popup (if not present, then change .config/awesome/layout/date-panel.lua with equivalent app or comment out connect\_signal for panel/backdrop + uncomment the month\_calendar popup in that file); update .config/gsimplecal/config as per your requirements especially the timezones listed at the end for which additional clocks are shown in the widget
   * xsettingsd or lxappearance. If you use GNOME too, then former is recommended where you can dump your settings using "dump\_xsettings | sort | grep -iv session > ~/.xsettingsd". Else run lxappearance and choose your preferred theme/icons/cursor etc.
   * Arch: pamac-gtk or yay/AUR helper you prefer. On other distros, the appropriate package manager.
   * kvantum-qt5 and either qgnomeplatform or qt5ct for QT apps. Alternatively you can use qt5-styleplugins and use gtk2 as the QT style.
@@ -125,7 +126,7 @@ On Arch use this to get the required and recommended packages:
 
 pacman -S pamac-gtk
 
-pamac install awesome rofi picom lxappearance xsettingsd pulseaudio-alsa alsa-utils whitesur-gtk-theme-git whitesur-kvantum-theme-git kvantum-qt5 vimix-cursors tela-circle-icon-theme-git polkit-gnome gnome-keyring conky-lua-nv i3lock-fancy-git scrot imagemagick libnotify libcanberra cantarell-fonts ttf-fira-code terminus-font-ttf network-manager-applet xfce4-power-manager xss-lock xorg-xbacklight xorg-xset util-linux
+pamac install awesome rofi picom gsimplecal procps lxappearance xsettingsd pulseaudio-alsa alsa-utils whitesur-gtk-theme-git whitesur-kvantum-theme-git kvantum-qt5 vimix-cursors tela-circle-icon-theme-git polkit-gnome gnome-keyring conky-lua-nv i3lock-fancy-git scrot imagemagick libnotify libcanberra cantarell-fonts ttf-fira-code terminus-font-ttf network-manager-applet xfce4-power-manager xss-lock xorg-xbacklight xorg-xset util-linux
 
 Use equivalent for other distributions.
 

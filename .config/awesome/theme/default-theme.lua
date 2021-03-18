@@ -78,7 +78,7 @@ local awesome_overrides =
     dpi(24) ..
       ':0,' ..
         theme.primary.hue_900 ..
-          ':0.9,' .. theme.primary.hue_900 .. ':0.9,' .. theme.primary.hue_500 .. ':1,' .. theme.primary.hue_500
+          ':0.85,' .. theme.primary.hue_900 .. ':0.85,' .. theme.primary.hue_500 .. ':1,' .. theme.primary.hue_500
 
   -- Tasklist
 

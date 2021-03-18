@@ -14,7 +14,7 @@ awful.rules.rules = {
       keys = client_keys,
       buttons = client_buttons,
       screen = awful.screen.preferred,
-      placement = awful.placement.no_offscreen,
+      placement = awful.placement.centered,
       floating = false,
       maximized = false,
       above = false,
@@ -26,14 +26,36 @@ awful.rules.rules = {
     }
   },
   {
-    rule_any = {name = {'QuakeTerminal'}},
-    properties = {skip_decoration = true}
+    rule = { name = 'QuakeTerminal' },
+    properties = { skip_decoration = true }
+  },
+  {
+    rule = { class = 'conky' },
+    properties = {
+      floating = true,
+      skip_decoration = true
+    }
   },
   -- Titlebars
   {
-    rule_any = {type = {'dialog'}, class = {'Wicd-client.py', 'calendar.google.com'}},
+    rule_any = { type = { 'dialog' }, class = { 'Wicd-client.py', 'calendar.google.com' } },
     properties = {
       placement = awful.placement.centered,
+      ontop = true,
+      floating = true,
+      drawBackdrop = true,
+      shape = function()
+        return function(cr, w, h)
+          gears.shape.rounded_rect(cr, w, h, 8)
+        end
+      end,
+      skip_decoration = true
+    }
+  },
+  {
+    rule = { class = 'Gsimplecal' },
+    properties = {
+      placement = awful.placement.top_right,
       ontop = true,
       floating = true,
       drawBackdrop = true,

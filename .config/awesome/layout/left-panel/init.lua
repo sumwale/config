@@ -88,7 +88,6 @@ local left_panel = function(screen)
         end
       end
     )
-
   end
 
   local close_panel = function()
