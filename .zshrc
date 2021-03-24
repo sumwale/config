@@ -32,7 +32,7 @@ case $(basename "$(cat "/proc/$PPID/comm")") in
       # Use powerline
       source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
       [ -f ~/.p10k.zsh ] && source ~/.p10k.zsh
-      POWERLEVEL9K_DISABLE_GITSTATUS=true
+      #POWERLEVEL9K_DISABLE_GITSTATUS=true
       source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
       ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
       ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
@@ -41,36 +41,6 @@ case $(basename "$(cat "/proc/$PPID/comm")") in
 esac
 
 # Customizations
-
-alias cp='cp -i'
-alias mv='mv -i'
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias ip='ip -color=auto'
-
-alias ls='exa --color=always --group-directories-first'
-alias la='exa -a --color=always --group-directories-first'
-alias ll='exa -l --color=always --group-directories-first'
-alias lt='exa -smod -r --color=always --group-directories-first'
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
-# common aliases
-if [ -f ~/.bash_aliases ]; then
-  . ~/.bash_aliases
-fi
-
-export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/product/SnappyData/thirdparty/vsd/70/vsd/bin"
-
-export GCMDIR=/gcm
-export JAVA_HOME=$GCMDIR/where/software/jdk8
-export IDEA_JDK=$GCMDIR/where/software/jdk11
-
-#export LDAP_SERVER_FQDN=ldap.pune.gemstone.com
 
 systemctl --user import-environment PATH
 
@@ -86,8 +56,6 @@ gitdiffall() {
     git diff "$@"
   fi
 }
-
-#export CLUTTER_VBLANK=none
 
 # colors for ls
 if test -r ~/.dir_colors; then
@@ -127,3 +95,12 @@ if [ -n "$tldr_cachedir" ]; then
 fi
 
 setopt autocd autopushd pushdignoredups no_auto_remove_slash
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# common aliases
+if [ -f ~/.bash_aliases ]; then
+  . ~/.bash_aliases
+fi

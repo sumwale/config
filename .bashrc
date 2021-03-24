@@ -74,16 +74,6 @@ if ${use_color} ; then
   else
     PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '
   fi
-
-  alias grep='grep --colour=auto'
-  alias egrep='egrep --colour=auto'
-  alias fgrep='fgrep --colour=auto'
-  alias ip='ip -color=auto'
-
-  alias ls='exa --color=always --group-directories-first'
-  alias la='exa -a --color=always --group-directories-first'
-  alias ll='exa -l --color=always --group-directories-first'
-  alias lt='exa -smod -r --color=always --group-directories-first'
 else
   if [[ ${EUID} == 0 ]] ; then
     # show root@ when we don't have colors
@@ -94,12 +84,6 @@ else
 fi
 
 unset use_color safe_term match_lhs sh
-
-alias cp="cp -i"                          # confirm before overwriting something
-alias df='df -h'                          # human-readable sizes
-alias free='free -m'                      # show sizes in MB
-alias np='nvim -w PKGBUILD'
-alias more=less
 
 xhost +local:root > /dev/null 2>&1
 
@@ -149,28 +133,6 @@ ex() {
 
 # Customizations
 
-alias cp='cp -i'
-alias mv='mv -i'
-alias vi=nvim
-alias vim=nvim
-
-# Add an "alert" alias for long running commands.  Use like so:
-#   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-
-# common aliases
-if [ -f ~/.bash_aliases ]; then
-  . ~/.bash_aliases
-fi
-
-export PATH="$PATH:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/product/SnappyData/thirdparty/vsd/70/vsd/bin"
-
-export GCMDIR=/gcm
-export JAVA_HOME=$GCMDIR/where/software/jdk8
-export IDEA_JDK=$GCMDIR/where/software/jdk11
-
-#export LDAP_SERVER_FQDN=ldap.pune.gemstone.com
-
 systemctl --user import-environment PATH
 
 # git diff all files including untracked
@@ -185,8 +147,6 @@ gitdiffall() {
     git diff "$@"
   fi
 }
-
-#export CLUTTER_VBLANK=none
 
 # colors for less
 export LESS_TERMCAP_mb=$'\e[1;32m'
@@ -216,4 +176,13 @@ elif [ -d ~/.tldr ]; then
 fi
 if [ -n "$tldr_cachedir" ]; then
   complete -W "$(q=($tldr_cachedir/*/*/*); sed 's,\.md\>,,g' <<<${q[@]##*/})" tldr
+fi
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# common aliases
+if [ -f ~/.bash_aliases ]; then
+  . ~/.bash_aliases
 fi
