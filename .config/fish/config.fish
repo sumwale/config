@@ -83,8 +83,6 @@ function gitdiffall
   end
 end
 
-systemctl --user import-environment PATH
-
 # colors for ls
 if test -r ~/.dir_colors
   eval (dircolors -c ~/.dir_colors)

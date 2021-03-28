@@ -42,8 +42,6 @@ esac
 
 # Customizations
 
-systemctl --user import-environment PATH
-
 # git diff all files including untracked
 gitdiffall() {
   if test "$#" = 0; then

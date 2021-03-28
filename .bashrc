@@ -4,6 +4,17 @@
 
 [[ $- != *i* ]] && return
 
+if [[ $- == *m* && "$INTERACTIVE_SHELL_IS_FISH" == "true" ]]; then
+  export INTERACTIVE_SHELL_IS_FISH=false
+  if [ -x /bin/fish ]; then
+    exec -a fish /bin/fish
+  elif [ -x /usr/bin/fish ]; then
+    exec -a fish /usr/bin/fish
+  elif [ -x /usr/local/bin/fish ]; then
+    exec -a /usr/local/bin/fish
+  fi
+fi
+
 colors() {
   local fgc bgc vals seq0
 
@@ -132,8 +143,6 @@ ex() {
 
 
 # Customizations
-
-systemctl --user import-environment PATH
 
 # git diff all files including untracked
 gitdiffall() {

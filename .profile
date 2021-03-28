@@ -8,6 +8,8 @@ SSH_AUTH_SOCK=/run/user/`id -u`/keyring/ssh
 
 export PATH GCMDIR JAVA_HOME IDEA_JDK SSH_AUTH_SOCK
 
+systemctl --user import-environment PATH SSH_AUTH_SOCK
+
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
   # include .bashrc if it exists

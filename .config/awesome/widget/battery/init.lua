@@ -31,7 +31,7 @@ local widget =
     resize = true
   },
   layout = wibox.layout.fixed.horizontal,
-  opacity = 0.8
+  opacity = 0.75
 }
 
 local widget_button = clickable_container(wibox.container.margin(widget, dpi(4), dpi(4), dpi(4), dpi(4)))
