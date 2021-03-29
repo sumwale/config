@@ -1,3 +1,7 @@
+#
+# ~/.zshrc
+#
+
 ## Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 ## Initialization code that may require console input (password prompts, [y/n]
 ## confirmations, etc.) must go above this block; everything else may go below.
@@ -39,8 +43,6 @@ case $(basename "$(cat "/proc/$PPID/comm")") in
     fi
     ;;
 esac
-
-# Customizations
 
 # git diff all files including untracked
 gitdiffall() {
@@ -99,6 +101,4 @@ setopt autocd autopushd pushdignoredups no_auto_remove_slash
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # common aliases
-if [ -f ~/.bash_aliases ]; then
-  . ~/.bash_aliases
-fi
+[ -f ~/.aliases ] && . ~/.aliases

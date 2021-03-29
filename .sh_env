@@ -1,0 +1,18 @@
+# set PATH to include user's private bin and cargo
+GCMDIR=/gcm
+JAVA_HOME=/usr/local/jdk8
+IDEA_JDK=/usr/local/jdk11
+BROWSER=firefox
+#CLUTTER_VBLANK=none
+
+if [ -z "$SSH_AUTH_SOCK" ]; then
+  if [ -n "$XDG_RUNTIME_DIR" ]; then
+    SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
+  else
+    SSH_AUTH_SOCK="/run/user/`id -u`/keyring/ssh"
+  fi
+fi
+
+PATH="$PATH:$JAVA_HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin"
+
+export GCMDIR JAVA_HOME IDEA_JDK BROWSER SSH_AUTH_SOCK PATH

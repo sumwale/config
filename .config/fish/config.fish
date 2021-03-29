@@ -123,6 +123,6 @@ if test -n "$tldr_cachedir"
 end
 
 # common aliases
-if test -r ~/.bash_aliases
-  source ~/.bash_aliases
+if test -r ~/.aliases
+  source ~/.aliases
 end

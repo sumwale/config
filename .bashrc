@@ -141,9 +141,6 @@ ex() {
   fi
 }
 
-
-# Customizations
-
 # git diff all files including untracked
 gitdiffall() {
   if test "$#" = 0; then
@@ -192,6 +189,4 @@ fi
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # common aliases
-if [ -f ~/.bash_aliases ]; then
-  . ~/.bash_aliases
-fi
+[ -f ~/.aliases ] && . ~/.aliases
