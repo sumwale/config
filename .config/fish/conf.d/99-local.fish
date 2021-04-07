@@ -2,24 +2,6 @@
 set fish_greeting
 set VIRTUAL_ENV_DISABLE_PROMPT "1"
 
-# bobthefish configuration
-set -g theme_display_git yes
-set -g theme_display_git_dirty yes
-set -g theme_display_git_untracked yes
-set -g theme_display_git_ahead_verbose yes
-set -g theme_display_git_dirty_verbose yes
-set -g theme_display_git_stashed_verbose yes
-set -g theme_display_git_default_branch yes
-set -g theme_git_default_branches master main
-
-set -g theme_display_date no
-set -g theme_display_jobs_verbose yes
-set -g theme_display_sudo_user yes
-set -g theme_show_exit_status yes
-
-set -g fish_prompt_pwd_dir_length 3
-set -g theme_color_scheme dracula
-
 # functions needed for !! and !$ https://github.com/oh-my-fish/plugin-bang-bang
 function __history_previous_command
   switch (commandline -t)
