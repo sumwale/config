@@ -13,6 +13,7 @@ Some of the specific customizations include:
   * disk devices nvme0n1, sda, sdb are also specific to my hardware
   * nitrogen with random wallpaper picked from ~/Pictures/wallpapers
   * update-notifier.sh script in .local/bin for awesome wm which assumes ARCH based system having pamac and dunstify installed
+  * touchpad-settings.sh in .local/bin to setup touchpad
   * user-services.sh in .local/bin that invokes the borgmatic service timer to ensure that backup is never missed and loads .asound.state
 * awesome wm configuration has many machine specific customizations noted in the next section
 
@@ -120,21 +121,23 @@ Either add these to your .profile or remove "export" and add to /etc/environment
  * Fonts: cantarell, fira-code, terminus-ttf. On Arch: pamac install cantarell-fonts ttf-fira-code terminus-font-ttf. If you prefer some others then change awesome, conky, .xsettingsd and kitty configurations
  * nm-applet for network management
  * xfce4-power-manager, xss-lock for power management and screen locking. Can be skipped if the system is not a laptop. My /etc/systemd/logind.conf has HandleLidSwitch and HandleLidSwitchExternalPower set to lock.
- * xbacklight for brightness control
+ * xbacklight for brightness control, xinput for touchpad settings
 
 On Arch use this to get the required and recommended packages:
 
 pacman -S pamac-gtk
 
-pamac install awesome rofi picom gsimplecal procps lxappearance xsettingsd pulseaudio-alsa alsa-utils whitesur-gtk-theme-git whitesur-kvantum-theme-git kvantum-qt5 vimix-cursors tela-circle-icon-theme-git polkit-gnome gnome-keyring conky-lua-nv i3lock-fancy-git scrot imagemagick libnotify libcanberra cantarell-fonts ttf-fira-code terminus-font-ttf network-manager-applet xfce4-power-manager xss-lock xorg-xbacklight xorg-xset util-linux
+pamac install awesome rofi picom gsimplecal procps lxappearance xsettingsd pulseaudio-alsa alsa-utils whitesur-gtk-theme-git whitesur-kvantum-theme-git kvantum-qt5 vimix-cursors tela-circle-icon-theme-git polkit-gnome gnome-keyring conky-lua-nv i3lock-fancy-git scrot imagemagick nitrogen libnotify libcanberra cantarell-fonts ttf-fira-code terminus-font-ttf network-manager-applet xfce4-power-manager xss-lock xorg-xbacklight xorg-xinput xorg-xset util-linux
 
 Use equivalent for other distributions.
+
+If you have a touchpad, then update the .local/bin/touchpad-settings.sh touchpad variable with your device (search for TouchPad in the output of "xinput list") and change the script to add/remove any other touchpad settings as per your preferences (e.g. the script enables "natural scrolling" by default but you may disable it if you prefer otherwise). If you do not have a touchpad, then remove or comment out the touchpad-settings.sh script invocation in ~/.config/awesome/configuration/apps.lua.
 
 The .local/bin/user-services.sh script launches few custom services for borgmatic backup. You would want to remove those but can retain nm-applet. This is launched as as a respawnable service because on my system this occasionally crashes after suspend. To use that copy the service file from .config/systemd/user/nm-applet.service to your ~/.config/systemd/user directory (create latter if not present). Additionally it overrides the alsa settings from ~/.asound.state since in my system pulseaudio overrides those in a way that disables seemless switching between internal speaker and headphones. If you want to also override then you can do the required setup using alsamixer and then save using "alsactl store -f ~/.asound.state".
 
 #### Optional apps in configuration/apps.lua
 
- * the following custom scripts from .local/bin: borgmatic-setup.sh, kitty-custom.sh, update-notifier.sh, user-services.sh
+ * the following custom scripts from .local/bin: borgmatic-setup.sh, kitty-custom.sh, update-notifier.sh, touchpad-settings.sh, user-services.sh
  * Kitty for terminal. Instead of doing tiled windows manually, I find kitty or terminator that provide split windows and saved layouts to be way better. I will highly recommend using one of these two. Besides the first tag is supposed to be for terminal which is deliberately in floating mode for conky to work acceptably. The default session in kitty uses a single terminal with split layout, no tab bar or window decorations etc so looks identical in all DEs. Use Ctrl-Shift-Tab to create a new tab, Ctrl-Shift-Enter to add a new vertical split terminal, Ctrl-Shift-p for horizontal split. Use Ctrl-Shift-l to go to next layout which is Stack by default that will effectively maximize the current window (and hit the same again to go back to Split layout). The apps.lua uses kitty with custom.session that uses a specific layout with directories specific to my home that will not work OOTB for you, so change that as per your needs. Else change terminal in apps.lua to use just kitty instead of kitty-cusom.sh. Use Ctrl-Shift-F10 to maximize kitty window. See kitty.conf for other custom keyboard shortcuts.
  * Firefox for the browser. Personally I find firefox to be the most comfortable to use with the best look and feel.
  * Thunderbird for email. Still the best email client with Monterail and Conversations extensions giving it the modern touch.

@@ -40,6 +40,7 @@ return {
     'xfce4-power-manager', -- Power manager
     'xss-lock -- i3lock-fancy -- scrot -z -o', -- xfce4-power-manager does not handle lid
     -- 'pamac-tray', -- now handled by update-notifier.sh run by conky
+    '~/.local/bin/touchpad-settings.sh', -- touchpad tap to click, natural scrolling
     '~/.local/bin/user-services.sh', -- includes wifi, alsa restore
     --'nitrogen --random --set-zoom-fill ~/Pictures/wallpapers', -- run by conky periodically
     -- Add applications that need to be killed between reloads
