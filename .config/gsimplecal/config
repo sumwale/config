@@ -16,5 +16,7 @@ clock_label = Portland
 clock_tz = :America/Los_Angeles
 clock_label = New York
 clock_tz = :America/New_York
+clock_label = London
+clock_tz = :Europe/London
 clock_label = UTC
 clock_tz = :UTC
