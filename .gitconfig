@@ -1,3 +1,5 @@
+[core]
+	autocrlf = input
 [credential]
 	helper = libsecret
 [push]

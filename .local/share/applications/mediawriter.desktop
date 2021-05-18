@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Fedora Media Writer
-Comment=Write ISO images to your portable USB and other drives
-Icon=mediawriter
-Exec=mediawriter
-Terminal=false
-Categories=System;
-
