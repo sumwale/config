@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Firmware Manager Check
+Icon=firmware-manager
+Comment=Check for firmware updates, and display notification if found
+Categories=System
+Exec=/usr/bin/com.system76.FirmwareManager.Notify
+X-GNOME-Autostart-enabled=false
+Hidden=true
