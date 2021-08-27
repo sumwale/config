@@ -638,6 +638,14 @@ local globalKeys =
     {description = 'Open default program for tag/workspace', group = 'tag'}
   ),
   -- Custom hotkeys
+  -- type TIBCO password
+  awful.key(
+    {'Control','Shift'},
+    'F10',
+    function()
+      awful.util.spawn_with_shell('sleep 0.5; xdotool type `secret-tool lookup tibco vpn`')
+    end
+  ),
   -- type firefox master password
   awful.key(
     {'Control','Shift'},

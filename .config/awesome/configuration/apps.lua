@@ -23,7 +23,7 @@ return {
     browser = 'firefox',
     mail = 'thunderbird',
     editor = 'env idea.sh', -- gui text editor
-    social = 'signal-desktop',
+    social = 'zoom',
     game = rofi_command,
     files = 'nautilus --new-window',
     music = 'smplayer',
@@ -42,6 +42,7 @@ return {
     -- 'pamac-tray', -- now handled by update-notifier.sh run by conky
     '~/.local/bin/touchpad-settings.sh', -- touchpad tap to click, natural scrolling
     '~/.local/bin/user-services.sh', -- includes wifi, alsa restore
+    'caffeine', -- disable screen locking when required
     --'nitrogen --random --set-zoom-fill ~/Pictures/wallpapers', -- run by conky periodically
     -- Add applications that need to be killed between reloads
     -- to avoid multipled instances, inside the awspawn script

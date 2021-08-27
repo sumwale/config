@@ -17,6 +17,8 @@ alias lt='exa -smod -r --color=always --group-directories-first'
 
 alias cdl='cd ~/product/lightspeed-spark'
 alias cds='cd ~/product/snappy-spark'
+alias cdt='cd ~/product/tibco'
+alias cdts='cd ~/product/tibco/tds-studio'
 alias cds0='cd ~/product/SnappyData/snappydata'
 alias cds1='cd ~/product/SnappyData/1.snappydata'
 alias cdd='cd /shared/sumedh/Downloads'

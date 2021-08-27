@@ -9,7 +9,7 @@ set expandtab
 set shiftwidth=2
 "set smarttab
 
-set mouse=a
+"set mouse=a
 set hlsearch
 set incsearch
 set nowrapscan
@@ -84,7 +84,9 @@ if !exists('my_auto_commands_loaded')
   " buftype=nowritefile (is read-only)
   " undolevels=-1 (no undo possible)
   let g:LargeFile = 1024 * 1024 * 1024
+  " disable syntax highlight for files > 100M
+  let g:MediumFile = 100 * 1024 * 1024
   augroup LargeFile
-    autocmd BufReadPre * let f=expand("<afile>") | if getfsize(f) > g:LargeFile | set eventignore+=FileType | setlocal noswapfile bufhidden=unload undolevels=-1 | else | set eventignore-=FileType | endif
+    autocmd BufReadPre * let f=expand("<afile>") | if getfsize(f) > g:LargeFile | set eventignore+=FileType | setlocal noswapfile nohlsearch bufhidden=unload undolevels=-1 | elseif getfsize(f) > g:MediumFile | set eventignore+=FileType | setlocal nohlsearch | else | set eventignore-=FileType | endif
   augroup END
 endif
