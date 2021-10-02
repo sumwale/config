@@ -29,3 +29,9 @@
 	process = git-lfs filter-process
 	required = true
 	clean = git-lfs clean -- %f
+
+[includeIf "gitdir:~/product/tibco/**"]
+	path = ~/.gitconfig.tibco
+
+[includeIf "gitdir:/shared/sumedh/tibco/**"]
+	path = ~/.gitconfig.tibco

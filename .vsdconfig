@@ -12,7 +12,7 @@ set vsd(exec:lpr) lpr
 # vsd(exec:mail) is the name of the command used to send mail.
 # It is called with one argument; the name of the user to send mail to.
 # It also expects the message to mail from stdin.
-set vsd(exec:mail) /usr/lib/sendmail
+set vsd(exec:mail) /usr/bin/sendmail
 
 # vsd(exec:date) is the name of the command used to get the date.
 # It is called with no arguments.

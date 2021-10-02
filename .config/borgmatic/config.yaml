@@ -95,6 +95,8 @@ location:
         - '- /home/sumedh/.mozilla/**/webappsstore*'
         - '- /home/sumedh/.nv/GLCache'
         - '- /home/sumedh/.rustup/toolchains'
+        - '+ /home/sumedh/.sbt/repositories'
+        - '- /home/sumedh/.sbt'
         - '- /home/sumedh/.ssh'
         - '- /home/sumedh/.thunderbird/**/key4.db'
         - '- /home/sumedh/.thunderbird/**/login*.json'
