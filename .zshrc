@@ -76,10 +76,10 @@ export LESS_TERMCAP_us=$'\e[1;4;31m'
 export LESS="-R"
 
 if [ -z "$LESSOPEN" ]; then
-  if type lesspipe.sh 2>/dev/null >/dev/null; then
-    export LESSOPEN="| /usr/bin/lesspipe.sh %s"
+  if which lesspipe.sh 2>/dev/null >/dev/null; then
+    export LESSOPEN="|$(which lesspipe.sh) %s"
   elif type lesspipe 2>/dev/null >/dev/null; then
-    export LESSOPEN="| /usr/bin/lesspipe %s"
+    export LESSOPEN="|$(which lesspipe.sh) %s"
   fi
 fi
 
@@ -102,3 +102,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 
 # common aliases
 [ -f ~/.aliases ] && . ~/.aliases
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"

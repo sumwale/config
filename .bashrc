@@ -7,11 +7,14 @@
 if [[ $- == *m* && "$INTERACTIVE_SHELL_IS_FISH" == "true" ]]; then
   export INTERACTIVE_SHELL_IS_FISH=false
   if [ -x /bin/fish ]; then
-    exec -a fish /bin/fish
+    fishShell=/bin/fish
   elif [ -x /usr/bin/fish ]; then
-    exec -a fish /usr/bin/fish
+    fishShell=/usr/bin/fish
   elif [ -x /usr/local/bin/fish ]; then
-    exec -a /usr/local/bin/fish
+    fishShell=/usr/local/bin/fish
+  fi
+  if [ -n "$fishShell" ]; then
+    exec -a fish $fishShell
   fi
 fi
 
@@ -167,9 +170,9 @@ export LESS="-R"
 
 if [ -z "$LESSOPEN" ]; then
   if type lesspipe.sh 2>/dev/null >/dev/null; then
-    export LESSOPEN="| /usr/bin/lesspipe.sh %s"
+    export LESSOPEN="|$(which lesspipe.sh) %s"
   elif type lesspipe 2>/dev/null >/dev/null; then
-    export LESSOPEN="| /usr/bin/lesspipe %s"
+    export LESSOPEN="|$(which lesspipe) %s"
   fi
 fi
 
@@ -190,3 +193,11 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 
 # common aliases
 [ -f ~/.aliases ] && . ~/.aliases
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# http://blog.yohanliyanage.com/2015/05/docker-clean-up-after-yourself/
+
+if [ "$1" = "--skip-containers" ]; then
+  shift
+else
+  exitedContainers="$(docker ps -a -q -f status=exited)"
+  if [ -n "$exitedContainers" ]; then
+    docker rm -v $exitedContainers
+  fi
+fi
+
+docker image prune "$@"
+
+danglingVolumes="$(docker volume ls -qf dangling=true)"
+if [ -n "$danglingVolumes" ]; then
+  docker volume rm $danglingVolumes
+fi
+
+docker builder prune "$@"

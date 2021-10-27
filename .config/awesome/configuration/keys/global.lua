@@ -640,26 +640,26 @@ local globalKeys =
   -- Custom hotkeys
   -- type TIBCO password
   awful.key(
-    {'Control','Shift'},
-    'F10',
+    {modkey, 'Shift'},
+    '8',
     function()
-      awful.util.spawn_with_shell('sleep 0.5; xdotool type `secret-tool lookup tibco vpn`')
+      awful.util.spawn('type-secret.sh tibco vpn')
     end
   ),
   -- type firefox master password
   awful.key(
-    {'Control','Shift'},
-    'F11',
+    {modkey, 'Shift'},
+    '9',
     function()
-      awful.util.spawn_with_shell('sleep 0.5; xdotool type `secret-tool lookup mozilla firefox-master`')
+      awful.util.spawn('type-secret.sh mozilla firefox-master')
     end
   ),
   -- type thunderbird master password
   awful.key(
-    {'Control','Shift'},
-    'F12',
+    {modkey, 'Shift'},
+    '0',
     function()
-      awful.util.spawn_with_shell('sleep 0.5; xdotool type `secret-tool lookup mozilla thunderbird-master`')
+      awful.util.spawn('type-secret.sh mozilla thunderbird-master')
     end
   ),
   -- toggle airplane mode (toggle wifi and bluetooth)

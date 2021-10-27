@@ -18,11 +18,12 @@
 	recurseSubmodules = on-demand
 [pull]
 	rebase = false
+	ff = only
 [alias]
 	spull = !git pull && git submodule sync --recursive && git submodule update --init --recursive
 	spush = push --recurse-submodules=on-demand
 	lrevert = !git reset HEAD -- "$1" && git checkout -- "$1"
-	slog = log --graph --decorate --oneline --all
+	slog = log --graph --decorate --oneline
 	files = show --pretty=\"\" --name-only
 [filter "lfs"]
 	smudge = git-lfs smudge -- %f

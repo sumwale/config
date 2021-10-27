@@ -85,9 +85,9 @@ set -gx LESS '-R'
 
 if test -z "$LESSOPEN"
   if which lesspipe.sh 2>/dev/null >/dev/null
-    set -gx LESSOPEN '| /usr/bin/lesspipe.sh %s'
+    set -gx LESSOPEN '|'(which lesspipe.sh)' %s'
   else if which lesspipe 2>/dev/null >/dev/null
-    set -gx LESSOPEN '| /usr/bin/lesspipe %s'
+    set -gx LESSOPEN '|'(which lesspipe)' %s'
   end
 end
 
