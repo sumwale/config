@@ -2,11 +2,12 @@
 Description=borgmatic backup
 Wants=network-online.target
 After=network-online.target
-ConditionACPower=true
 OnFailure=service-failure-email@%n.service
 
 [Service]
 Type=oneshot
+
+Environment=SSH_AUTH_SOCK=/run/user/%U/keyring/ssh
 
 # Lower CPU and I/O priority.
 Nice=19
