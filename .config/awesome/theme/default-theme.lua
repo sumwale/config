@@ -95,7 +95,7 @@ local awesome_overrides =
   theme.tasklist_fg_urgent = theme.fg_normal
   theme.tasklist_fg_normal = '#AAAAAA'
 
-  theme.icon_theme = 'Papirus-Dark'
+  theme.icon_theme = 'Tela-circle-purple-dark'
 
   --Client
   theme.border_width = dpi(1)

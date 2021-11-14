@@ -17,12 +17,12 @@ local slider =
 slider:connect_signal(
   'property::value',
   function()
-    spawn.easy_async('xbacklight -set ' .. math.max(slider.value, 5), function() end)
+    spawn.easy_async('xbacklight.sh -set ' .. math.max(slider.value, 5), function() end)
   end
 )
 
 watch(
-  'xbacklight -get',
+  'xbacklight.sh -get',
   3,
   function(widget, stdout, stderr, exitreason, exitcode)
     local brightness = string.match(stdout, '(%d+)')

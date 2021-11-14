@@ -1,10 +1,16 @@
 # set PATH to include user's private bin and cargo
 GCMDIR=/gcm
-IDEA_JDK=/usr/local/jdk11
+if [ -e /usr/local/jdk11 ]; then
+  IDEA_JDK=/usr/local/jdk11
+  export IDEA_JDK
+fi
 JAVA8_HOME=/usr/local/jdk8
 JAVA_HOME=$JAVA8_HOME
 BROWSER=firefox
-CHROME_BIN=/usr/bin/chromium
+if which chromium 2>/dev/null >/dev/null; then
+  CHROME_BIN="`which chromium 2>/dev/null`"
+  export CHROME_BIN
+fi
 #DOCKER_BUILDKIT=1
 DOCKER_TEAM_STUDIO_REPO=docker-registry.hosting:5000/tibco
 DOCKER_TIBCO_REGISTRY=registry.tds.tibco.com:30123
@@ -16,12 +22,28 @@ ALPINE_HADOOP_VERSION=cdh54
 if [ -z "$SSH_AUTH_SOCK" ]; then
   if [ -n "$XDG_RUNTIME_DIR" ]; then
     SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
+    export SSH_AUTH_SOCK
   else
     SSH_AUTH_SOCK="/run/user/`id -u`/keyring/ssh"
+    if [ -e "$SSH_AUTH_SOCK" ]; then
+      export SSH_AUTH_SOCK
+    else
+      SSH_AUTH_SOCK="/var$SSH_AUTH_SOCK"
+      if [ -e "$SSH_AUTH_SOCK" ]; then
+        export SSH_AUTH_SOCK
+      fi
+    fi
   fi
 fi
-SSH_ASKPASS=/usr/lib/seahorse/ssh-askpass
+
+if [ -x /usr/lib/seahorse/ssh-askpass ]; then
+  SSH_ASKPASS=/usr/lib/seahorse/ssh-askpass
+  export SSH_ASKPASS
+elif [ -x /usr/libexec/seahorse/ssh-askpass ]; then
+  SSH_ASKPASS=/usr/libexec/seahorse/ssh-askpass
+  export SSH_ASKPASS
+fi
 
 PATH="$PATH:$JAVA_HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin"
 
-export GCMDIR IDEA_JDK JAVA8_HOME JAVA_HOME BROWSER CHROME_BIN DOCKER_BUILDKIT DOCKER_TEAM_STUDIO_REPO DOCKER_TIBCO_REGISTRY DOCKER_TIBCO_REPO CHORUS_SERVICE_TYPE ALPINE_HADOOP_VERSION SSH_AUTH_SOCK PATH SSH_ASKPASS
+export GCMDIR JAVA8_HOME JAVA_HOME BROWSER DOCKER_BUILDKIT DOCKER_TEAM_STUDIO_REPO DOCKER_TIBCO_REGISTRY DOCKER_TIBCO_REPO CHORUS_SERVICE_TYPE ALPINE_HADOOP_VERSION PATH

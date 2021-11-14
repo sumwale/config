@@ -5,6 +5,8 @@ alias free='free -m'                      # show sizes in MB
 alias vi=nvim
 alias vim=nvim
 
+type fdfind >/dev/null 2>/dev/null && alias fd=fdfind
+
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'

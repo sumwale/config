@@ -3,15 +3,27 @@
 INTERVAL=28800
 STAMP_FILE_NAME=.update-notifier.sh.stamp
 STAMP_FILE="$HOME/$STAMP_FILE_NAME"
+APT_SYSTEM=
 
-if ! type pamac 2>/dev/null >/dev/null; then
-  echo "pamac not available"
-  exit 1
-fi
-
-if ! type dunstify 2>/dev/null >/dev/null; then
-  echo "dunstify not available"
-  exit 1
+if [ -x /usr/lib/update-notifier/apt-check ]; then
+  APT_SYSTEM=1
+  if ! type update-manager 2>/dev/null >/dev/null; then
+    echo "update-manager not available"
+    exit 1
+  fi
+  if ! type notify-send 2>/dev/null >/dev/null; then
+    echo "notify-send not available"
+    exit 1
+  fi
+else
+  if ! type pamac 2>/dev/null >/dev/null; then
+    echo "pamac not available"
+    exit 1
+  fi
+  if ! type dunstify 2>/dev/null >/dev/null; then
+    echo "dunstify not available"
+    exit 1
+  fi
 fi
 
 force=false
@@ -74,7 +86,21 @@ if [ "$force" != "true" -a -r "$STAMP_FILE" ]; then
   fi
 fi
 
-if ping -q -c 1 8.8.8.8 >/dev/null 2>&1 || ping -q -c 1 8.8.4.4 >/dev/null 2>&1; then
+if [ -n "$APT_SYSTEM" ]; then
+  avail_updates="$(/usr/lib/update-notifier/apt-check 2>&1)"
+  num_updates="$(echo $avail_updates | sed 's/;.*//')"
+  security_updates="$(echo $avail_updates | sed 's/.*;//')"
+  if [ "$num_updates" != 0 ]; then
+    msg="There are $num_updates updates available"
+    if [ "$security_updates" != 0 ]; then
+      notify-send -u critical -t 10000 "$msg with $security_updates security updates."
+      sleep 5
+      update-manager
+    else
+      notify-send -u normal -t 1200000 "$msg. Update with apt/aptitude/update-manager."
+    fi
+  fi
+elif ping -q -c 1 8.8.8.8 >/dev/null 2>&1 || ping -q -c 1 8.8.4.4 >/dev/null 2>&1; then
   num_updates=$(pamac checkupdates --aur --quiet 2>/dev/null | wc -l | awk '{ print $1 }')
   if [ $num_updates -gt 0 ]; then
     answer=$(dunstify "There are $num_updates updates available" -t 30000 -A Y,"Update now" -A N,Later)

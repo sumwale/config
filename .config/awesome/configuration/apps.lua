@@ -26,14 +26,14 @@ return {
     social = 'zoom',
     game = rofi_command,
     files = 'nautilus --new-window',
-    music = 'smplayer',
-    software = 'pamac-manager'
+    music = 'sh -c "smplayer || totem"',
+    software = 'sh -c "pamac-manager || kitty aptitude"'
   },
   -- List of apps to start once on start-up
   run_on_start_up = {
     'xsettingsd',
     'picom --config ' .. filesystem.get_configuration_dir() .. '/configuration/picom.conf',
-    '/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)', -- credential manager
+    '{ /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 || /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1; } & sleep 0.25 && eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)', -- credential manager
     'conky',
     -- 'pa-applet', -- shows an audiocontrol applet in systray when installed.
     'redshift',
@@ -42,7 +42,7 @@ return {
     -- 'pamac-tray', -- now handled by update-notifier.sh run by conky
     '~/.local/bin/touchpad-settings.sh', -- touchpad tap to click, natural scrolling
     '~/.local/bin/user-services.sh', -- includes wifi, alsa restore
-    'caffeine', -- disable screen locking when required
+    'caffeine & { caffeine-indicator || /bin/true; }', -- disable screen locking when required
     --'nitrogen --random --set-zoom-fill ~/Pictures/wallpapers', -- run by conky periodically
     -- Add applications that need to be killed between reloads
     -- to avoid multipled instances, inside the awspawn script

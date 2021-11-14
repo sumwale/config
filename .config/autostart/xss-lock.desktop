@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=XSS Lock
+Exec=xss-lock.sh
+OnlyShowIn=GNOME;Unity;
+NoDisplay=true

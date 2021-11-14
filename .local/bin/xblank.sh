@@ -1,3 +1,3 @@
 #!/bin/sh
 
-sleep 1 && xset dpms force off
+sleep 0.5 && xset dpms force off

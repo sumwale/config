@@ -39,7 +39,7 @@ function volume_change(arg)
 end
 
 function brightness_change(arg)
-  awful.spawn.easy_async_with_shell('xbacklight -steps 1 -time 10 ' .. arg .. ' && canberra-gtk-play -i dialog-information -d brightness_change && xbacklight -get', function(stdout)
+  awful.spawn.easy_async_with_shell('xbacklight.sh -steps 1 -time 10 ' .. arg .. ' && canberra-gtk-play -i dialog-information -d brightness_change && xbacklight.sh -get', function(stdout)
     local brightness = string.match(stdout, '%d+')
     if brightness_notification ~= nil then
       brightness_notification = naughty.notify({
@@ -139,7 +139,7 @@ local globalKeys =
     {'Control', altkey},
     'Delete',
     function()
-      awful.spawn('reboot')
+      os.execute('reboot')
     end,
     {description = 'Reboot Computer', group = 'awesome'}
   ),
@@ -147,7 +147,7 @@ local globalKeys =
     {modkey, altkey},
     'Delete',
     function()
-      awful.spawn('shutdown now')
+      os.execute('shutdown now')
     end,
     {description = 'Shutdown Computer', group = 'awesome'}
   ),
@@ -206,7 +206,7 @@ local globalKeys =
     {modkey},
     'l',
     function()
-      awful.spawn(apps.default.lock)
+      awful.spawn(apps.default.lock, false)
     end,
     {description = 'Lock the screen', group = 'awesome'}
   ),
@@ -270,7 +270,7 @@ local globalKeys =
     {modkey},
     'b',
     function()
-      awful.util.spawn(apps.default.browser)
+      awful.spawn(apps.default.browser)
     end,
     {description = 'Open browser', group = 'launcher'}
   ),
@@ -278,7 +278,7 @@ local globalKeys =
     {modkey},
     'e',
     function()
-      awful.util.spawn(apps.default.mail)
+      awful.spawn(apps.default.mail)
     end,
     {description = 'Open email client', group = 'launcher'}
   ),
@@ -640,29 +640,45 @@ local globalKeys =
   -- Custom hotkeys
   -- type TIBCO password
   awful.key(
-    {modkey, 'Shift'},
-    '8',
+    {'Control', 'Shift'},
+    'F10',
     function()
-      awful.util.spawn('type-secret.sh tibco vpn')
+      os.execute('type-secret.sh tibco vpn')
     end
   ),
   -- type firefox master password
   awful.key(
-    {modkey, 'Shift'},
-    '9',
+    {'Control', 'Shift'},
+    'F11',
     function()
-      awful.util.spawn('type-secret.sh mozilla firefox-master')
+      os.execute('type-secret.sh mozilla firefox-master')
     end
   ),
   -- type thunderbird master password
   awful.key(
-    {modkey, 'Shift'},
-    '0',
+    {'Control', 'Shift'},
+    'F12',
     function()
-      awful.util.spawn('type-secret.sh mozilla thunderbird-master')
+      os.execute('type-secret.sh mozilla thunderbird-master')
     end
   ),
-  -- toggle airplane mode (toggle wifi and bluetooth)
+  -- toggle wifi, bluetooth and airplane mode (all)
+  awful.key(
+    {modkey},
+    'F8',
+    function()
+      awful.util.spawn_with_shell('notify-send "Wireless has been `airplane-toggle.sh wlan`"')
+    end,
+    {description = 'toggle wireless', group = 'hotkeys'}
+  ),
+  awful.key(
+    {modkey},
+    'F9',
+    function()
+      awful.util.spawn_with_shell('notify-send "Bluetooth has been `airplane-toggle.sh bluetooth`"')
+    end,
+    {description = 'toggle bluetooth', group = 'hotkeys'}
+  ),
   awful.key(
     {modkey},
     'F10',
@@ -676,7 +692,7 @@ local globalKeys =
     {modkey},
     'F11',
     function()
-      awful.util.spawn_with_shell('xblank.sh')
+      os.execute('xblank.sh')
     end,
     {description = 'blank the screen', group = 'hotkeys'}
   ),
@@ -685,7 +701,7 @@ local globalKeys =
     {modkey},
     'F12',
     function()
-      awful.util.spawn('systemctl suspend')
+      os.execute('systemctl suspend')
     end,
     {description = 'suspend the system', group = 'hotkeys'}
   ),
@@ -694,7 +710,7 @@ local globalKeys =
     {modkey, 'Shift'},
     'F12',
     function()
-      awful.util.spawn('systemctl hibernate')
+      os.execute('systemctl hibernate')
     end,
     {description = 'hibernate the system', group = 'hotkeys'}
   ),
@@ -703,7 +719,7 @@ local globalKeys =
     {modkey, 'Control'},
     'F12',
     function()
-      awful.util.spawn('systemctl hibernate -i')
+      os.execute('systemctl hibernate -i')
     end,
     {description = 'force hibernate the system ignoring inhibitions', group = 'hotkeys'}
   ),
@@ -712,7 +728,7 @@ local globalKeys =
     {modkey},
     'f',
     function()
-      awful.util.spawn(apps.default.files)
+      awful.spawn(apps.default.files)
     end,
     {description = 'filebrowser', group = 'launcher'}
   ),
@@ -721,7 +737,7 @@ local globalKeys =
     {modkey},
     'p',
     function()
-      awful.util.spawn(apps.default.software)
+      awful.spawn(apps.default.software)
     end,
     {description = 'software manager', group = 'launcher'}
   ),
