@@ -47,3 +47,16 @@ fi
 PATH="$PATH:$JAVA_HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin"
 
 export GCMDIR JAVA8_HOME JAVA_HOME BROWSER DOCKER_BUILDKIT DOCKER_TEAM_STUDIO_REPO DOCKER_TIBCO_REGISTRY DOCKER_TIBCO_REPO CHORUS_SERVICE_TYPE ALPINE_HADOOP_VERSION PATH
+
+# k8s config files
+KUBECONFIG="$HOME/.kube/config"
+if [ -d "$HOME/.kube/configs" ]; then
+  for f in "$HOME/.kube/configs/*"; do
+    if [ -r "$f" ]; then
+      KUBECONFIG="$KUBECONFIG:$f"
+    fi
+  done
+fi
+export KUBECONFIG
+
+[ -r "$HOME/.sh_env.local" ] && . "$HOME/.sh_env.local"

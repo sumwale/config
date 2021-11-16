@@ -203,6 +203,11 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # common aliases
 [ -f ~/.aliases ] && . ~/.aliases
 
+if which kubectl 2>/dev/null >/dev/null; then
+  . ~/.kube_funcs
+  source <(kubectl completion bash)
+fi
+
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"

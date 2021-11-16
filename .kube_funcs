@@ -1,0 +1,29 @@
+export K8S_SERVICES="tds-alpine tds-rconnector tds-notebooks tds-chorus"
+
+function klogs() {
+  serviceName="$1"
+  shift
+  kubectl logs "service/$serviceName" -f "$@"
+}
+
+function kexecProc() {
+  serviceName="$1"
+  shift
+  if [ -n "$1" ]; then
+    kubectl exec -it "service/$serviceName" "$@"
+  else
+    kubectl exec -it "service/$serviceName" -- /bin/bash
+  fi
+}
+
+function kstopAll() {
+  for d in $K8S_SERVICES; do
+    kubectl scale --replicas=0 "deployment/$d"
+  done
+}
+
+function kstartAll() {
+  for d in $K8S_SERVICES; do
+    kubectl scale --replicas=1 "deployment/$d"
+  done
+}

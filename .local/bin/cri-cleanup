@@ -1,0 +1,11 @@
+#!/bin/sh
+
+CRICTL="sudo crictl -r unix:///run/containerd/containerd.sock"
+if [ "$1" = "--exited-containers" ]; then
+  exitedContainers="$($CRICTL ps -a -q --state exited)"
+  if [ -n "$exitedContainers" ]; then
+    $CRICTL rm $exitedContainers
+  fi
+fi
+
+$CRICTL rmi --prune

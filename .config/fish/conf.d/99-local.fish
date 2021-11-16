@@ -108,3 +108,7 @@ end
 if test -r ~/.aliases
   source ~/.aliases
 end
+
+if type kubectl 2>/dev/null >/dev/null
+  source ~/.kube_funcs.fish
+end
