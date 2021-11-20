@@ -85,7 +85,7 @@ if [ -e /var/run/crio/crio.sock ]; then
   fi
 fi
 
-if [ -e /var/run/dockershim.sock ]; then
+if [ -e /var/run/dockershim.sock -o -e /run/docker.sock ]; then
   DOCKER_CONF_EXISTING=
   if [ -f /etc/docker/daemon.json ]; then
     DOCKER_CONF_EXISTING=`grep -v '[{}]' /etc/docker/daemon.json`
@@ -101,6 +101,7 @@ if [ -e /var/run/dockershim.sock ]; then
     echo Updating /etc/docker/daemon.json
     sudo tee /etc/docker/daemon.json << EOF > /dev/null
 {$DOCKER_CONF_EXISTING
+  "containerd": "/run/containerd/containerd.sock",
   "exec-opts": ["native.cgroupdriver=systemd"],
   "log-driver": "json-file",
   "log-opts": {
@@ -120,5 +121,5 @@ if [ -d /etc/NetworkManager/conf.d ]; then
 [keyfile]
 unmanaged-devices=interface-name:cali*;interface-name:tunl*;interface-name:vxlan.calico
 EOF
-  sudo systemctl restart NetworkManager
+  sudo systemctl reload NetworkManager
 fi

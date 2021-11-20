@@ -14,7 +14,7 @@ localAPIEndpoint:
 nodeRegistration:
   criSocket: unix:///var/run/crio/crio.sock
   imagePullPolicy: Always
-  name: swale-P14s
+  name: cluster-manager
   taints: null
 ---
 apiServer:

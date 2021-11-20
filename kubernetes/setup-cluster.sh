@@ -59,7 +59,7 @@ echo ===========================================================================
 echo
 echo
 
-yq -i eval 'select(.nodeRegistration.name) |= .nodeRegistration.name= "'`hostname`'"' "$KUBEADM_CONFIG"
+yq -i eval 'select(.nodeRegistration.name) |= .nodeRegistration.name= "'$MANAGER'"' "$KUBEADM_CONFIG"
 sudo kubeadm init $KUBEADM_FLAGS "$@" > kubeadm-init.log
 
 JOIN_CMD=$(awk '/kubeadm join/ { if ($0 ~ /\\$/) { gsub(/\\$/, ""); printf $0; getline; print } else print }' kubeadm-init.log)
@@ -83,7 +83,7 @@ if ! sudo grep -q pod-eviction-timeout /etc/kubernetes/manifests/kube-controller
   if [ -e /var/run/crio/crio.sock ]; then
     sudo systemctl restart crio
   fi
-  if [ -e /var/run/dockershim.sock ]; then
+  if [ -e /var/run/dockershim.sock -o -e /run/docker.sock ]; then
     sudo systemctl restart docker
   fi
   sleep 10
@@ -149,7 +149,7 @@ echo
 #waitForPods "nfs-provisioner-.*"
 
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
-helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=$MANAGER_IP --set nfs.path=/nfs --set image.pullPolicy=Always --set storageClass.onDelete=delete
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=$MANAGER_IP --set nfs.path=/home/nfs/k8s --set image.pullPolicy=Always --set storageClass.onDelete=delete
 sleep 5
 waitForPods "nfs-subdir-.*"
 
