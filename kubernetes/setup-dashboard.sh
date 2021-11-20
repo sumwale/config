@@ -8,7 +8,10 @@ echo
 echo Starting dashboard
 echo
 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.3.1/aio/deploy/recommended.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
+sleep 2
+# increase the dashboard timeout
+kubectl patch deployment kubernetes-dashboard -n kubernetes-dashboard --type json -p '[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--token-ttl=3600" }]'
 sleep 2
 waitForPods "kubernetes-dashboard-.*" -n kubernetes-dashboard
 kubectl apply -f "$SCRIPT_DIR/dashboard"

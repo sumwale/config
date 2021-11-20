@@ -12,7 +12,7 @@ rm -f $HOME/others.key
 
 HOMEDIR="`echo $HOME | sed 's,^/,,'`"
 
-if [ -d $HOME/.var/app/org.mozilla.Thunderbird/.thunderbird ]
+if [ -d $HOME/.var/app/org.mozilla.Thunderbird/.thunderbird ]; then
   TBIRD=$HOMEDIR/.var/app/org.mozilla.Thunderbird/.thunderbird
 else
   TBIRD=$HOMEDIR/.thunderbird

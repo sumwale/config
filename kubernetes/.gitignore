@@ -1,1 +1,5 @@
-kubeadm-init.log kubectl-proxy.log kubectl-proxy.err
+kubeadm-init.log
+kubectl-proxy.log
+kubectl-proxy.err
+virt-cert.pem
+virt-key.pem

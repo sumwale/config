@@ -150,6 +150,8 @@ echo
 
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
 helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server=$MANAGER_IP --set nfs.path=/home/nfs/k8s --set image.pullPolicy=Always --set storageClass.onDelete=delete
+# mark StorageClass as default
+kubectl patch storageclass nfs-client -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 sleep 5
 waitForPods "nfs-subdir-.*"
 

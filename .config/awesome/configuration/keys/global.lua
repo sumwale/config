@@ -638,6 +638,14 @@ local globalKeys =
     {description = 'Open default program for tag/workspace', group = 'tag'}
   ),
   -- Custom hotkeys
+  -- type MariaDB password
+  awful.key(
+    {'Control', 'Shift'},
+    'F9',
+    function()
+      os.execute('type-secret.sh mariadb password')
+    end
+  ),
   -- type TIBCO password
   awful.key(
     {'Control', 'Shift'},
