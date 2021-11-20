@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-dns
+  namespace: kube-system
+data:
+  stubDomains: |
+    {"internal.hosting": ["192.168.122.1"]}
+  upstreamNameservers: |
+    ["192.168.122.1"]

@@ -1,4 +1,4 @@
-export K8S_SERVICES="tds-alpine tds-rconnector tds-notebooks tds-chorus"
+export K8S_SERVICES="tds-alpine tds-rconnector tds-notebooks tds-chorus nfs-subdir-external-provisioner"
 
 function klogs() {
   serviceName="$1"

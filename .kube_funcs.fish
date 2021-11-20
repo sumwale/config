@@ -1,4 +1,4 @@
-export K8S_SERVICES="tds-alpine tds-rconnector tds-notebooks tds-chorus"
+set K8S_SERVICES tds-alpine tds-rconnector tds-notebooks tds-chorus nfs-subdir-external-provisioner
 
 function klogs --description 'kubectl logs for a service'
   kubectl logs "service/$argv[1]" -f $argv[2..-1]
@@ -19,7 +19,7 @@ function kstopAll --description 'kubectl stop all tds services'
 end
 
 function kstartAll --description 'kubectl start all tds services'
-  for d in $K8S_SERVICES; do
+  for d in $K8S_SERVICES
     kubectl scale --replicas=1 "deployment/$d"
   end
 end
