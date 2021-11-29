@@ -19,6 +19,9 @@ function kstopAll --description 'kubectl stop all tds services'
 end
 
 function kstartAll --description 'kubectl start all tds services'
+  if systemctl status dnsmasq 2>/dev/null >/dev/null
+    sudo systemctl restart dnsmasq
+  end
   for d in $K8S_SERVICES
     kubectl scale --replicas=1 "deployment/$d"
   end

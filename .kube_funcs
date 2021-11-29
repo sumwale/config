@@ -23,6 +23,9 @@ function kstopAll() {
 }
 
 function kstartAll() {
+  if systemctl status dnsmasq 2>/dev/null >/dev/null; then
+    sudo systemctl restart dnsmasq
+  fi
   for d in $K8S_SERVICES; do
     kubectl scale --replicas=1 "deployment/$d"
   done

@@ -70,6 +70,8 @@ if [ -e /run/containerd/containerd.sock ]; then
     sudo mv -f /etc/containerd/config.toml.tmp /etc/containerd/config.toml
   fi
 
+  sudo sed -i 's/KillMode=process/KillMode=mixed/' /lib/systemd/system/containerd.service 2>/dev/null || /bin/true
+  sudo systemctl daemon-reload
   sudo systemctl restart containerd
 fi
 
