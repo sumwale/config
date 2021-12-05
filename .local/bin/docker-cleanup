@@ -2,9 +2,8 @@
 
 # http://blog.yohanliyanage.com/2015/05/docker-clean-up-after-yourself/
 
-if [ "$1" = "--skip-containers" ]; then
+if [ "$1" = "--exited-containers" ]; then
   shift
-else
   exitedContainers="$(docker ps -a -q -f status=exited)"
   if [ -n "$exitedContainers" ]; then
     docker rm -v $exitedContainers
