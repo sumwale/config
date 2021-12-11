@@ -167,6 +167,8 @@ echo
 echo Creating the TLS secret for Chorus service
 echo
 
-kubectl create secret tls chorus-tls-secret --key "$SCRIPT_DIR/virt-key.pem" --cert "$SCRIPT_DIR/virt-cert.pem"
+gpg --decrypt virt-key.pem.gpg > virt-key.pem
+gpg --decrypt virt-cert.pem.gpg > virt-cert.pem
+kubectl create secret tls tds-tls --key "$SCRIPT_DIR/virt-key.pem" --cert "$SCRIPT_DIR/virt-cert.pem"
 
 "$SCRIPT_DIR/setup-dashboard.sh"

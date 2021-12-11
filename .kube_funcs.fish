@@ -12,6 +12,13 @@ function kexecProc --description 'kubectl exec process (or bash) for a service'
   end
 end
 
+function kcleanReplicas --description 'kubectl clean old replicasets'
+  set emptyReplicasets (kubectl get replicasets | grep '0[ ]\+0[ ]\+0' | cut -d' ' -f 1)
+  if [ -n "$emptyReplicasets" ]
+    kubectl delete replicasets $emptyReplicasets
+  end
+end
+
 function kstopAll --description 'kubectl stop all tds services'
   for d in $K8S_SERVICES
     kubectl scale --replicas=0 "deployment/$d"

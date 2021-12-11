@@ -16,6 +16,13 @@ function kexecProc() {
   fi
 }
 
+function kcleanReplicas() {
+  emptyReplicasets="`kubectl get replicasets | grep '0[ ]\+0[ ]\+0' | cut -d' ' -f 1`"
+  if [ -n "$emptyReplicasets" ]; then
+    kubectl delete replicasets $emptyReplicasets
+  fi
+}
+
 function kstopAll() {
   for d in $K8S_SERVICES; do
     kubectl scale --replicas=0 "deployment/$d"

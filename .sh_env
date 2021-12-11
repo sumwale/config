@@ -51,7 +51,7 @@ export GCMDIR JAVA8_HOME JAVA_HOME BROWSER DOCKER_BUILDKIT DOCKER_TEAM_STUDIO_RE
 # k8s config files
 KUBECONFIG="$HOME/.kube/config"
 if [ -d "$HOME/.kube/configs" ]; then
-  for f in "$HOME/.kube/configs/*"; do
+  for f in $HOME/.kube/configs/*; do
     if [ -r "$f" ]; then
       KUBECONFIG="$KUBECONFIG:$f"
     fi
