@@ -1,0 +1,20 @@
+Layout/LineLength:
+  Max: 99
+
+Metrics/MethodLength:
+  Max: 50
+
+Metrics/BlockLength:
+  Max: 500
+
+Metrics/ClassLength:
+  Max: 500
+
+Metrics/AbcSize:
+  Max: 50
+
+Metrics/CyclomaticComplexity:
+  Max: 30
+
+Metrics/PerceivedComplexity:
+  Max: 30
