@@ -4,7 +4,7 @@ metadata:
   name: spark-driver
   namespace: default
   labels:
-    io.kompose.service: tds-notebooks
+    app.kubernetes.io/name: tds-notebooks
 rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["pods", "nodes", "services", "persistentvolumeclaims", "configmaps"]
@@ -17,7 +17,7 @@ metadata:
   name: spark-driver
 subjects:
 - kind: ServiceAccount
-  name: default
+  name: spark
   namespace: default
 roleRef:
   kind: Role

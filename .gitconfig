@@ -1,5 +1,6 @@
 [core]
 	autocrlf = input
+	filemode = true
 [credential]
 	helper = libsecret
 [push]
