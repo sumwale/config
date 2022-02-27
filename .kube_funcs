@@ -1,18 +1,18 @@
 export K8S_SERVICES="tds-alpine tds-rconnector tds-notebooks tds-chorus nfs-subdir-external-provisioner"
 
 function klogs() {
-  serviceName="$1"
+  deployName="$1"
   shift
-  kubectl logs "service/$serviceName" -f "$@"
+  kubectl logs "deployment/$deployName" -f "$@"
 }
 
 function kexecProc() {
-  serviceName="$1"
+  deployName="$1"
   shift
   if [ -n "$1" ]; then
-    kubectl exec -it "service/$serviceName" "$@"
+    kubectl exec -it "deployment/$deployName" "$@"
   else
-    kubectl exec -it "service/$serviceName" -- /bin/bash
+    kubectl exec -it "deployment/$deployName" -- /bin/bash
   fi
 }
 

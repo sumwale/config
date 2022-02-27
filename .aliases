@@ -34,9 +34,7 @@ alias sshgl2='TERM=xterm-256color /usr/bin/ssh swale@na1prddscgir02.tibco.com'
 alias sshgl3='TERM=xterm-256color /usr/bin/ssh swale@na1prddscgir03.tibco.com'
 
 alias k=kubectl
-alias kget='kubectl get'
 alias kpods='kubectl get pods'
-alias kapply='kubectl apply'
 alias kdesc='kubectl describe'
 alias kdel='kubectl delete deployment'
 alias kkill='kubectl delete --grace-period=0'
@@ -46,6 +44,7 @@ alias krestart='kubectl rollout restart deployment'
 alias kgetAll='kubectl get nodes,pods,services,deployments,jobs,daemonset,statefulset,ingress,pv,pvc,storageclass'
 alias kctxLocal='kubectl config use-context kubernetes-admin@kubernetes'
 alias kctxAws='kubectl config use-context TdsEks_eu-north-1'
+alias kctxMdb='kubectl config use-context mdb-spark'
 alias ctr='sudo ctr -n=k8s.io'
 alias cctl='sudo crictl -r unix:///run/containerd/containerd.sock'
 

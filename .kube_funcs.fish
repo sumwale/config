@@ -1,14 +1,14 @@
 set K8S_SERVICES tds-alpine tds-rconnector tds-notebooks tds-chorus nfs-subdir-external-provisioner
 
-function klogs --description 'kubectl logs for a service'
-  kubectl logs "service/$argv[1]" -f $argv[2..-1]
+function klogs --description 'kubectl logs for a deployment'
+  kubectl logs "deployment/$argv[1]" -f $argv[2..-1]
 end
 
-function kexecProc --description 'kubectl exec process (or bash) for a service'
+function kexecProc --description 'kubectl exec process (or bash) for a deployment'
   if [ (count $argv) -gt 1 ]
-    kubectl exec -it "service/$argv[1]" $argv[2..-1]
+    kubectl exec -it "deployment/$argv[1]" $argv[2..-1]
   else
-    kubectl exec -it "service/$argv[1]" -- /bin/bash
+    kubectl exec -it "deployment/$argv[1]" -- /bin/bash
   end
 end
 

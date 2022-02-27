@@ -44,7 +44,7 @@ elif [ -x /usr/libexec/seahorse/ssh-askpass ]; then
   export SSH_ASKPASS
 fi
 
-PATH="$PATH:$JAVA_HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin"
+PATH="$PATH:$JAVA_HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.krew/bin"
 
 export GCMDIR JAVA8_HOME JAVA_HOME BROWSER DOCKER_BUILDKIT DOCKER_TEAM_STUDIO_REPO DOCKER_TIBCO_REGISTRY DOCKER_TIBCO_REPO CHORUS_SERVICE_TYPE ALPINE_HADOOP_VERSION PATH
 
