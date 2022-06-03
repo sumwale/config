@@ -80,20 +80,25 @@ end
 local last_battery_check = os.time()
 
 watch(
-  'acpi -i',
+  'sh -c "acpi -i && acpi -a"',
   3,
   function(_, stdout)
     local batteryIconName = 'battery'
 
     local battery_info = {}
     local capacities = {}
+    local adapter = 'off'
     for s in stdout:gmatch('[^\r\n]+') do
-      local status, charge_str, time = string.match(s, '.+: (%a+), (%d?%d?%d)%%,?.*')
+      local status, charge_str, time = string.match(s, '.+: ([^,]+), (%d?%d?%d)%%,?.*')
       if status ~= nil then
         table.insert(battery_info, {status = status, charge = tonumber(charge_str)})
       else
         local cap_str = string.match(s, '.+:.+last full capacity (%d+)')
-        table.insert(capacities, tonumber(cap_str))
+        if cap_str ~= nil then
+          table.insert(capacities, tonumber(cap_str))
+        else
+          adapter = string.match(s, 'Adapter [^:]+: (%a+)-line')
+        end
       end
     end
 
@@ -123,7 +128,7 @@ watch(
       end
     end
 
-    if status == 'Charging' or status == 'Full' or status == 'Unknown' then
+    if adapter == 'on' or status == 'Charging' or status == 'Full' or status == 'Unknown' then
       batteryIconName = batteryIconName .. '-charging'
     end
 
