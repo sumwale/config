@@ -1,7 +1,7 @@
 #ac_adapter=$(acpi -a | cut -d' ' -f3 | cut -d- -f1)
 #if [ "$ac_adapter" = "on" ]; then
   #echo $ac_adapter
-  echo Applying...
+  #echo Applying...
   # MSR
   # PL1
   echo 26000000 > /sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw # 26 watt
