@@ -3,7 +3,7 @@ export K8S_SERVICES="tds-alpine tds-rconnector tds-notebooks tds-chorus nfs-subd
 function klogs() {
   deployName="$1"
   shift
-  kubectl logs "deployment/$deployName" -f "$@"
+  kubectl logs "deployment/$deployName" "$@"
 }
 
 function kexecProc() {
@@ -36,4 +36,8 @@ function kstartAll() {
   for d in $K8S_SERVICES; do
     kubectl scale --replicas=1 "deployment/$d"
   done
+}
+
+function kswitchNS() {
+  kubectl config set-context --current --namespace=$1
 }

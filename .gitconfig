@@ -32,6 +32,10 @@
 	required = true
 	clean = git-lfs clean -- %f
 
+[includeIf "gitdir:~/product/mariadb/**"]
+	path = ~/.gitconfig.mariadb
+
+[includeIf "gitdir:/shared/sumedh/tibco/**"]
 [includeIf "gitdir:~/product/tibco/**"]
 	path = ~/.gitconfig.tibco
 

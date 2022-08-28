@@ -1,6 +1,6 @@
 # first tab with four terminals laid out using grid
 
-enabled_layouts grid, stack
+enabled_layouts grid, stack, splits
 layout grid
 
 cd ~/product/lightspeed-spark

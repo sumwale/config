@@ -1,0 +1,5 @@
+[user]
+	email = sumedh.wale@mariadb.com
+	name = Sumedh Wale
+[init]
+	defaultBranch = main

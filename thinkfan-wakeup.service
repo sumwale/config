@@ -1,0 +1,14 @@
+[Unit]
+Description=Reload thinkfan after waking up from suspend
+After=sysinit.target
+After=suspend.target
+After=suspend-then-hibernate.target
+After=hybrid-sleep.target
+After=hibernate.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /usr/local/bin/thinkfan-wakeup.sh
+
+[Install]
+WantedBy=sleep.target
