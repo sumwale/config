@@ -7,7 +7,7 @@ WORKERS="cluster-node1.internal.hosting cluster-node2.internal.hosting"
 SCRIPT_DIR="`dirname "$0"`"
 SERVICES_PRE_SETUP_FILE=k8s-setup-services-pre.sh
 SERVICES_POST_SETUP_FILE=k8s-setup-services-post.sh
-KUBEADM_WORKER_FLAGS="--cri-socket=/run/containerd/containerd.sock --ignore-preflight-errors=Swap"
+KUBEADM_WORKER_FLAGS="--cri-socket=unix:/run/containerd/containerd.sock --ignore-preflight-errors=Swap"
 KUBEADM_FLAGS="$KUBEADM_WORKER_FLAGS --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$MANAGER_IP --node-name=$MANAGER"
 KUBEADM_CONFIG=kubeadm-crio.yaml
 #KUBEADM_WORKER_FLAGS="--cri-socket=/var/run/crio/crio.sock"
