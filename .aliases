@@ -46,6 +46,7 @@ alias kgetAll='kubectl get nodes,pods,services,deployments,jobs,daemonset,statef
 alias kctxLocal='kubectl config use-context kubernetes-admin@kubernetes'
 alias kctxAws='kubectl config use-context TdsEks_eu-north-1'
 alias kctxMdb='kubectl config use-context mdb-spark'
+alias kctxMdbGke='kubectl config use-context mdb-spark-gke'
 alias ctr='sudo ctr -n=k8s.io'
 alias cctl='sudo crictl -r unix:///run/containerd/containerd.sock'
 

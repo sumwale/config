@@ -203,9 +203,13 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # common aliases
 [ -f ~/.aliases ] && . ~/.aliases
 
-if which kubectl 2>/dev/null >/dev/null; then
+if type kubectl 2>/dev/null >/dev/null; then
   . ~/.kube_funcs
   source <(kubectl completion bash)
+
+  if type eksctl 2>/dev/null >/dev/null; then
+    source <(eksctl completion bash)
+  fi
 fi
 
 
