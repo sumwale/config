@@ -18,3 +18,5 @@ if [ -n "$danglingVolumes" ]; then
 fi
 
 docker builder prune "$@"
+
+docker buildx prune "$@" || /bin/true
