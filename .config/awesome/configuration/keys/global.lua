@@ -9,6 +9,7 @@ local apps = require('configuration.apps')
 local switcher = require('awesome-switcher')
 local naughty = require('naughty')
 local icons = require('theme.icons')
+local xrandr = require('module.xrandr')
 
 -- Utility functions to display notifications for hotkeys
 
@@ -470,6 +471,14 @@ local globalKeys =
       awful.layout.inc(-1)
     end,
     {description = 'Select previous', group = 'layout'}
+  ),
+  awful.key(
+    {modkey},
+    'F7',
+    function()
+      xrandr.xrandr()
+    end,
+    {description = 'Switch monitor (xrandr)', group = 'layout'}
   ),
   awful.key(
     {modkey},
