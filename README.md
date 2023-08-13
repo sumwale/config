@@ -108,7 +108,7 @@ Either add these to your .profile or remove "export" and add to /etc/environment
 #### Recommended
 
  * whitesur for gtk/qt, tela-circle for icons, vimix-cursors or whitesur for cursor theme. Specifically use the dark-purple version in the .themes which matches the colors used in awesome. On Arch: pamac install whitesur-gtk-theme-git whitesur-kvantum-theme-git vimix-cursors tela-circle-icon-theme-git (or yay/... whatever AUR helper you use). On other distros you may need to install the themes from gnome-look to your home directory manually (whitesur-gtk can be skipped if you use the WhiteSur-dark-purple from .themes).
- * polkit-gnome, gnome-keyring -- for keyring with ssh/gpg agent support
+ * polkit-gnome/policykit-1-gnome, gnome-keyring -- for keyring with ssh/gpg agent support
  * xset from xorg-xset, rfkill from util-linux
  * conky -- note that floating layout is required for this to work acceptably which is setup in this awesome configuration for the first tag. Use conky-lua-nv if you have NVIDIA card.
  * nitrogen for wallpaper which is invoked by conky at interval of 1 day to choose a random wallpaper from ~/Pictures/wallpapers so you can place all your wallpapers there. Alternatively one can use feh+variety or similar which will need appropriate changes to configuration/apps.lua and conky.conf
