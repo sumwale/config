@@ -655,12 +655,12 @@ local globalKeys =
       os.execute('type-secret.sh mariadb password')
     end
   ),
-  -- type TIBCO password
+  -- type custom encryption password
   awful.key(
     {'Control', 'Shift'},
     'F10',
     function()
-      os.execute('type-secret.sh tibco vpn')
+      os.execute('type-secret.sh password encrypt_others')
     end
   ),
   -- type firefox master password

@@ -1,1 +1,1 @@
-/home/swale/config/fish-kubectl-completions/completions/kubectl.fish
+../../../fish-kubectl-completions/completions/kubectl.fish

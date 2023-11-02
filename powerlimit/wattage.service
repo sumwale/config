@@ -3,7 +3,7 @@ Description=Sets watt limit every 10 seconds
 
 [Service]
 User=root
-WorkingDirectory=/home/swale/config/powerlimit
+WorkingDirectory=/home/sumedh/config/powerlimit
 ExecStart=sh wait-watt.sh
 Restart=always
 
