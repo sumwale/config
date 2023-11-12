@@ -715,7 +715,7 @@ local globalKeys =
   ),
   -- suspend
   awful.key(
-    {modkey},
+    {modkey, 'Shift'},
     'F12',
     function()
       os.execute('systemctl suspend')
@@ -724,7 +724,7 @@ local globalKeys =
   ),
   -- hibernate (honour inhibitions)
   awful.key(
-    {modkey, 'Shift'},
+    {modkey, 'Control'},
     'F12',
     function()
       os.execute('systemctl hibernate')
@@ -733,7 +733,7 @@ local globalKeys =
   ),
   -- force hibernate (ignore inhibitions)
   awful.key(
-    {modkey, 'Control'},
+    {modkey, 'Control', 'Shift'},
     'F12',
     function()
       os.execute('systemctl hibernate -i')
