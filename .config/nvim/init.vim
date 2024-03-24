@@ -25,6 +25,8 @@ nnoremap <F5> :buffers<CR>:buffer<Space>
 nnoremap gn :bn<CR>
 nnoremap gN :bp<CR>
 
+" write as root using sudo
+cmap w!! w !sudo tee > /dev/null %
 
 if !has('nvim')
   set maxmem=8000000
