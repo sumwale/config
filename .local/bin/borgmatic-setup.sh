@@ -4,9 +4,9 @@
 # script to separately encrypt directories containing sensitive information and these
 # must be excluded from regular home backups
 
-# the new encrypted file always overwrites resulting in a new file in backup, so exclude some large
-# directories that do are known to not have any sensitive information
-CONFIG_EXCLUDES="--exclude=JetBrains --exclude=chromium --exclude=libreoffice"
+# the new encrypted file always overwrites resulting in a new file in backup, so exclude some
+# large directories that do not have any sensitive information
+CONFIG_EXCLUDES="--exclude=Code --exclude=JetBrains --exclude=chromium --exclude=libreoffice"
 
 rm -f $HOME/others.key
 
@@ -23,7 +23,7 @@ else
   TBIRD=$HOMEDIR/.thunderbird
 fi
 
-(cd / && tar $CONFIG_EXCLUDES -c -p -S -f - $HOMEDIR/.aws $HOMEDIR/.config $HOMEDIR/.gnupg $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $FFOX/*/key4.db $FFOX/*/logins*.json $HOMEDIR/.ssh $TBIRD/*/key4.db $TBIRD/*/logins*.json | xz -7 -T 0 -F xz -c - > $HOMEDIR/others.key) && \
+(cd / && tar $CONFIG_EXCLUDES -c -p -S -f - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.gnupg $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $FFOX/*/key4.db $FFOX/*/logins*.json $HOMEDIR/.ssh $TBIRD/*/key4.db $TBIRD/*/logins*.json | xz -7 -T 0 -F xz -c - > $HOMEDIR/others.key) && \
 rm -f $HOME/Documents/others.key.gpg && \
 { gpg --batch --no-tty --encrypt -r sumwale@gmail.com -o $HOME/Documents/others.key.gpg $HOME/others.key 2>/dev/null || \
   gpg --batch --no-tty --encrypt -r swale@tibco.com -o $HOME/Documents/others.key.gpg $HOME/others.key; }
