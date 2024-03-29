@@ -3,7 +3,7 @@
 enabled_layouts grid, stack, splits
 layout grid
 
-cd ~/product/lightspeed-spark
+cd ~/projects/lightspeed-spark
 launch
 focus
 launch
