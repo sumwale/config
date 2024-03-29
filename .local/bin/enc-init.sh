@@ -10,7 +10,7 @@ ENC_PREFIX="enc-init"
 for dir in `cat enc.dirs`; do
   if [ -d $dir -a ! -e $dir.$ENC_PREFIX ]; then
     mkdir $dir.$ENC_PREFIX && \
-      fscrypt encrypt $dir.$ENC_PREFIX && \
+      fscrypt encrypt $dir.$ENC_PREFIX --no-recovery && \
       cp -a -T $dir $dir.$ENC_PREFIX
   fi
 done
@@ -23,9 +23,10 @@ else
   HOME_MNT=/
 fi
 
-[ `fscrypt status $HOME_MNT | sed -n 's/.*has \([0-9]\+\) protectors.*/\1/p'` -lt 2 ] && \
+NEW_PROTECTOR="`fscrypt status $HOME_MNT | sed -n 's/^\([^ \t]*\).*custom protector.*$/\1/p'`"
+if [ -z "$NEW_PROTECTOR" ]; then
   fscrypt metadata create protector $HOME_MNT
-
+fi
 NEW_PROTECTOR="`fscrypt status $HOME_MNT | sed -n 's/^\([^ \t]*\).*custom protector.*$/\1/p'`"
 
 if [ -n "$NEW_PROTECTOR" ]; then
