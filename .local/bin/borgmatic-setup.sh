@@ -6,11 +6,11 @@
 
 # the new encrypted file always overwrites resulting in a new file in backup, so exclude some
 # large directories that do not have any sensitive information
-CONFIG_EXCLUDES="--exclude=Code --exclude=JetBrains --exclude=chromium --exclude=libreoffice"
-
-rm -f $HOME/others.key
+CONFIG_EXCLUDES="--exclude=Code --exclude=JetBrains --exclude=chromium --exclude=libreoffice --exclude=conky.conf --exclude=id_ed25519 --exclude=id_ed25519.pub"
 
 HOMEDIR="`echo $HOME | sed 's,^/,,'`"
+
+rm -f $HOME/Documents/others.key.gpg $HOME/Documents/rest.key $HOME/Documents/rest.key.gpg
 
 if [ -d $HOME/.var/app/org.mozilla.firefox/.mozilla/firefox ]; then
   FFOX=$HOMEDIR/.var/app/org.mozilla.firefox/.mozilla/firefox
@@ -23,12 +23,20 @@ else
   TBIRD=$HOMEDIR/.thunderbird
 fi
 
-(cd / && tar $CONFIG_EXCLUDES -c -p -S -f - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.gnupg $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $FFOX/*/key4.db $FFOX/*/logins*.json $HOMEDIR/.ssh $TBIRD/*/key4.db $TBIRD/*/logins*.json | xz -7 -T 0 -F xz -c - > $HOMEDIR/others.key) && \
-rm -f $HOME/Documents/others.key.gpg && \
-{ gpg --batch --no-tty --encrypt -r sumwale@gmail.com -o $HOME/Documents/others.key.gpg $HOME/others.key 2>/dev/null || \
-  gpg --batch --no-tty --encrypt -r swale@tibco.com -o $HOME/Documents/others.key.gpg $HOME/others.key; }
+if gpg --list-secret-key sumwale@gmail.com >/dev/null 2>/dev/null; then
+  GPG_ID=sumwale@gmail.com
+else
+  GPG_ID=swale@tibco.com
+fi
+( cd / && \
+  tar $CONFIG_EXCLUDES -c -p -S -f - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.gnupg $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $FFOX/*/key4.db $FFOX/*/logins*.json $HOMEDIR/.ssh $TBIRD/*/key4.db $TBIRD/*/logins*.json etc/grub.d | \
+  xz -7 -T 0 -F xz -c - | \
+  gpg --batch --no-tty --encrypt -r $GPG_ID -o $HOMEDIR/Documents/others.key.gpg - 2>/dev/null && \
+  tar cpSJf $HOMEDIR/Documents/rest.key $HOMEDIR/.gnupg && \
+  secret-tool lookup borg-repository borgbase-store | \
+  gpg --batch --no-tty --pinentry-mode loopback --symmetric --cipher-algo AES256 --no-symkey-cache --passphrase-fd 0 -o $HOMEDIR/Documents/rest.key.gpg $HOMEDIR/Documents/rest.key 2>/dev/null )
 
-rm -f $HOME/others.key
+rm -f $HOME/Documents/rest.key
 
 if type -p pacman > /dev/null; then
   pacman -Qe > $HOME/pkgs-explicit.list

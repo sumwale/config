@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Tracker File System Miner
 Comment=Crawls and processes files on the file system
-Exec=/usr/lib/tracker-miner-fs-3
+Exec=/usr/libexec/tracker-miner-fs-3
 Terminal=false
 Type=Application
 Categories=Utility;

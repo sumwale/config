@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-VOICE_PATH="$HOME/Downloads/piper-tts"
+VOICE_PATH="$HOME/software/piper-tts"
 
 if [[ ${VOICE: -3} = low ]]; then
   ADJ_RATE=16000

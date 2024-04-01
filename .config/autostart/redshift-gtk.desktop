@@ -82,6 +82,5 @@ Terminal=false
 Type=Application
 Categories=Utility;
 StartupNotify=false
-AutostartCondition=GNOME3 if-session gnome
 Hidden=false
 X-GNOME-Autostart-enabled=true

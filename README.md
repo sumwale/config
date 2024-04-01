@@ -133,7 +133,7 @@ Use equivalent for other distributions.
 
 If you have a touchpad, then update the .local/bin/touchpad-settings.sh touchpad variable with your device (search for TouchPad in the output of "xinput list") and change the script to add/remove any other touchpad settings as per your preferences (e.g. the script enables "natural scrolling" by default but you may disable it if you prefer otherwise). If you do not have a touchpad, then remove or comment out the touchpad-settings.sh script invocation in ~/.config/awesome/configuration/apps.lua.
 
-The .local/bin/user-services.sh script launches few custom services for borgmatic backup. You would want to remove those but can retain nm-applet. This is launched as as a respawnable service because on my system this occasionally crashes after suspend. To use that copy the service file from .config/systemd/user/nm-applet.service to your ~/.config/systemd/user directory (create latter if not present). Additionally it overrides the alsa settings from ~/.asound.state since in my system pulseaudio overrides those in a way that disables seemless switching between internal speaker and headphones. If you want to also override then you can do the required setup using alsamixer and then save using "alsactl store -f ~/.asound.state".
+The .local/bin/user-services.sh script launches few custom services for borgmatic backup. You would want to remove those but can retain nm-applet. This is launched as as a respawnable service because on my system this occasionally crashes after suspend. To use that copy the service file from .config/systemd/user/nm-applet.service to your ~/.config/systemd/user directory (create latter if not present). Additionally it overrides the alsa settings from ~/.asound.state since in my system pulseaudio overrides those in a way that disables seemless switching between internal speaker and headphones. If you want to also override then you can do the required setup using alsamixer (enable auto-mute mode) and then save using "alsactl store -f ~/.asound.state".
 
 #### Optional apps in configuration/apps.lua
 
@@ -146,7 +146,7 @@ The .local/bin/user-services.sh script launches few custom services for borgmati
  * gnome-screenshot and scrot for screenshots. Note that gnome-screenshot does not work for window screenshot in awesome for which scrot or some other utility is required.
  * signal for messaging -- change signal-desktop to whatever you prefer
  * pamac-gtk for software -- change to the one appropriate for your distro
- * redshift -- for red tinge during both day and night. Copy .config/redshift.conf to your ~/.config and update latitude/longitude as per your location. Alternatively set the location-provider to geoclue2 if you have geoclue package installed and run its agent before redshift (usually in /usr/lib/geoclue-2.0/demos/agent).
+ * redshift -- for red tinge during both day and night. Copy .config/redshift.conf to your ~/.config and update latitude/longitude as per your location. Alternatively set the location-provider to geoclue2 if you have geoclue package installed and run its agent before redshift (usually in /usr/lib/geoclue-2.0/demos/agent). Note that just symlinking the file may not work on systems using apparmor, for example, that may have restricted permissions for redshift.
  * nautilus for file management (though I hardly use this except to easily mount external drives, mobile etc)
 
 

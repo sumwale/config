@@ -26,7 +26,8 @@ nnoremap gn :bn<CR>
 nnoremap gN :bp<CR>
 
 " write as root using sudo
-cmap w!! w !sudo tee > /dev/null %
+let $SUDO_ASKPASS = '/usr/libexec/seahorse/ssh-askpass'
+cmap w!! w !sudo -A tee > /dev/null 2> /dev/null %
 
 if !has('nvim')
   set maxmem=8000000
