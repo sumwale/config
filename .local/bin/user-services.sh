@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 systemctl --user start borgmatic-backup.timer
 systemctl --user start borgmatic-check.timer
@@ -17,9 +17,5 @@ ibus exit 2>/dev/null
 
 alsa_state="$HOME/.asound.state"
 if [ -f "$alsa_state" ]; then
-  # use the newer of $HOME/.asound.state and /var/lib/asound.state
-  if [ -f /var/lib/alsa/asound.state -a /var/lib/alsa/asound.state -nt "$alsa_state" ]; then
-    alsa_state=/var/lib/alsa/asound.state
-  fi
-  nohup /bin/bash -c "sleep 5 && alsactl restore -f \"$alsa_state\"" >/dev/null 2>/dev/null &
+  nohup /bin/sh -c "sleep 5 && alsactl restore -f \"$alsa_state\"" >/dev/null 2>/dev/null &
 fi

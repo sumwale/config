@@ -5,8 +5,9 @@
 # must be excluded from regular home backups
 
 # the new encrypted file always overwrites resulting in a new file in backup, so exclude some
-# large directories that do not have any sensitive information
-CONFIG_EXCLUDES="--exclude=Code --exclude=JetBrains --exclude=chromium --exclude=libreoffice --exclude=conky.conf --exclude=id_ed25519 --exclude=id_ed25519.pub"
+# large directories that do not have any sensitive information (also conky.conf and ssh keys
+#   which are machine specific)
+EXCLUDES="--exclude=.config/Code --exclude=.config/JetBrains --exclude=.config/chromium --exclude=.config/libreoffice --exclude=.config/conky/conky.conf --exclude=WidevineCdm --exclude=.kube/cache --exclude=.kube/http-cache --exclude=.ssh/id_ed25519 --exclude=.ssh/id_ed25519.pub --exclude=.ssh/id_rsa --exclude=.ssh/id_rsa.pub"
 
 HOMEDIR="`echo $HOME | sed 's,^/,,'`"
 
@@ -29,7 +30,7 @@ else
   GPG_ID=swale@tibco.com
 fi
 ( cd / && \
-  tar $CONFIG_EXCLUDES -c -p -S -f - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.gnupg $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $FFOX/*/key4.db $FFOX/*/logins*.json $HOMEDIR/.ssh $TBIRD/*/key4.db $TBIRD/*/logins*.json etc/grub.d | \
+  tar $EXCLUDES -c -p -S -f - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.gnupg $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $FFOX/*/key4.db $FFOX/*/logins*.json $HOMEDIR/.ssh $TBIRD/*/key4.db $TBIRD/*/logins*.json etc/grub.d etc/pam.d/common-* | \
   xz -7 -T 0 -F xz -c - | \
   gpg --batch --no-tty --encrypt -r $GPG_ID -o $HOMEDIR/Documents/others.key.gpg - 2>/dev/null && \
   tar cpSJf $HOMEDIR/Documents/rest.key $HOMEDIR/.gnupg && \

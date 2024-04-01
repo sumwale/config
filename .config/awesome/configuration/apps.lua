@@ -32,7 +32,7 @@ return {
   -- List of apps to start once on start-up
   run_on_start_up = {
     'xsettingsd',
-    'picom --config ' .. filesystem.get_configuration_dir() .. '/configuration/picom.conf',
+    'picom --daemon --config ' .. filesystem.get_configuration_dir() .. '/configuration/picom.conf',
     '{ /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 || /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1; } & sleep 0.25 && eval $(gnome-keyring-daemon -s --components=pkcs11,secrets,ssh,gpg)', -- credential manager
     'conky',
     -- 'pa-applet', -- shows an audiocontrol applet in systray when installed.

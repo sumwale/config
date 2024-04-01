@@ -87,6 +87,7 @@ patterns:
   - R /etc
   - R /usr/local
   - R /boot/grub/themes
+  - '- /home/sumedh/.android/adbkey*'
   - '- /home/sumedh/.aws'
   - '- /home/sumedh/.bash_history'
   - '- /home/sumedh/.cache'
@@ -147,6 +148,7 @@ patterns:
   - '- /home/sumedh/.zsh/cache'
   - '- /home/sumedh/dwhelper'
   - '- /home/sumedh/Downloads'
+  - '- /home/sumedh/mnt'
   - '- /home/sumedh/**/.data'
   - '- /home/sumedh/**/build-artifacts'
   - '- /home/sumedh/**/store/native/dist'
@@ -162,6 +164,7 @@ patterns:
   - '- /etc/cups/classes.conf*'
   - '- /etc/cups/printers.conf*'
   - '- /etc/cups/ssl'
+  - '- /etc/cups/*.O'
   - '- /etc/default/cacerts'
   - '- /etc/dma/auth.conf'
   - '- /etc/fstab'
@@ -176,17 +179,20 @@ patterns:
   - '- /etc/libvirt/secrets'
   - '- /etc/lvm/cache'
   - '- /etc/machine-id'
-  - '- /etc/modprobe.d/zzz-local.conf'
+  - '- /etc/mtab'
   - '- /etc/NetworkManager/system-connections'
   - '- /etc/nvme/hostid'
   - '- /etc/nvme/hostnqn'
   - '- /etc/pacman.d/gnupg'
+  - '- /etc/pam.d/common-*'
   - '- /etc/polkit-1/localauthority'
   - '- /etc/polkit-1/rules.d'
   - '- /etc/ppp/*secrets*'
+  - '- /etc/resolv.conf'
   - '- /etc/samba/private'
   - '- /etc/security/opasswd'
   - '- /etc/ssh/*key*'
+  - '- /etc/ssl/private'
   - '- /etc/sudoers'
   - '- /etc/sudoers.d'
   - '- /etc/systemd/system/multi-user.target.wants/throttled.service'
@@ -425,7 +431,7 @@ keep_daily: 7
 # keep_weekly: 4
 
 # Number of monthly archives to keep.
-# keep_monthly: 6
+keep_monthly: 1
 
 # Number of yearly archives to keep.
 # keep_yearly: 1
