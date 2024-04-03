@@ -198,6 +198,7 @@ patterns:
   - '- /etc/systemd/system/multi-user.target.wants/throttled.service'
   - '- /etc/systemd/system/multi-user.target.wants/wattage.service'
   - '- /etc/throttled.conf'
+  - '- /etc/tlp.d/*-dell.conf'
   - '- /etc/ufw/*.init'
   - '- /etc/ufw/*.rules'
   - '- /etc/*shadow*'
