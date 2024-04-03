@@ -4,6 +4,8 @@ alias df='df -m'                          # show sizes in MB
 alias free='free -m'                      # show sizes in MB
 alias vi=nvim
 alias vim=nvim
+alias ldd=libtree
+alias cat=batcat
 
 type fdfind >/dev/null 2>/dev/null && alias fd=fdfind
 
@@ -11,11 +13,12 @@ alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias ip='ip -color=auto'
+alias ncdu='ncdu --color dark'
 
-alias ls='exa -H --color=always --group-directories-first'
-alias la='exa -agH --color=always --group-directories-first'
-alias ll='exa -lgH --color=always --group-directories-first'
-alias lt='exa -gH -smod -r --color=always --group-directories-first'
+alias ls='eza -gH --color=always --group-directories-first'
+alias la='eza -agH --color=always --group-directories-first'
+alias ll='eza -lgH --color=always --group-directories-first'
+alias lt='eza -gH --sort=modified --reverse --color=always --group-directories-first'
 
 alias cdl='cd ~/projects/lightspeed-spark'
 alias cds='cd ~/projects/spark'

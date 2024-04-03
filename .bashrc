@@ -123,8 +123,11 @@ shopt -s expand_aliases
 # export QT_SELECT=4
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=5000
-HISTFILESIZE=10000
+export HISTSIZE=5000
+export HISTFILESIZE=10000
+
+# Don't put duplicate lines in the history and do not add lines that start with a space
+export HISTCONTROL=erasedups:ignoredups:ignorespace
 
 # Enable history appending instead of overwriting.  #139609
 shopt -s histappend
