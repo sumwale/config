@@ -3,6 +3,8 @@ local gears = require('gears')
 local client_keys = require('configuration.client.keys')
 local client_buttons = require('configuration.client.buttons')
 
+local dpi = require('beautiful').xresources.apply_dpi
+
 -- Rules
 awful.rules.rules = {
   -- All clients will match this rule.
@@ -34,6 +36,43 @@ awful.rules.rules = {
     properties = {
       floating = true,
       skip_decoration = true
+    }
+  },
+  -- fix large open dialogs of firefox and thunderbird under distrobox
+  {
+    rule = { class = 'firefox', name = 'Open File' },
+    properties = {
+      ontop = true,
+      floating = true,
+      skip_decoration = true,
+      x = dpi(300),
+      y = dpi(100),
+      width = dpi(900),
+      height = dpi(675)
+    }
+  },
+  {
+    rule = { class = 'thunderbird', name = 'Open Message' },
+    properties = {
+      ontop = true,
+      floating = true,
+      skip_decoration = true,
+      x = dpi(300),
+      y = dpi(100),
+      width = dpi(900),
+      height = dpi(690)
+    }
+  },
+  {
+    rule = { class = 'thunderbird', name = 'Open' },
+    properties = {
+      ontop = true,
+      floating = true,
+      skip_decoration = true,
+      x = dpi(300),
+      y = dpi(100),
+      width = dpi(900),
+      height = dpi(690)
     }
   },
   -- Titlebars
