@@ -14,7 +14,7 @@ ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
 
-COPY prime-run /usr/local/bin/prime-run
+COPY resources/prime-run /usr/local/bin/prime-run
 
 RUN set -ex && \
     chmod 0755 /usr/local/bin/prime-run && \
@@ -30,8 +30,8 @@ RUN set -ex && \
     sed -i 's/^--sort.*/--sort rate/' /etc/xdg/reflector/reflector.conf && \
     reflector @/etc/xdg/reflector/reflector.conf 2>/dev/null && \
     $PAC -Syu && \
-    $PAC -S --needed less lesspipe bc base-devel man-db man-pages sudo git pulseaudio-alsa neovim ncdu fd bat libva-utils mesa-utils vulkan-tools ttf-fira-code && \
-    $PAC -S --asdeps ed unzip fastjar python-pynvim xsel realtime-privileges intel-media-driver libva-mesa-driver vulkan-intel vulkan-mesa-layers python-pipx && \
+    $PAC -S --needed lesspipe bash-completion bc base-devel man-db man-pages sudo pulseaudio-alsa neovim eza ncdu fd bat libva-utils mesa-utils vulkan-tools gtk3 cantarell-fonts ttf-fira-code noto-fonts kitty-terminfo wget aria2 btop realtime-privileges && \
+    $PAC -S --asdeps git ed unzip fastjar python-pynvim xsel intel-media-driver libva-mesa-driver vulkan-intel vulkan-mesa-layers python-pip && \
     yes | pacman -Scc && $PAC -Syu && \
     sed -i 's/^COMPRESSZST=.*/COMPRESSZST=(zstd -c -T0 -8 -)/' /etc/makepkg.conf && \
     echo -e '\nexport EDITOR=nvim\nexport VISUAL=nvim' >> /etc/bash.bashrc && \
@@ -44,11 +44,18 @@ RUN set -ex && \
 USER ${user}
 WORKDIR /home/${user}
 
-RUN git clone https://aur.archlinux.org/paru.git && \
-    cd paru && makepkg --noconfirm -si && cd .. && \
-    PARU="paru --noconfirm" && $PARU -Rs rust && rm -rf .cargo paru && \
-    $PARU -S neovim-symlinks && \
+#RUN git clone https://aur.archlinux.org/paru.git && \
+#    cd paru && makepkg --noconfirm -si && cd .. && \
+#    PARU="paru --noconfirm" && $PARU -Rs rust paru-debug && rm -rf .cargo paru && \
+#    $PARU -S neovim-symlinks && \
+RUN mkdir paru && cd paru && \
+    curl -s https://api.github.com/repos/Morganamilo/paru/releases/latest | \
+      sed -n 's,.*browser_download_url.*\(https://.*paru.*-x86_64.tar.[a-z]*\).*,\1,p' | \
+      head -n1 | xargs -n1 curl -JLO && \
+    tar xf ./paru*-x86_64.tar.* && \
+    ./paru --noconfirm -S paru-bin neovim-symlinks && cd .. && rm -rf paru && \
     yes | paru -Scd && \
-    mkdir -p .config/pulse
+    sudo dbus-uuidgen --ensure=/etc/machine-id && \
+    mkdir -p .config/pulse && rm -rf .cache .local
 
 CMD [ "/bin/bash" ]
