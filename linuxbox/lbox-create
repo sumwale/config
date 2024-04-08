@@ -1,0 +1,298 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import argparse
+import re
+import getpass
+import typing
+
+from configparser import ConfigParser, SectionProxy
+from datetime import datetime
+from typeguard import typechecked
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-n", "--name", type=str,
+        help="""name of the box else the default is <distribution>-<conf_file> if not
+                provided (trimming off .ini suffix from the <conf_file>)""")
+parser.add_argument("-d", "--docker_path", type=str,
+        help="path of docker/podman if not in /usr/bin")
+parser.add_argument("distribution",
+        help="short name of the distribution (should be in supported.list)")
+parser.add_argument("conf_file",
+        help="""the ini configuration file to be used for creating the linux box
+                (should be in <distribution>/confs directory)""")
+args = parser.parse_args()
+
+distro = args.distribution
+ini_suffix = ".ini"
+if args.name:
+    box_name = args.name
+else:
+    box_name = args.conf_file
+    if box_name.endswith(ini_suffix):
+        box_name = box_name[:-len(ini_suffix)]
+    box_name = distro + "-" + box_name
+
+# note: deliberately not using os.path.join since the code only works on Linux like
+# systems where path separator will always be "/" so explicitly forcing the same
+
+# configuration files should be in ~/.config/linuxbox or /etc/linuxbox
+support_list = "supported.list"
+confdir = f"{os.path.expanduser('~')}/.config/linuxbox"
+if not os.access(f"{confdir}/{support_list}", os.R_OK):
+    confdir = "/etc/linuxbox"
+
+# check distribution is in supported.list
+with open(f"{confdir}/{support_list}", "r") as supp_file:
+    if distro not in supp_file.read().splitlines():
+        sys.exit(f"Distribution '{distro}' not supported")
+
+# check for podman first then docker
+if args.docker_path:
+    docker_cmd = args.docker_path
+elif os.access("/usr/bin/podman", os.X_OK):
+    docker_cmd = "/usr/bin/podman"
+elif os.access("/usr/bin/docker", os.X_OK):
+    docker_cmd = "/usr/bin/docker"
+else:
+    sys.exit("Neither /usr/bin/podman nor /usr/bin/docker found and no -d option provided")
+
+# read the ini configuration file and build the docker/podman command-line
+ini_file = f"{confdir}/{distro}/confs/{args.conf_file}"
+if not os.access(ini_file, os.R_OK):
+    sys.exit(f"Configuration file '{ini_file}' not present or unreadable")
+
+# prepare for the additional environment variables and NOW substitution
+os.environ["LINUXBOX_NAME"] = box_name
+now = datetime.now()
+os.environ["NOW"] = str(now)
+now_re = re.compile(r"\${NOW:([^}]*)}")
+# local user home might be in a different location than /home but target user in the
+# container will always be in /home (required for all images supported by linuxbox)
+target_user_home = "/home/" + getpass.getuser()
+os.environ["TARGET_HOME"] = target_user_home
+
+
+@typechecked
+def replace_now(mt: re.Match) -> str:
+    return now.strftime(mt.group(1))
+
+@typechecked
+def add_mount_option(args: list[str], src: str, dest: str, flags: str = "") -> None:
+    if flags:
+        args.append(f"-v={src}:{dest}:{flags}")
+    else:
+        args.append(f"-v={src}:{dest}")
+
+@typechecked
+def add_env_option(args: list[str], envvar: str, envval: typing.Optional[str] = None) -> None:
+    if envval is None:
+        args.append(f"-e={envvar}")
+    else:
+        args.append(f"-e={envvar}={envval}")
+
+@typechecked
+def enable_xorg(args: list[str]) -> None:
+    add_env_option(args, "DISPLAY")
+    xsock = "/tmp/.X11-unix"
+    add_mount_option(args, xsock, xsock, "ro")
+    xauth = os.environ.get("XAUTHORITY")
+    if xauth:
+        add_mount_option(args, xauth, xauth, "ro")
+
+@typechecked
+def enable_pulse(args: list[str]) -> None:
+    cookie = f"{os.environ['HOME']}/.config/pulse/cookie"
+    if os.access(cookie, os.R_OK):
+        add_mount_option(args, cookie, f"{target_user_home}/.config/pulse/cookie", "ro")
+    xdg_rtdir = os.environ.get("XDG_RUNTIME_DIR")
+    if xdg_rtdir:
+        pulse_native = f"{xdg_rtdir}/pulse/native"
+        add_mount_option(args, pulse_native, pulse_native)
+
+@typechecked
+def enable_dbus(args: list[str]) -> None:
+    dbus_sys = "/run/dbus/system_bus_socket"
+    dbus_sys2 = "/var/run/dbus/system_bus_socket"
+    if os.access(dbus_sys, os.W_OK):
+        add_mount_option(args, dbus_sys, dbus_sys)
+    elif os.access(dbus_sys2, os.W_OK):
+        add_mount_option(args, dbus_sys2, dbus_sys)
+    dbus_user = os.environ.get("DBUS_SESSION_BUS_ADDRESS")
+    if dbus_user:
+        dbus_user = dbus_user[dbus_user.find("=") + 1:]
+        dbus_opts_idx = dbus_user.find(",")
+        if dbus_opts_idx != -1:
+            dbus_user = dbus_user[:dbus_opts_idx]
+        add_mount_option(args, dbus_user, dbus_user)
+
+@typechecked
+def add_multi_opt(args: list[str], section: SectionProxy, key: str, opt: str) -> None:
+    opts = section[key]
+    if opts:
+        for opt_val in opts.split(";"):
+            args.append(f"--{opt}={opt_val}")
+
+@typechecked
+def process_base_section(base_section: SectionProxy, args: list[str]) -> None:
+    add_env_option(args, "TARGET_HOME", target_user_home)
+    for key in base_section:
+        if key == "home":
+            source_home = base_section[key]
+            # create the source directory if it does not exist
+            os.makedirs(source_home, exist_ok=True)
+            add_mount_option(args, source_home, target_user_home)
+        elif key == "xorg":
+            if base_section.getboolean("xorg"):
+                enable_xorg(args)
+        elif key == "pulseaudio":
+            if base_section.getboolean("pulseaudio"):
+                enable_pulse(args)
+        elif key == "dbus":
+            if base_section.getboolean("dbus"):
+                enable_dbus(args)
+        elif key == "dri":
+            if base_section.getboolean("dri"):
+                args.append("--device=/dev/dri")
+        elif key == "nvidia":
+            if base_section.getboolean("nvidia"):
+                args.append("--device=nvidia.com/gpu=all")
+        elif key == "pids_limit":
+            pids_limit = base_section["pids_limit"]
+            if pids_limit:
+                args.append(f"--pids-limit={pids_limit}")
+        elif key == "log_driver":
+            log_driver = base_section["log_driver"]
+            if log_driver:
+                args.append(f"--log-driver={log_driver}")
+        elif key == "log_opts":
+            add_multi_opt(args, base_section, "log_opts", "log-opt")
+        elif key != "includes":
+            sys.exit(f"Unknown key '{key}' in the [base] of {ini_file} or its includes")
+
+@typechecked
+def add_option_if_exists(args: list[str], section: SectionProxy, key: str, opt: str) -> None:
+    val = section[key]
+    if val:
+        args.append(f"--{opt}={val}")
+
+@typechecked
+def add_sec_option_if_exists(args: list[str], sec_section: SectionProxy, key: str) -> None:
+    val = sec_section[key]
+    if val:
+        args.append(f"--security-opt={key}={val}")
+
+@typechecked
+def process_security_section(sec_section: SectionProxy, args: list[str]) -> None:
+    for key in sec_section:
+        if key == "label":
+            add_sec_option_if_exists(args, sec_section, "label")
+        elif key == "apparmor":
+            add_sec_option_if_exists(args, sec_section, "apparmor")
+        elif key == "seccomp":
+            add_sec_option_if_exists(args, sec_section, "seccomp")
+        elif key == "seccomp_policy":
+            add_option_if_exists(args, sec_section, "seccomp_policy", "seccomp-policy")
+        elif key == "mask":
+            add_sec_option_if_exists(args, sec_section, "mask")
+        elif key == "unmask":
+            add_sec_option_if_exists(args, sec_section, "unmask")
+        elif key == "no_new_privileges":
+            if sec_section.getboolean(key):
+                args.append("--security-opt=no-new-privileges")
+        elif key == "proc_opts":
+            add_sec_option_if_exists(args, sec_section, "proc-opts")
+        elif key == "caps_add":
+            add_multi_opt(args, sec_section, "caps_add", "cap-add")
+        elif key == "caps_drop":
+            add_multi_opt(args, sec_section, "caps_drop", "cap-drop")
+        elif key == "cgroup_parent":
+            add_option_if_exists(args, sec_section, "cgroups_parent", "cgroups-parent")
+        elif key == "cgroup_confs":
+            add_multi_opt(args, sec_section, "cgroup_confs", "cgroup-conf")
+        elif key == "cgroupns":
+            add_option_if_exists(args, sec_section, "cgroupns", "cgroupns")
+        elif key == "cgroups":
+            add_option_if_exists(args, sec_section, "cgroups", "cgroups")
+        elif key == "device_cgroup_rules":
+            add_multi_opt(args, sec_section, "device_cgroup_rules", "device-cgroup-rule")
+        elif key == "secrets":
+            add_multi_opt(args, sec_section, "secrets", "secret")
+
+@typechecked
+def process_mounts_section(mounts_section: SectionProxy, args: list[str]) -> None:
+    for key in mounts_section:
+        # keys here are only symbolic names and serve no purpose other than allowing
+        # later configuration files to override previous ones
+        val = mounts_section[key]
+        if val:
+            if "=" in val or "," in val:
+                args.append(f"--mount={val}")
+            else:
+                args.append(f"-v={val}")
+
+@typechecked
+def process_env_section(env_section: SectionProxy, args: list[str]) -> None:
+    for key in env_section:
+        add_env_option(args, key, env_section[key])
+
+# read the ini file, recursing into the includes to build the final dictionary
+@typechecked
+def config_reader(conf_file: str) -> ConfigParser:
+    config = ConfigParser(allow_no_value=True, interpolation=None)
+    config.optionxform = str
+    config.read(conf_file)
+    if "base" in config and "includes" in config["base"]:
+        for include in config["base"]["includes"].split(","):
+            include = include.strip()
+            if include:
+                inc_conf = config_reader(f"{os.path.dirname(conf_file)}/{include}")
+                for section in inc_conf.sections():
+                    if section not in config.sections():
+                        config[section] = inc_conf[section]
+                    else:
+                        conf_section = config[section]
+                        inc_section = inc_conf[section]
+                        for key in inc_section:
+                            if key not in conf_section:
+                                conf_section[key] = inc_section[key]
+    return config
+
+@typechecked
+def print_config(config: ConfigParser) -> None:
+    print({section: dict(config[section]) for section in config.sections()})
+
+
+# read the config file, recursively reading the includes if present,
+# then replace the environment variables and the special ${NOW:...} from all values
+config = config_reader(ini_file)
+for section in config.sections():
+    conf_section = config[section]
+    for key in conf_section:
+        val = conf_section[key]
+        if val:
+            new_val = re.sub(now_re, replace_now, val)
+            new_val = os.path.expandvars(new_val)
+            if new_val is not val:
+                conf_section[key] = new_val
+
+# finally process all the sections and the keys forming the docker/podman command-line
+docker_args = []
+for section in config.sections():
+    if section == "base":
+        process_base_section(config["base"], docker_args)
+    elif section == "security":
+        process_security_section(config["security"], docker_args)
+    elif section == "mounts":
+        process_mounts_section(config["mounts"], docker_args)
+    elif section == "env":
+        process_env_section(config["env"], docker_args)
+    elif section != "links" and section != "apps":
+        sys.exit(f"Unknown section [{section}] in '{ini_file}' or one of its includes")
+
+# determine the image name
+distro_config = config_reader(f"{confdir}/{distro}/distro.ini")
+image_name = distro_config["base"]["image"]
+
+print(f"Command to be run: {docker_cmd} run -itd --name={box_name} {' '.join(docker_args)} {image_name} /usr/bin/tail -s10 -f /dev/null")

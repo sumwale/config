@@ -8,7 +8,10 @@ FROM quay.io/archlinux/archlinux
 LABEL maintainer="Sumedh Wale"
 
 ARG user
+ARG uid
 ARG username
+ARG group
+ARG gid
 
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
@@ -24,6 +27,7 @@ RUN set -ex && \
     pacman-key --init && \
     sed -i 's/^#Color.*/Color/;s/^NoProgressBar.*/#NoProgressBar/' /etc/pacman.conf && \
     sed -i 's,^NoExtract[ ]*=[ ]*/\?usr/share/man.*,#\0,' /etc/pacman.conf && \
+    echo -e '[multilib]\nInclude = /etc/pacman.d/mirrorlist' >> /etc/pacman.conf && \
     PAC="pacman --noconfirm" && $PAC -Syy && \
     $PAC -S reflector && \
     sed -i 's/^--latest.*/--latest 50\n--number 5\n--threads 5/' /etc/xdg/reflector/reflector.conf && \
@@ -36,7 +40,9 @@ RUN set -ex && \
     sed -i 's/^COMPRESSZST=.*/COMPRESSZST=(zstd -c -T0 -8 -)/' /etc/makepkg.conf && \
     echo -e '\nexport EDITOR=nvim\nexport VISUAL=nvim' >> /etc/bash.bashrc && \
     echo -e 'export PAGER="less -RL"\nexport LESSOPEN="|/usr/bin/lesspipe.sh %s"' >> /etc/bash.bashrc && \
-    useradd -m -G wheel,nobody,video,lp,mail,realtime -s /bin/bash -c "${username}" ${user} && usermod --lock ${user} && \
+    groupadd -g ${gid} ${group} && \
+    useradd -m -g ${group} -G wheel,nobody,video,lp,mail,realtime -u ${uid} -s /bin/bash -c "${username}" ${user} && \
+    usermod --lock ${user} && \
     echo "${user} ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/lbox-${user} && \
     run_dir=/run/user/`id -u ${user}` && mkdir -p $run_dir && \
     chown ${user}:${user} $run_dir && chmod 700 $run_dir
@@ -44,6 +50,7 @@ RUN set -ex && \
 USER ${user}
 WORKDIR /home/${user}
 
+# compiling from git takes quite long so download from github releases and install paru-bin
 #RUN git clone https://aur.archlinux.org/paru.git && \
 #    cd paru && makepkg --noconfirm -si && cd .. && \
 #    PARU="paru --noconfirm" && $PARU -Rs rust paru-debug && rm -rf .cargo paru && \
