@@ -7,11 +7,7 @@ FROM quay.io/archlinux/archlinux
 
 LABEL maintainer="Sumedh Wale"
 
-ARG user
-ARG uid
-ARG username
-ARG group
-ARG gid
+ARG user=lbox-user
 
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
@@ -19,6 +15,8 @@ ENV LANG=en_US.UTF-8 \
 
 COPY resources/prime-run /usr/local/bin/prime-run
 
+# for some reason TERMINFO_DIRS does not work for root user, so explicitly installing terminfo
+# packages for other terminal emulators available in arch which occupy only a tiny space
 RUN set -ex && \
     chmod 0755 /usr/local/bin/prime-run && \
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen en_US.UTF-8 && \
@@ -34,35 +32,42 @@ RUN set -ex && \
     sed -i 's/^--sort.*/--sort rate/' /etc/xdg/reflector/reflector.conf && \
     reflector @/etc/xdg/reflector/reflector.conf 2>/dev/null && \
     $PAC -Syu && \
-    $PAC -S --needed lesspipe bash-completion bc base-devel man-db man-pages sudo pulseaudio-alsa neovim eza ncdu fd bat libva-utils mesa-utils vulkan-tools gtk3 cantarell-fonts ttf-fira-code noto-fonts kitty-terminfo wget aria2 btop realtime-privileges && \
+    $PAC -S --needed lesspipe bash-completion bc base-devel man-db man-pages sudo pulseaudio-alsa neovim eza ncdu fd bat libva-utils mesa-utils vulkan-tools gtk3 cantarell-fonts ttf-fira-code noto-fonts kitty-terminfo rxvt-unicode-terminfo rio-terminfo wezterm-terminfo wget aria2 btop realtime-privileges python-typeguard && \
     $PAC -S --asdeps git ed unzip fastjar python-pynvim xsel intel-media-driver libva-mesa-driver vulkan-intel vulkan-mesa-layers python-pip && \
-    yes | pacman -Scc && $PAC -Syu && \
+    yes | pacman -Scc && $PAC -Syu && rm -rf .cache && \
     sed -i 's/^COMPRESSZST=.*/COMPRESSZST=(zstd -c -T0 -8 -)/' /etc/makepkg.conf && \
     echo -e '\nexport EDITOR=nvim\nexport VISUAL=nvim' >> /etc/bash.bashrc && \
     echo -e 'export PAGER="less -RL"\nexport LESSOPEN="|/usr/bin/lesspipe.sh %s"' >> /etc/bash.bashrc && \
-    groupadd -g ${gid} ${group} && \
-    useradd -m -g ${group} -G wheel,nobody,video,lp,mail,realtime -u ${uid} -s /bin/bash -c "${username}" ${user} && \
-    usermod --lock ${user} && \
-    echo "${user} ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/lbox-${user} && \
-    run_dir=/run/user/`id -u ${user}` && mkdir -p $run_dir && \
-    chown ${user}:${user} $run_dir && chmod 700 $run_dir
+    useradd -m -g users -s /bin/bash -c Linuxbox ${user} && \
+    echo "${user} ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/${user} && \
+    chmod 0400 /etc/sudoers.d/${user}
 
 USER ${user}
 WORKDIR /home/${user}
 
-# compiling from git takes quite long so download from github releases and install paru-bin
-#RUN git clone https://aur.archlinux.org/paru.git && \
-#    cd paru && makepkg --noconfirm -si && cd .. && \
-#    PARU="paru --noconfirm" && $PARU -Rs rust paru-debug && rm -rf .cargo paru && \
-#    $PARU -S neovim-symlinks && \
-RUN mkdir paru && cd paru && \
-    curl -s https://api.github.com/repos/Morganamilo/paru/releases/latest | \
-      sed -n 's,.*browser_download_url.*\(https://.*paru.*-x86_64.tar.[a-z]*\).*,\1,p' | \
-      head -n1 | xargs -n1 curl -JLO && \
-    tar xf ./paru*-x86_64.tar.* && \
-    ./paru --noconfirm -S paru-bin neovim-symlinks && cd .. && rm -rf paru && \
-    yes | paru -Scd && \
-    sudo dbus-uuidgen --ensure=/etc/machine-id && \
-    mkdir -p .config/pulse && rm -rf .cache .local
+RUN git clone https://aur.archlinux.org/paru.git && \
+    cd paru && makepkg --noconfirm -si && cd .. && \
+    PARU="paru --noconfirm" && $PARU -Rs rust paru-debug && \
+    $PARU -S neovim-symlinks && yes | paru -Scd && $PARU -Syu && \
+    rm -rf .cache .cargo .config .local paru && \
+    sudo rm -rf /root/.cache
+
+# compiling paru from git takes quite long so below code downloads from github releases
+# and installs paru-bin
+# WARNING: below has no checksum verification, so this should only be used for quick testing
+#RUN mkdir paru && cd paru && \
+#    curl -s https://api.github.com/repos/Morganamilo/paru/releases/latest | \
+#      sed -n 's,.*browser_download_url.*\(https://.*paru.*-x86_64.tar.[a-z]*\).*,\1,p' | \
+#      head -n1 | xargs -n1 curl -JLO && \
+#    tar xf ./paru*-x86_64.tar.* && PARU="paru --noconfirm" && \
+#    ./$PARU -S paru-bin neovim-symlinks && cd .. && \
+#    yes | paru -Scd && $PARU -Syu && \
+#    rm -rf .cache .cargo .config .local paru && \
+#    sudo rm -rf /root/.cache
+
+USER root
+WORKDIR /root
+
+RUN userdel -r ${user} && rm -f /etc/sudoers.d/${user}
 
 CMD [ "/bin/bash" ]
