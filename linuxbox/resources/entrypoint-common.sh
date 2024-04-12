@@ -1,3 +1,5 @@
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+
 fg_red='\033[31m'
 fg_green='\033[32m'
 fg_blue='\033[34m'

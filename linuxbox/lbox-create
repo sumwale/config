@@ -13,59 +13,12 @@ import typing
 
 from configparser import SectionProxy
 from typeguard import typechecked
-from lbox.utils import *
+from lbox.env import *
+from lbox.util import *
 
 # Deliberately not using os.path.join since the code only works on Linux like
 # systems where path separator will always be "/" so explicitly force the same.
 # Configuration files should be in $HOME/.config/linuxbox or /etc/linuxbox.
-
-class Environ:
-    @typechecked
-    def __init__(self, args: argparse.Namespace, box_name: str):
-        # prepare for the additional environment variables and NOW substitution
-        os.environ["DISTRIBUTION_NAME"] = args.distribution
-        os.environ["CONTAINER_NAME"] = box_name
-        self._home_dir = os.environ['HOME']
-        self._box_name = box_name
-        # user data directory is $HOME/.local/share/linuxbox
-        self._data_subdir = ".local/share/linuxbox"
-        self._container_dir =  f"{self._home_dir}/{self._data_subdir}/{box_name}"
-        os.environ["CONTAINER_DIR"] = self._container_dir
-        self._config_dirs = [f"{self._home_dir}/.config/linuxbox", "/etc/linuxbox"]
-        # local user home might be in a different location than /home but target user in the
-        # container will always be in /home as ensured by lbox/entrypoint.py script
-        self._target_home = "/home/" + getpass.getuser()
-        os.environ["TARGET_HOME"] = self._target_home
-
-    @property
-    @typechecked
-    def home(self) -> str:
-        return self._home_dir
-
-    @property
-    @typechecked
-    def target_home(self) -> str:
-        return self._target_home
-
-    @property
-    @typechecked
-    def box_name(self) -> str:
-        return self._box_name
-
-    @property
-    @typechecked
-    def data_subdir(self) -> str:
-        return self._data_subdir
-
-    @property
-    @typechecked
-    def container_dir(self) -> str:
-        return self._container_dir
-
-    @property
-    @typechecked
-    def config_dirs(self) -> list[str]:
-        return self._config_dirs
 
 @typechecked
 def main() -> int:
@@ -91,7 +44,7 @@ def main() -> int:
 
     # The sequence for container creation and run is thus:
     # 1) First start a basic container with smallest upstream distro image (important to save
-    #    space when 'base.shared' is true) with "entrypoint-user.sh" as the entrypoint script
+    #    space when 'base.shared' is true) with "entrypoint-base.sh" as the entrypoint script
     #    giving user/group arguments to be same as the user as on the host machine.
     # 2) Next do a docker/podman commit and save the stopped container as local image which
     #    will be used henceforth. The main point of doing #1 is to ensure that a sudo enabled
@@ -114,25 +67,31 @@ def main() -> int:
 
     # first create local mount directory having entrypoint and other scripts
     scripts_dir = f"{env.container_dir}/lbox-scripts"
+    scripts_target_dir = "/usr/local/lbox"
     if os.path.exists(scripts_dir):
         shutil.rmtree(scripts_dir)
     os.makedirs(scripts_dir, exist_ok=True)
-    entrypoint_user = "entrypoint-user.sh"
+    # copy the common scripts
+    entrypoint_base = "entrypoint-base.sh"
     entrypoint = "entrypoint.sh"
-    for script in [entrypoint_user, entrypoint, "entrypoint-common.sh"]:
-        path = get_config_file(script, env)
+    for script in [entrypoint_base, entrypoint, "entrypoint-common.sh", "prime-run"]:
+        path = get_config_file(f"resources/{script}", env)
+        shutil.copy2(path, f"{scripts_dir}/{script}", follow_symlinks=True)
+    # also copy distribution specific scripts
+    for script in ["init-base.sh", "init.sh", "init-user.sh"]:
+        path = get_config_file(f"{distro}/{script}", env)
         shutil.copy2(path, f"{scripts_dir}/{script}", follow_symlinks=True)
 
     # get current user and group entry, then run the container with appropriate arguments
-    # to the 'entrypoint-user.sh' script
+    # to the 'entrypoint-base.sh' script
     current_user = getpass.getuser()
     user_entry = pwd.getpwnam(current_user)
     group_entry = grp.getgrgid(user_entry.pw_gid)
     print_color(f"Creating container specific image having sudo user '{current_user}'",
             fg=fgcolor.purple)
     init_result = subprocess.run([docker_cmd, "run", "-it",
-        f"--name={box_name}", f"-v={scripts_dir}:/usr/local/lbox:ro",
-        f"--entrypoint=/usr/local/lbox/{entrypoint_user}", image_name,
+        f"--name={box_name}", f"-v={scripts_dir}:{scripts_target_dir}:ro",
+        f"--entrypoint={scripts_target_dir}/{entrypoint_base}", image_name,
         "-u", current_user, "-U", str(user_entry.pw_uid), "-n", user_entry.pw_gecos,
         "-g", group_entry.gr_name, "-G", str(group_entry.gr_gid)])
     if init_result.returncode != 0:
@@ -155,12 +114,12 @@ def main() -> int:
         return 1
 
     # the final container start with all required arguments
-    add_mount_option(docker_args, scripts_dir, "/usr/local/lbox", "ro")
-    docker_args.append(f"--entrypoint=/usr/local/lbox/{entrypoint}")
+    add_mount_option(docker_args, scripts_dir, scripts_target_dir, "ro")
+    docker_args.append(f"--entrypoint={scripts_target_dir}/{entrypoint}")
     docker_args.append("--userns=keep-id")
     docker_args.append(box_image)
     docker_args.append(box_name)
-    print_color(f"Starting container having configuration from '{config_file}'",
+    print_color(f"Starting container from configuration '{config_file}'",
             fg=fgcolor.purple)
     launch_result = subprocess.run(docker_args)
     if launch_result.returncode != 0:
@@ -275,6 +234,11 @@ def process_base_section(base_section: SectionProxy, env: Environ, args: list[st
                 args.append(f"--log-driver={log_driver}")
         elif key == "log_opts":
             add_multi_opt(args, base_section, "log_opts", "log-opt")
+            # create the log directory if required
+            log_dirs = [mt.group(1) for mt in
+                    (re.match("^--log-opt=path=(.*)/.*$", path) for path in args) if mt]
+            for log_dir in log_dirs:
+                os.makedirs(log_dir, exist_ok=True)
         elif key != "includes" and key != "dbus_sys":
             sys.exit(f"Unknown key '{key}' in the [base] of {ini_file} or its includes")
     return config_hardlinks
@@ -285,13 +249,6 @@ def add_mount_option(args: list[str], src: str, dest: str, flags: str = "") -> N
         args.append(f"-v={src}:{dest}:{flags}")
     else:
         args.append(f"-v={src}:{dest}")
-
-@typechecked
-def add_env_option(args: list[str], envvar: str, envval: typing.Optional[str] = None) -> None:
-    if envval is None:
-        args.append(f"-e={envvar}")
-    else:
-        args.append(f"-e={envvar}={envval}")
 
 @typechecked
 def enable_xorg(args: list[str]) -> None:
@@ -388,11 +345,6 @@ def process_mounts_section(mounts_section: SectionProxy, args: list[str]) -> Non
                 args.append(f"--mount={val}")
             else:
                 args.append(f"-v={val}")
-
-@typechecked
-def process_env_section(env_section: SectionProxy, args: list[str]) -> None:
-    for key in env_section:
-        add_env_option(args, key, env_section[key])
 
 @typechecked
 def process_configs_section(configs_section: SectionProxy, env: Environ,

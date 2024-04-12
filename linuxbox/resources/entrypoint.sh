@@ -42,7 +42,7 @@ function link_config_files() {
         rm -f "$home_file"
       fi
       if [ ! -e "$home_file" ]; then
-        /usr/bin/ln -s "$dest_file" "$home_file"
+        ln -s "$dest_file" "$home_file"
       fi
     else
       echo_color "$fg_red" "Skipping config line having unknown format: $config"
@@ -135,6 +135,13 @@ if [ $(($# - $OPTIND)) -ne 0 ]; then
 fi
 box_name="${@:$OPTIND:1}"
 
+# run the distribution specific initialization scripts
+if [ -r "$SCRIPT_DIR/init.sh" ]; then
+  sudo bash "$SCRIPT_DIR/init.sh"
+fi
+if [ -r "$SCRIPT_DIR/init-user.sh" ]; then
+  bash "$SCRIPT_DIR/init-user.sh"
+fi
 # create some common directories that are mounted and may have root permissions
 dir_init=".config .config/pulse .local .local/share .local/share/linuxbox"
 dir_init+=" .local/share/linuxbox/$box_name Downloads"
@@ -145,6 +152,7 @@ for d in $dir_init; do
   sudo mkdir -p $dir || /bin/true
   sudo chown $uid:$gid $dir || /bin/true
 done
+
 # process config files, application installs and invoke startup apps
 if [ -n "$config_list" ]; then
   link_config_files
@@ -156,9 +164,9 @@ if [ -n "$startup_list" ]; then
   invoke_startup_apps
 fi
 # finally go into infinite wait using tail on /dev/null but handle TERM signal for clean exit
-/usr/bin/tail -s10 -f /dev/null &
+tail -s10 -f /dev/null &
 childPID=$!
 
-trap "/usr/bin/kill -TERM $childPID" 1 2 3 13 15
+trap "kill -TERM $childPID" 1 2 3 13 15
 
 wait $childPID

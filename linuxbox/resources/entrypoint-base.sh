@@ -74,21 +74,29 @@ while getopts "u:U:n:g:G:h" opt; do
   esac
 done
 
-# generate /etc/machine-id if missing which is required by some apps
-dbus-uuidgen --ensure=/etc/machine-id
+# generate /etc/machine-id which is required by some apps
+/usr/bin/dbus-uuidgen --ensure=/etc/machine-id
 
 # add the user with the same UID/GID as provided which should normally be the same as the
 # user running this linuxbox (which avoids --userns=keep-id from increasing the image size
 #   else the image size may get nearly doubled)
-
 groupadd -g $gid $group
 echo_color "$fg_blue" "Added group '$group'"
 useradd -m -g $group -G nobody,video,lp,mail \
   -u $uid -d /home/$user -s /bin/bash -c "$name" $user
 usermod --lock $user
-sudoers_file=/etc/sudoers.d/$user
-echo "$user ALL=(ALL:ALL) NOPASSWD: ALL" > $sudoers_file
-chmod 0440 $sudoers_file
+
+# run the distribution specific initialization scripts
+if [ -r "$SCRIPT_DIR/init-base.sh" ]; then
+  /bin/bash "$SCRIPT_DIR/init-base.sh" $user
+fi
+
+# add the given user for sudoers with NOPASSWD
+sudoers_dir=/etc/sudoers.d
+mkdir -p $sudoers_dir
+chmod 0750 $sudoers_dir
+echo "$user ALL=(ALL:ALL) NOPASSWD: ALL" > $sudoers_dir/$user
+chmod 0440 $sudoers_dir/$user
 echo_color "$fg_purple" "Added admin user '$user' to sudoers with NOPASSWD"
 
 # change ownership of user's /run/user/<uid> tree which may have root ownership due to the

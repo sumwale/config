@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(script_dir))
 
 from configparser import SectionProxy
 from typeguard import typechecked
-from lbox.utils import *
+from lbox.util import *
 
 # add user and group as per the provided options
 parser = argparse.ArgumentParser()
