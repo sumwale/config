@@ -13,7 +13,7 @@ ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
 
-COPY resources/prime-run /usr/local/bin/prime-run
+COPY common/prime-run /usr/local/bin/prime-run
 
 # for some reason TERMINFO_DIRS does not work for root user, so explicitly installing terminfo
 # packages for other terminal emulators available in arch which occupy only a tiny space
@@ -45,25 +45,12 @@ RUN set -ex && \
 USER ${user}
 WORKDIR /home/${user}
 
-RUN git clone https://aur.archlinux.org/paru.git && \
-    cd paru && makepkg --noconfirm -si && cd .. && \
-    PARU="paru --noconfirm" && $PARU -Rs rust paru-debug && \
+RUN git clone https://aur.archlinux.org/paru-bin.git && \
+    cd paru-bin && makepkg --noconfirm -si && cd .. && \
+    PARU="paru --noconfirm" && $PARU -Rs paru-bin-debug && \
     $PARU -S neovim-symlinks && yes | paru -Scd && $PARU -Syu && \
-    rm -rf .cache .cargo .config .local paru && \
+    rm -rf .cache .cargo .config .local paru-bin && \
     sudo rm -rf /root/.cache
-
-# compiling paru from git takes quite long so below code downloads from github releases
-# and installs paru-bin
-# WARNING: below has no checksum verification, so this should only be used for quick testing
-#RUN mkdir paru && cd paru && \
-#    curl -s https://api.github.com/repos/Morganamilo/paru/releases/latest | \
-#      sed -n 's,.*browser_download_url.*\(https://.*paru.*-x86_64.tar.[a-z]*\).*,\1,p' | \
-#      head -n1 | xargs -n1 curl -JLO && \
-#    tar xf ./paru*-x86_64.tar.* && PARU="paru --noconfirm" && \
-#    ./$PARU -S paru-bin neovim-symlinks && cd .. && \
-#    yes | paru -Scd && $PARU -Syu && \
-#    rm -rf .cache .cargo .config .local paru && \
-#    sudo rm -rf /root/.cache
 
 USER root
 WORKDIR /root

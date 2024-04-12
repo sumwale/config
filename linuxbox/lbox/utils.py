@@ -1,16 +1,24 @@
 import os
 import sys
+
 import re
+import typing
 
 from datetime import datetime
 from configparser import ConfigParser
 from typeguard import typechecked
 from collections import namedtuple
 
-# prepare NOW substitution
-now = datetime.now()
-os.environ["NOW"] = str(now)
-now_re = re.compile(r"\${NOW:([^}]*)}")
+
+class InitNow:
+    def __init__(self):
+        self._now = datetime.now()
+        os.environ["NOW"] = str(self.now)
+
+    @property
+    @typechecked
+    def now(self) -> datetime:
+        return self._now
 
 # read the ini file, recursing into the includes to build the final dictionary
 @typechecked
@@ -41,19 +49,17 @@ def config_reader(conf_file: str, top_level: str = "") -> ConfigParser:
                                 conf_section[key] = inc_section[key]
     return config
 
-# replace ${NOW:...} pattern with appropriately formatted datetime string
-@typechecked
-def replace_now(mt: re.Match) -> str:
-    return now.strftime(mt.group(1))
-
 # replace the environment variables and the special ${NOW:...} from all values
 @typechecked
-def config_postprocess(config: ConfigParser) -> ConfigParser:
+def config_postprocess(config: ConfigParser, now: InitNow) -> ConfigParser:
+    # prepare NOW substitution
+    now_re = re.compile(r"\${NOW:([^}]*)}")
     for section in config.sections():
         conf_section = config[section]
         for key in conf_section:
             if (val := conf_section[key]):
-                new_val = re.sub(now_re, replace_now, val)
+                # replace ${NOW:...} pattern with appropriately formatted datetime string
+                new_val = re.sub(now_re, lambda mt: now.now.strftime(mt.group(1)), val)
                 new_val = os.path.expandvars(new_val)
                 if new_val is not val:
                     conf_section[key] = new_val
@@ -71,3 +77,19 @@ fgcolor = TermColors("\033[30m", "\033[31m", "\033[32m", "\033[33m", "\033[34m",
         "\033[35m", "\033[36m", "\033[37m", "\033[00m", "\033[01m", "\033[02m")
 bgcolor = TermColors("\033[40m", "\033[41m", "\033[42m", "\033[43m", "\033[44m",
         "\033[45m", "\033[46m", "\033[47m", "\033[00m", "\033[01m", "\033[02m")
+
+
+@typechecked
+def print_color(msg: str, fg: typing.Optional[str] = None,
+        bg: typing.Optional[str] = None, end: str = "\n"):
+    full_msg = ""
+    if fg:
+        if bg:
+            full_msg = f"{fg}{bg}{msg}{bgcolor.reset}{fgcolor.reset}"
+        else:
+            full_msg = f"{fg}{msg}{fgcolor.reset}"
+    elif bg:
+        full_msg = f"{bg}{msg}{bgcolor.reset}"
+    else:
+        full_msg = msg
+    print(full_msg, end=end)

@@ -5,6 +5,9 @@ import sys
 
 import argparse
 import getpass
+import grp
+import pwd
+import subprocess
 import shutil
 import typing
 
@@ -12,68 +15,269 @@ from configparser import SectionProxy
 from typeguard import typechecked
 from lbox.utils import *
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-n", "--name", type=str,
-        help="""name of the box else the default is <distribution>-<conf_file> if not
-                provided (trimming off .ini suffix from the <conf_file>)""")
-parser.add_argument("-d", "--docker_path", type=str,
-        help="path of docker/podman if not in /usr/bin")
-parser.add_argument("distribution",
-        help="short name of the distribution (should be in supported.list)")
-parser.add_argument("conf_file",
-        help="""the ini configuration file to be used for creating the linux box
-                (should be in <distribution>/confs directory)""")
-args = parser.parse_args()
+# Deliberately not using os.path.join since the code only works on Linux like
+# systems where path separator will always be "/" so explicitly force the same.
+# Configuration files should be in $HOME/.config/linuxbox or /etc/linuxbox.
 
-distro = args.distribution
-ini_suffix = ".ini"
-if args.name:
-    box_name = args.name
-else:
-    box_name = args.conf_file
-    if box_name.endswith(ini_suffix):
-        box_name = box_name[:-len(ini_suffix)]
-    box_name = f"{distro}-{box_name}"
+class Environ:
+    @typechecked
+    def __init__(self, args: argparse.Namespace, box_name: str):
+        # prepare for the additional environment variables and NOW substitution
+        os.environ["DISTRIBUTION_NAME"] = args.distribution
+        os.environ["CONTAINER_NAME"] = box_name
+        self._home_dir = os.environ['HOME']
+        self._box_name = box_name
+        # user data directory is $HOME/.local/share/linuxbox
+        self._data_subdir = ".local/share/linuxbox"
+        self._container_dir =  f"{self._home_dir}/{self._data_subdir}/{box_name}"
+        os.environ["CONTAINER_DIR"] = self._container_dir
+        self._config_dirs = [f"{self._home_dir}/.config/linuxbox", "/etc/linuxbox"]
+        # local user home might be in a different location than /home but target user in the
+        # container will always be in /home as ensured by lbox/entrypoint.py script
+        self._target_home = "/home/" + getpass.getuser()
+        os.environ["TARGET_HOME"] = self._target_home
 
-# check for podman first then docker
-if args.docker_path:
-    docker_cmd = args.docker_path
-elif os.access("/usr/bin/podman", os.X_OK):
-    docker_cmd = "/usr/bin/podman"
-elif os.access("/usr/bin/docker", os.X_OK):
-    docker_cmd = "/usr/bin/docker"
-else:
-    sys.exit("Neither /usr/bin/podman nor /usr/bin/docker found and no -d option provided")
+    @property
+    @typechecked
+    def home(self) -> str:
+        return self._home_dir
 
-# note: deliberately not using os.path.join since the code only works on Linux like
-# systems where path separator will always be "/" so explicitly forcing the same
+    @property
+    @typechecked
+    def target_home(self) -> str:
+        return self._target_home
 
-home_dir = os.environ['HOME']
-# configuration files should be in $HOME/.config/linuxbox or /etc/linuxbox
-config_dirs = [f"{home_dir}/.config/linuxbox", "/etc/linuxbox"]
-# user data directory is $HOME/.local/share/linuxbox
-data_dir = f"{home_dir}/.local/share/linuxbox"
+    @property
+    @typechecked
+    def box_name(self) -> str:
+        return self._box_name
 
-# prepare for the additional environment variables and NOW substitution
-os.environ["LINUXBOX_NAME"] = box_name
-# local user home might be in a different location than /home but target user in the
-# container will always be in /home as ensured by lbox-entrypoint.py script
-target_user_home = "/home/" + getpass.getuser()
-os.environ["TARGET_HOME"] = target_user_home
-# set according to base.config_hardlinks and is false by default
-config_hardlinks = False
-# below variable can be set to true to skip $TARGET_HOME mounts for the case when
-# user has still not been created in the container
-skip_target_user = False
+    @property
+    @typechecked
+    def data_subdir(self) -> str:
+        return self._data_subdir
+
+    @property
+    @typechecked
+    def container_dir(self) -> str:
+        return self._container_dir
+
+    @property
+    @typechecked
+    def config_dirs(self) -> list[str]:
+        return self._config_dirs
+
+@typechecked
+def main() -> int:
+    args = parse_args()
+    box_name, docker_cmd = process_args(args)
+    env = Environ(args, box_name)
+    support_list = get_config_file("supported.list", env)
+    distro = args.distribution
+    # hard links are false by default
+    config_hardlinks = False
+    # check that the distribution is in supported.list
+    with open(support_list, "r") as supp_file:
+        if distro not in supp_file.read().splitlines():
+            sys.exit(f"Distribution '{distro}' not supported in {support_list}")
+
+    # the ini configuration file used to build the docker/podman command-line
+    config_file = get_config_file(f"{distro}/confs/{args.configuration}", env)
+    docker_args = [docker_cmd, "run", "-itd", f"--name={box_name}"]
+    process_sections(config_file, env, docker_args)
+    # determine the image name
+    distro_config = config_reader(get_config_file(f"{distro}/distro.ini", env))
+    image_name = distro_config["base"]["image"] # should always exist
+
+    # The sequence for container creation and run is thus:
+    # 1) First start a basic container with smallest upstream distro image (important to save
+    #    space when 'base.shared' is true) with "entrypoint-user.sh" as the entrypoint script
+    #    giving user/group arguments to be same as the user as on the host machine.
+    # 2) Next do a docker/podman commit and save the stopped container as local image which
+    #    will be used henceforth. The main point of doing #1 is to ensure that a sudo enabled
+    #    user is available which matches the current host user so that "--userns" option
+    #    will not try to remap the image that can substantially increase the size of image.
+    #    Either way the user created by "--userns" in the container does not have sudo
+    #    permissions so we temporarily need to run such a container as root user in any case.
+    #    Hence step 1 uses a cleaner and better option that also create separate
+    #    container-specific images that can be enhanced with more container-specific stuff
+    #    later if required.
+    # 3) Start up the save image of step 2 and run the distro specific entrypoint script
+    #    that will do basic configuration and package installation (e.g. git/paru/nvim on arch)
+    #    followed by the generic "entrypoint.sh" script which will create the configuration
+    #    file links (from [configs] section), install required apps (from [apps] section),
+    #    followed by invoking the startup scripts from the [startup] section. The distro
+    #    specific is run as root user (i.e. using sudo) while the generic one is run as user.
+    # 4) The container is now ready to use so 'lbox-enter' will only do a docker/podman exec
+    #    of /bin/bash to open a shell.
+    # 5) Mounts are setup for step 3 while environment variables are set for both steps 3, 4.
+
+    # first create local mount directory having entrypoint and other scripts
+    scripts_dir = f"{env.container_dir}/lbox-scripts"
+    if os.path.exists(scripts_dir):
+        shutil.rmtree(scripts_dir)
+    os.makedirs(scripts_dir, exist_ok=True)
+    entrypoint_user = "entrypoint-user.sh"
+    entrypoint = "entrypoint.sh"
+    for script in [entrypoint_user, entrypoint, "entrypoint-common.sh"]:
+        path = get_config_file(script, env)
+        shutil.copy2(path, f"{scripts_dir}/{script}", follow_symlinks=True)
+
+    # get current user and group entry, then run the container with appropriate arguments
+    # to the 'entrypoint-user.sh' script
+    current_user = getpass.getuser()
+    user_entry = pwd.getpwnam(current_user)
+    group_entry = grp.getgrgid(user_entry.pw_gid)
+    print_color(f"Creating container specific image having sudo user '{current_user}'",
+            fg=fgcolor.purple)
+    init_result = subprocess.run([docker_cmd, "run", "-it",
+        f"--name={box_name}", f"-v={scripts_dir}:/usr/local/lbox:ro",
+        f"--entrypoint=/usr/local/lbox/{entrypoint_user}", image_name,
+        "-u", current_user, "-U", str(user_entry.pw_uid), "-n", user_entry.pw_gecos,
+        "-g", group_entry.gr_name, "-G", str(group_entry.gr_gid)])
+    if init_result.returncode != 0:
+        print_color("FAILED -- see the output above for details", fg=fgcolor.red)
+        return 1
+
+    # commit the stopped container, remove it, then start new container with the main
+    # entrypoint script along with "--userns=keep-id" and all the configured arguments
+    box_image = f"linuxbox-local/{distro}/{box_name}"
+    commit_result = subprocess.run([docker_cmd, "commit", f"-c=USER={current_user}",
+        f"-c=WORKDIR=/home/{current_user}", box_name, box_image])
+    if commit_result.returncode != 0:
+        print_color("FAILED in container commit -- see the output above for details",
+                fg=fgcolor.red)
+        return 1
+    remove_result = subprocess.run([docker_cmd, "container", "rm", box_name])
+    if remove_result.returncode != 0:
+        print_color("FAILED in container rm -- see the output above for details",
+                fg=fgcolor.red)
+        return 1
+
+    # the final container start with all required arguments
+    add_mount_option(docker_args, scripts_dir, "/usr/local/lbox", "ro")
+    docker_args.append(f"--entrypoint=/usr/local/lbox/{entrypoint}")
+    docker_args.append("--userns=keep-id")
+    docker_args.append(box_image)
+    docker_args.append(box_name)
+    print_color(f"Starting container having configuration from '{config_file}'",
+            fg=fgcolor.purple)
+    launch_result = subprocess.run(docker_args)
+    if launch_result.returncode != 0:
+        print_color("FAILED to launch container -- see the output above and "
+                f"check '{docker_cmd} logs {box_name}' for details", fg=fgcolor.red)
+        return 1
+
+    return 0
 
 
 @typechecked
-def get_config_file(f: str) -> str:
-    for d in config_dirs:
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-n", "--name", type=str,
+            help="""name of the box; default is <distribution>-<configuration> if not
+                    provided after trimming off .ini suffix from the <configuration>""")
+    parser.add_argument("-d", "--docker-path", type=str,
+            help="path of docker/podman if not in /usr/bin")
+    parser.add_argument("distribution",
+            help="short name of the distribution (should be in supported.list)")
+    parser.add_argument("configuration",
+            help="""the ini configuration file to be used for creating the linux box
+                    (should be in <distribution>/confs directory)""")
+    return parser.parse_args()
+
+@typechecked
+def process_args(args: argparse.Namespace) -> (str, str):
+    ini_suffix = ".ini"
+    if args.name:
+        box_name = args.name
+    else:
+        box_name = args.configuration
+        if box_name.endswith(ini_suffix):
+            box_name = box_name[:-len(ini_suffix)]
+        box_name = f"{args.distribution}-{box_name}"
+
+    # check for podman first then docker
+    if args.docker_path:
+        docker_cmd = args.docker_path
+    elif os.access("/usr/bin/podman", os.X_OK):
+        docker_cmd = "/usr/bin/podman"
+    elif os.access("/usr/bin/docker", os.X_OK):
+        docker_cmd = "/usr/bin/docker"
+    else:
+        sys.exit("Neither /usr/bin/podman nor /usr/bin/docker found and no -d option provided")
+    return box_name, docker_cmd
+
+@typechecked
+def get_config_file(f: str, env: Environ) -> str:
+    for d in env.config_dirs:
         path = f"{d}/{f}"
         if os.access(path, os.R_OK):
             return path
-    sys.exit(f"Configuration file {f} not found in [{', '.join(config_dirs)}]")
+    sys.exit(f"Configuration file {f} not found in [{', '.join(env.config_dirs)}]")
+
+
+@typechecked
+def process_sections(config_file: str, env: Environ, docker_args: list[str]) -> None:
+    now = InitNow()
+    # read the config file, recursively reading the includes if present,
+    # then replace the environment variables and the special ${NOW:...} from all values
+    config = config_postprocess(config_reader(config_file), now)
+    # finally process all the sections and the keys forming the docker/podman command-line
+    for section in config.sections():
+        if section == "base":
+            config_hardlinks = process_base_section(config["base"], env, docker_args)
+        elif section == "security":
+            process_security_section(config["security"], docker_args)
+        elif section == "mounts":
+            process_mounts_section(config["mounts"], docker_args)
+        elif section == "env":
+            process_env_section(config["env"], docker_args)
+        elif section == "configs":
+            process_configs_section(config["configs"], env, config_hardlinks, docker_args)
+        elif section != "apps" and section != "startup":
+            sys.exit(f"Unknown section [{section}] in '{config_file}' or one of its includes")
+
+@typechecked
+def process_base_section(base_section: SectionProxy, env: Environ, args: list[str]) -> bool:
+    # hard links are false by default
+    config_hardlinks = False
+    for key in base_section:
+        if key == "home":
+            source_home = base_section[key]
+            # create the source directory if it does not exist
+            os.makedirs(source_home, exist_ok=True)
+            add_mount_option(args, source_home, env.target_home)
+        elif key == "config_hardlinks":
+            config_hardlinks = base_section.getboolean("config_hardlinks")
+        elif key == "xorg":
+            if base_section.getboolean("xorg"):
+                enable_xorg(args)
+        elif key == "pulseaudio":
+            if base_section.getboolean("pulseaudio"):
+                enable_pulse(args, env)
+        elif key == "dbus":
+            if base_section.getboolean("dbus"):
+                enable_dbus(args, base_section.getboolean("dbus_sys", fallback=False))
+        elif key == "dri":
+            if base_section.getboolean("dri"):
+                args.append("--device=/dev/dri")
+        elif key == "nvidia":
+            if base_section.getboolean("nvidia"):
+                args.append("--device=nvidia.com/gpu=all")
+        elif key == "pids_limit":
+            pids_limit = base_section["pids_limit"]
+            if pids_limit:
+                args.append(f"--pids-limit={pids_limit}")
+        elif key == "log_driver":
+            log_driver = base_section["log_driver"]
+            if log_driver:
+                args.append(f"--log-driver={log_driver}")
+        elif key == "log_opts":
+            add_multi_opt(args, base_section, "log_opts", "log-opt")
+        elif key != "includes" and key != "dbus_sys":
+            sys.exit(f"Unknown key '{key}' in the [base] of {ini_file} or its includes")
+    return config_hardlinks
 
 @typechecked
 def add_mount_option(args: list[str], src: str, dest: str, flags: str = "") -> None:
@@ -98,10 +302,10 @@ def enable_xorg(args: list[str]) -> None:
         add_mount_option(args, xauth, xauth, "ro")
 
 @typechecked
-def enable_pulse(args: list[str]) -> None:
+def enable_pulse(args: list[str], env: Environ) -> None:
     cookie = f"{os.environ['HOME']}/.config/pulse/cookie"
-    if not skip_target_user and os.access(cookie, os.R_OK):
-        add_mount_option(args, cookie, f"{target_user_home}/.config/pulse/cookie", "ro")
+    if os.access(cookie, os.R_OK):
+        add_mount_option(args, cookie, f"{env.target_home}/.config/pulse/cookie", "ro")
     if (xdg_rtdir := os.environ.get("XDG_RUNTIME_DIR")):
         pulse_native = f"{xdg_rtdir}/pulse/native"
         add_mount_option(args, pulse_native, pulse_native)
@@ -126,58 +330,6 @@ def add_multi_opt(args: list[str], section: SectionProxy, key: str, opt: str) ->
     if (opts := section.get(key)):
         for opt_val in opts.split(";"):
             args.append(f"--{opt}={opt_val}")
-
-@typechecked
-def process_base_section(base_section: SectionProxy, args: list[str]) -> None:
-    global config_hardlinks
-    if not skip_target_user:
-        add_env_option(args, "TARGET_HOME", target_user_home)
-    for key in base_section:
-        if key == "home":
-            if not skip_target_user:
-                source_home = base_section[key]
-                # create the source directory if it does not exist
-                os.makedirs(source_home, exist_ok=True)
-                add_mount_option(args, source_home, target_user_home)
-        elif key == "config_hardlinks":
-            config_hardlinks = base_section.getboolean("config_hardlinks")
-        elif key == "xorg":
-            if base_section.getboolean("xorg"):
-                enable_xorg(args)
-        elif key == "pulseaudio":
-            if base_section.getboolean("pulseaudio"):
-                enable_pulse(args)
-        elif key == "dbus":
-            if base_section.getboolean("dbus"):
-                enable_dbus(args, base_section.getboolean("dbus_sys", fallback=False))
-        elif key == "dri":
-            if base_section.getboolean("dri"):
-                args.append("--device=/dev/dri")
-        elif key == "nvidia":
-            if base_section.getboolean("nvidia"):
-                args.append("--device=nvidia.com/gpu=all")
-        elif key == "pids_limit":
-            pids_limit = base_section["pids_limit"]
-            if pids_limit:
-                args.append(f"--pids-limit={pids_limit}")
-        elif key == "log_driver":
-            log_driver = base_section["log_driver"]
-            if log_driver:
-                args.append(f"--log-driver={log_driver}")
-        elif key == "log_opts":
-            add_multi_opt(args, base_section, "log_opts", "log-opt")
-        elif key != "includes" and key != "dbus_sys":
-            sys.exit(f"Unknown key '{key}' in the [base] of {ini_file} or its includes")
-
-@typechecked
-def add_option_if_exists(args: list[str], section: SectionProxy, key: str, opt: str) -> None:
-    if (val := section[key]):
-        args.append(f"--{opt}={val}")
-
-@typechecked
-def add_sec_option_if_exists(args: list[str], sec_section: SectionProxy, key: str) -> None:
-    if (val := sec_section[key]):
-        args.append(f"--security-opt={key}={val}")
 
 @typechecked
 def process_security_section(sec_section: SectionProxy, args: list[str]) -> None:
@@ -217,6 +369,16 @@ def process_security_section(sec_section: SectionProxy, args: list[str]) -> None
             add_multi_opt(args, sec_section, "secrets", "secret")
 
 @typechecked
+def add_sec_option_if_exists(args: list[str], sec_section: SectionProxy, key: str) -> None:
+    if (val := sec_section[key]):
+        args.append(f"--security-opt={key}={val}")
+
+@typechecked
+def add_option_if_exists(args: list[str], section: SectionProxy, key: str, opt: str) -> None:
+    if (val := section[key]):
+        args.append(f"--{opt}={val}")
+
+@typechecked
 def process_mounts_section(mounts_section: SectionProxy, args: list[str]) -> None:
     for key in mounts_section:
         # keys here are only symbolic names and serve no purpose other than allowing
@@ -232,20 +394,13 @@ def process_env_section(env_section: SectionProxy, args: list[str]) -> None:
     for key in env_section:
         add_env_option(args, key, env_section[key])
 
-# see os.link(..., follow_symlinks=True) broken on Linux:
-# https://github.com/python/cpython/issues/81793
-# (the '*' in signature is from shutil.copy that indicates only keyword args allowed after it)
 @typechecked
-def hardlink(src: str, dst: str, *, follow_symlinks=True) -> str:
-    os.link(os.path.realpath(src), dst, follow_symlinks=follow_symlinks)
-    return dst
-
-@typechecked
-def process_configs_section(configs_section: SectionProxy, args: list[str]) -> None:
+def process_configs_section(configs_section: SectionProxy, env: Environ,
+        config_hardlinks: bool, args: list[str]) -> None:
     # copy or link the mentioned files in [configs] section which can be either files
     # or directories (recursively copy/link in the latter case)
     # this is refreshed on every container start
-    configs_dir = f"{data_dir}/{box_name}/configs"
+    configs_dir = f"{env.container_dir}/configs"
     # always recreate the directory to pick up any changes
     if os.path.exists(configs_dir):
         shutil.rmtree(configs_dir)
@@ -267,7 +422,7 @@ def process_configs_section(configs_section: SectionProxy, args: list[str]) -> N
             if os.path.isdir(src_path):
                 if config_hardlinks:
                     shutil.copytree(src_path, dest_path, symlinks=False,
-                                    copy_function=hardlink)
+                            copy_function=hardlink)
                 else:
                     shutil.copytree(src_path, dest_path, symlinks=False)
             else:
@@ -277,40 +432,18 @@ def process_configs_section(configs_section: SectionProxy, args: list[str]) -> N
                     shutil.copy2(src_path, dest_path, follow_symlinks=True)
         else:
             print(fgcolor.red, f"Skipping inaccessible configuration path '{src_path}'",
-                  fgcolor.reset, sep="")
+                    fgcolor.reset, sep="")
+    # finally mount the configs directory to corresponding directory in the target container
+    target_configs_dir = f"{env.target_home}/{env.data_subdir}/{env.box_name}/configs"
+    add_mount_option(args, configs_dir, target_configs_dir, "ro")
+
+# see this issue: os.link(..., follow_symlinks=True) broken on Linux
+# https://github.com/python/cpython/issues/81793
+# (the '*' in signature is from shutil.copy that indicates only keyword args allowed after it)
+@typechecked
+def hardlink(src: str, dst: str, *, follow_symlinks=True) -> str:
+    os.link(os.path.realpath(src), dst, follow_symlinks=follow_symlinks)
+    return dst
 
 
-support_list = get_config_file("supported.list")
-# check that the distribution is in supported.list
-with open(support_list, "r") as supp_file:
-    if distro not in supp_file.read().splitlines():
-        sys.exit(f"Distribution '{distro}' not supported in {support_list}")
-
-# the ini configuration file used to build the docker/podman command-line
-ini_file = get_config_file(f"{distro}/confs/{args.conf_file}")
-
-# read the config file, recursively reading the includes if present,
-# then replace the environment variables and the special ${NOW:...} from all values
-config = config_postprocess(config_reader(ini_file))
-# finally process all the sections and the keys forming the docker/podman command-line
-docker_args = []
-for section in config.sections():
-    if section == "base":
-        process_base_section(config["base"], docker_args)
-    elif section == "security":
-        process_security_section(config["security"], docker_args)
-    elif section == "mounts":
-        process_mounts_section(config["mounts"], docker_args)
-    elif section == "env":
-        process_env_section(config["env"], docker_args)
-    elif section == "configs":
-        process_configs_section(config["configs"], docker_args)
-    elif section != "apps" and section != "startup":
-        sys.exit(f"Unknown section [{section}] in '{ini_file}' or one of its includes")
-
-# determine the image name
-distro_config = config_reader(get_config_file(f"{distro}/distro.ini"))
-image_name = distro_config["base"]["image"]
-
-print(fgcolor.purple, f"Command to be run: {docker_cmd} run -itd --name={box_name} ",
-        f"{' '.join(docker_args)} {image_name} /usr/bin/tail -s10 -f /dev/null", fgcolor.reset, sep="")
+sys.exit(main())

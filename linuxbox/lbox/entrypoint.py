@@ -39,7 +39,7 @@ os.system("dbus-uuidgen --ensure=/etc/machine-id")
 os.system(f"groupadd -g {gid} {group}")
 print(fgcolor.blue, f"Added group '{group}'", sep="")
 os.system(f"useradd -m -g {group} -G wheel,nobody,video,lp,mail,realtime -u {uid} "
-          f"-s /bin/bash -c '{fullname}' {user}")
+          f"-d /home/{user} -s /bin/bash -c '{fullname}' {user}")
 os.system(f"usermod --lock {user}")
 sudoers_file = f"/etc/sudoers.d/{user}"
 with open(sudoers_file, "w") as sudoers:
