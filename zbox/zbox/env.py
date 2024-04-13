@@ -18,6 +18,7 @@ class Environ:
         # container will always be in /home as ensured by zbox/entrypoint.py script
         self._target_home = "/home/" + getpass.getuser()
         os.environ["TARGET_HOME"] = self._target_home
+        self._xdg_rtdir = os.environ.get("XDG_RUNTIME_DIR")
         self._box_name = box_name
         self._box_image = f"zbox-local/{args.distribution}/{box_name}"
         self._configuration_dirs = [f"{self._home_dir}/.config/zbox", "/etc/zbox"]
@@ -42,6 +43,12 @@ class Environ:
     @typechecked
     def target_home(self) -> str:
         return self._target_home
+
+    # $XDG_RUNTIME_DIR in the current session
+    @property
+    @typechecked
+    def xdg_rtdir(self) -> str:
+        return self._xdg_rtdir
 
     # name of the container
     @property
