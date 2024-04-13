@@ -11,6 +11,9 @@ app_list=
 pkgmgr_conf="$SCRIPT_DIR/pkgmgr.conf"
 startup_list=
 
+# first clear the status_file
+echo -n > $status_file
+
 function show_usage() {
   echo
   echo "Usage: $SCRIPT [-c CONFIG_LIST] [-d CONFIG_DIR] [-a APP_LIST]"
@@ -31,6 +34,7 @@ function show_usage() {
 # link the configuration files in HOME to the target directory having the required files
 function link_config_files() {
   # line is of the form <src> -> <dest>; pattern below matches this while trimming spaces
+  echo_color "$fg_orange" "Linking configuration files from $config_dir to user's home" >> $status_file
   pattern='(.*[^[:space:]]+)[[:space:]]*->[[:space:]]*(.*)'
   while read -r config; do
     if [[ "$config" =~ $pattern ]]; then
@@ -45,7 +49,7 @@ function link_config_files() {
         ln -s "$dest_file" "$home_file"
       fi
     else
-      echo_color "$fg_red" "Skipping config line having unknown format: $config"
+      echo_color "$fg_red" "Skipping config line having unknown format: $config" >> $status_file
     fi
   done < "$config_list"
 }
@@ -56,18 +60,12 @@ function install_apps() {
   source "$pkgmgr_conf"
   if [ -z "$PKGMGR_INSTALL" -o \
        -z "$PKGMGR_REMOVE" -o -z "$PKGMGR_UPDATE_ALL" ]; then
-    echo "$pkgmgr_conf should define all of PKGMGR_INSTALL, PKGMGR_REMOVE"
-    echo "and PKGMGR_UPDATE_ALL"
+    echo_color "$fg_red" "$pkgmgr_conf should define all of PKGMGR_INSTALL, PKGMGR_REMOVE and PKGMGR_UPDATE_ALL" >> $status_file
     exit 1
-  fi
-  # refresh mirrors
-  if [ -n "$PKGMGR_MIRRORS" ]; then
-    echo_color -n "$fg_blue" "Updating mirrors  ..."
-    $PKGMGR_MIRRORS
-    echo_color -n "$fg_green" DONE
   fi
   # install packages line by line
   while read -r pkg_line; do
+    echo_color "$fg_orange" "Installing: ${pkg_line:0:40} ..." >> $status_file
     $PKGMGR_INSTALL $pkg_line
   done < "$app_list"
 }
@@ -79,7 +77,7 @@ function invoke_startup_apps() {
   # start apps in the order listed in the file
   while read -r app_line; do
     mkdir -p "$log_dir"
-    echo_color "$fg_blue" "Starting: ${app_line:0:40} ..."
+    echo_color "$fg_orange" "Starting: ${app_line:0:40} ..." >> $status_file
     nohup $app_line >> "$log_dir/app-${log_no}_out.log" 2>> "$log_dir/app-${log_no}_err.log"   &
     sleep 1
   done < "$startup_list"
@@ -135,23 +133,30 @@ if [ $(($# - $OPTIND)) -ne 0 ]; then
 fi
 box_name="${@:$OPTIND:1}"
 
-# run the distribution specific initialization scripts
-if [ -r "$SCRIPT_DIR/init.sh" ]; then
-  sudo bash "$SCRIPT_DIR/init.sh"
-fi
-if [ -r "$SCRIPT_DIR/init-user.sh" ]; then
-  bash "$SCRIPT_DIR/init-user.sh"
-fi
-# create some common directories that are mounted and may have root permissions
+# create/update some common directories that are mounted and may have root permissions
 dir_init=".config .config/pulse .local .local/share .local/share/linuxbox"
 dir_init+=" .local/share/linuxbox/$box_name Downloads"
 uid=$(id -u)
 gid=$(id -g)
+echo_color "$fg_orange" "Fixing directory permissions in $HOME" >> $status_file
 for d in $dir_init; do
   dir=$HOME/$d
-  sudo mkdir -p $dir || /bin/true
-  sudo chown $uid:$gid $dir || /bin/true
+  sudo mkdir -p $dir || true
+  sudo chown $uid:$gid $dir || true
 done
+if [ -n "$(ls /run/user/$uid 2>/dev/null)" ]; then
+  sudo chown $uid:$gid /run/user/$uid/* 2>/dev/null || true
+fi
+
+# run the distribution specific initialization scripts
+if [ -r "$SCRIPT_DIR/init.sh" ]; then
+  echo_color "$fg_orange" "Running distribution's system initialization script" >> $status_file
+  sudo bash "$SCRIPT_DIR/init.sh"
+fi
+if [ -r "$SCRIPT_DIR/init-user.sh" ]; then
+  echo_color "$fg_orange" "Running distribution's user initialization script" >> $status_file
+  bash "$SCRIPT_DIR/init-user.sh"
+fi
 
 # process config files, application installs and invoke startup apps
 if [ -n "$config_list" ]; then
@@ -163,10 +168,14 @@ fi
 if [ -n "$startup_list" ]; then
   invoke_startup_apps
 fi
+# update the status file to indicate successful startup
+echo started >> $status_file
+
 # finally go into infinite wait using tail on /dev/null but handle TERM signal for clean exit
 tail -s10 -f /dev/null &
 childPID=$!
 
-trap "kill -TERM $childPID" 1 2 3 13 15
+# truncate status file and cleanly kill the infinite wait on hup/int/quit/pipe/term signals
+trap "echo -n > $status_file; kill -TERM $childPID" 1 2 3 13 15
 
 wait $childPID

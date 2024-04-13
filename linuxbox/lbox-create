@@ -9,9 +9,11 @@ import grp
 import pwd
 import subprocess
 import shutil
+import time
 import typing
 
 from configparser import SectionProxy
+from pathlib import Path
 from typeguard import typechecked
 from lbox.env import *
 from lbox.util import *
@@ -21,7 +23,7 @@ from lbox.util import *
 # Configuration files should be in $HOME/.config/linuxbox or /etc/linuxbox.
 
 @typechecked
-def main() -> int:
+def main() -> None:
     args = parse_args()
     box_name, docker_cmd = process_args(args)
     env = Environ(args, box_name)
@@ -34,13 +36,11 @@ def main() -> int:
         if distro not in supp_file.read().splitlines():
             sys.exit(f"Distribution '{distro}' not supported in {support_list}")
 
-    # the ini configuration file used to build the docker/podman command-line
+    # the configuration file used to build the docker/podman command-line
     config_file = get_config_file(f"{distro}/confs/{args.configuration}", env)
     docker_args = [docker_cmd, "run", "-itd", f"--name={box_name}"]
+    # we process the configuration file before any actions to ensure it is in proper shape
     process_sections(config_file, env, docker_args)
-    # determine the image name
-    distro_config = config_reader(get_config_file(f"{distro}/distro.ini", env))
-    image_name = distro_config["base"]["image"] # should always exist
 
     # The sequence for container creation and run is thus:
     # 1) First start a basic container with smallest upstream distro image (important to save
@@ -65,69 +65,25 @@ def main() -> int:
     #    of /bin/bash to open a shell.
     # 5) Mounts are setup for step 3 while environment variables are set for both steps 3, 4.
 
-    # first create local mount directory having entrypoint and other scripts
-    scripts_dir = f"{env.container_dir}/lbox-scripts"
-    scripts_target_dir = "/usr/local/lbox"
-    if os.path.exists(scripts_dir):
-        shutil.rmtree(scripts_dir)
-    os.makedirs(scripts_dir, exist_ok=True)
-    # copy the common scripts
-    entrypoint_base = "entrypoint-base.sh"
-    entrypoint = "entrypoint.sh"
-    for script in [entrypoint_base, entrypoint, "entrypoint-common.sh", "prime-run"]:
-        path = get_config_file(f"resources/{script}", env)
-        shutil.copy2(path, f"{scripts_dir}/{script}", follow_symlinks=True)
-    # also copy distribution specific scripts
-    for script in ["init-base.sh", "init.sh", "init-user.sh"]:
-        path = get_config_file(f"{distro}/{script}", env)
-        shutil.copy2(path, f"{scripts_dir}/{script}", follow_symlinks=True)
+    # setup entrypoint and related scripts to share with the container on a mount point
+    setup_lbox_scripts(distro, env)
 
     # get current user and group entry, then run the container with appropriate arguments
-    # to the 'entrypoint-base.sh' script
+    # to the 'entrypoint-base.sh' script to create the user in the container
     current_user = getpass.getuser()
-    user_entry = pwd.getpwnam(current_user)
-    group_entry = grp.getgrgid(user_entry.pw_gid)
-    print_color(f"Creating container specific image having sudo user '{current_user}'",
-            fg=fgcolor.purple)
-    init_result = subprocess.run([docker_cmd, "run", "-it",
-        f"--name={box_name}", f"-v={scripts_dir}:{scripts_target_dir}:ro",
-        f"--entrypoint={scripts_target_dir}/{entrypoint_base}", image_name,
-        "-u", current_user, "-U", str(user_entry.pw_uid), "-n", user_entry.pw_gecos,
-        "-g", group_entry.gr_name, "-G", str(group_entry.gr_gid)])
-    if init_result.returncode != 0:
-        print_color("FAILED -- see the output above for details", fg=fgcolor.red)
-        return 1
+    run_base_container(current_user, distro, docker_cmd, env)
 
     # commit the stopped container, remove it, then start new container with the main
     # entrypoint script along with "--userns=keep-id" and all the configured arguments
-    box_image = f"linuxbox-local/{distro}/{box_name}"
-    commit_result = subprocess.run([docker_cmd, "commit", f"-c=USER={current_user}",
-        f"-c=WORKDIR=/home/{current_user}", box_name, box_image])
-    if commit_result.returncode != 0:
-        print_color("FAILED in container commit -- see the output above for details",
-                fg=fgcolor.red)
-        return 1
-    remove_result = subprocess.run([docker_cmd, "container", "rm", box_name])
-    if remove_result.returncode != 0:
-        print_color("FAILED in container rm -- see the output above for details",
-                fg=fgcolor.red)
-        return 1
+    commit_base_container(current_user, docker_cmd, env)
 
-    # the final container start with all required arguments
-    add_mount_option(docker_args, scripts_dir, scripts_target_dir, "ro")
-    docker_args.append(f"--entrypoint={scripts_target_dir}/{entrypoint}")
-    docker_args.append("--userns=keep-id")
-    docker_args.append(box_image)
-    docker_args.append(box_name)
-    print_color(f"Starting container from configuration '{config_file}'",
+    # start the final container with all required arguments
+    print_color(f"Initializing container using configuration from '{config_file}'",
             fg=fgcolor.purple)
-    launch_result = subprocess.run(docker_args)
-    if launch_result.returncode != 0:
-        print_color("FAILED to launch container -- see the output above and "
-                f"check '{docker_cmd} logs {box_name}' for details", fg=fgcolor.red)
-        return 1
+    docker_short_cmd = start_container(docker_cmd, docker_args, env)
 
-    return 0
+    # wait for container to initialize while printing out its progress from env.status_file
+    wait_for_container(docker_cmd, docker_short_cmd, env)
 
 
 @typechecked
@@ -169,11 +125,11 @@ def process_args(args: argparse.Namespace) -> (str, str):
 
 @typechecked
 def get_config_file(f: str, env: Environ) -> str:
-    for d in env.config_dirs:
+    for d in env.configuration_dirs:
         path = f"{d}/{f}"
         if os.access(path, os.R_OK):
             return path
-    sys.exit(f"Configuration file {f} not found in [{', '.join(env.config_dirs)}]")
+    sys.exit(f"Configuration file {f} not found in [{', '.join(env.configuration_dirs)}]")
 
 
 @typechecked
@@ -352,11 +308,11 @@ def process_configs_section(configs_section: SectionProxy, env: Environ,
     # copy or link the mentioned files in [configs] section which can be either files
     # or directories (recursively copy/link in the latter case)
     # this is refreshed on every container start
-    configs_dir = f"{env.container_dir}/configs"
+
     # always recreate the directory to pick up any changes
-    if os.path.exists(configs_dir):
-        shutil.rmtree(configs_dir)
-    os.makedirs(configs_dir, exist_ok=True)
+    if os.path.exists(env.configs_dir):
+        shutil.rmtree(env.configs_dir)
+    os.makedirs(env.configs_dir, exist_ok=True)
     if config_hardlinks:
         print(fgcolor.blue, "Creating hard links to paths in [configs]", fgcolor.reset, sep="")
     else:
@@ -368,7 +324,7 @@ def process_configs_section(configs_section: SectionProxy, env: Environ,
             sys.exit("Incorrect value format in [configs] section for "
                     f"'{key}'. Required: '{{src}} -> {{dest}}'")
         src_path = os.path.realpath(val[:split_idx].strip())
-        dest_path = f"{configs_dir}/{val[split_idx + 2:].strip()}"
+        dest_path = f"{env.configs_dir}/{val[split_idx + 2:].strip()}"
         if os.access(src_path, os.R_OK):
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
             if os.path.isdir(src_path):
@@ -386,8 +342,7 @@ def process_configs_section(configs_section: SectionProxy, env: Environ,
             print(fgcolor.red, f"Skipping inaccessible configuration path '{src_path}'",
                     fgcolor.reset, sep="")
     # finally mount the configs directory to corresponding directory in the target container
-    target_configs_dir = f"{env.target_home}/{env.data_subdir}/{env.box_name}/configs"
-    add_mount_option(args, configs_dir, target_configs_dir, "ro")
+    add_mount_option(args, env.configs_dir, env.target_configs_dir, "ro")
 
 # see this issue: os.link(..., follow_symlinks=True) broken on Linux
 # https://github.com/python/cpython/issues/81793
@@ -397,5 +352,113 @@ def hardlink(src: str, dst: str, *, follow_symlinks=True) -> str:
     os.link(os.path.realpath(src), dst, follow_symlinks=follow_symlinks)
     return dst
 
+@typechecked
+def setup_lbox_scripts(distro: str, env: Environ) -> None:
+    # first create local mount directory having entrypoint and other scripts
+    if os.path.exists(env.scripts_dir):
+        shutil.rmtree(env.scripts_dir)
+    os.makedirs(env.scripts_dir, exist_ok=True)
+    # copy the common scripts
+    for script in [env.entrypoint_base, env.entrypoint, "entrypoint-common.sh", "prime-run"]:
+        path = get_config_file(f"resources/{script}", env)
+        shutil.copy2(path, f"{env.scripts_dir}/{script}", follow_symlinks=True)
+    # also copy distribution specific scripts
+    for script in ["init-base.sh", "init.sh", "init-user.sh"]:
+        path = get_config_file(f"{distro}/{script}", env)
+        shutil.copy2(path, f"{env.scripts_dir}/{script}", follow_symlinks=True)
 
-sys.exit(main())
+@typechecked
+def run_base_container(current_user: str, distro: str, docker_cmd: str, env: Environ) -> None:
+    # determine the base image name
+    distro_config = config_reader(get_config_file(f"{distro}/distro.ini", env))
+    image_name = distro_config["base"]["image"] # should always exist
+    # get current user and group details to pass to the entrypoint script
+    user_entry = pwd.getpwnam(current_user)
+    group_entry = grp.getgrgid(user_entry.pw_gid)
+    print_color(f"Creating container specific image having sudo user '{current_user}'",
+            fg=fgcolor.purple)
+    init_result = subprocess.run([docker_cmd, "run", "-it",
+        f"--name={env.box_name}", f"-v={env.scripts_dir}:{env.scripts_target_dir}:ro",
+        f"--entrypoint={env.scripts_target_dir}/{env.entrypoint_base}", image_name,
+        "-u", current_user, "-U", str(user_entry.pw_uid), "-n", user_entry.pw_gecos,
+        "-g", group_entry.gr_name, "-G", str(group_entry.gr_gid)])
+    if init_result.returncode != 0:
+        print_color("FAILED -- see the output above for details", fg=fgcolor.red)
+        sys.exit(1)
+
+@typechecked
+def print_subprocess_output(result: subprocess.CompletedProcess) -> None:
+    print_color(result.stdout.decode("utf-8"))
+    print_color(result.stderr.decode("utf-8"), fg=fgcolor.orange)
+
+@typechecked
+def commit_base_container(current_user: str, docker_cmd: str, env: Environ) -> None:
+    commit_result = subprocess.run([docker_cmd, "commit", f"-c=USER={current_user}",
+        f"-c=WORKDIR=/home/{current_user}", env.box_name, env.box_image], capture_output=True)
+    if commit_result.returncode != 0:
+        print_subprocess_output(commit_result)
+        print_color("FAILED in container commit -- see the output above for details",
+                fg=fgcolor.red)
+        sys.exit(1)
+
+    remove_result = subprocess.run([docker_cmd, "container", "rm", env.box_name])
+    if remove_result.returncode != 0:
+        print_color("FAILED in container rm -- see the output above for details",
+                fg=fgcolor.red)
+        sys.exit(1)
+
+@typechecked
+def start_container(docker_cmd: str, docker_args: list[str], env: Environ) -> str:
+    add_mount_option(docker_args, env.scripts_dir, env.scripts_target_dir, "ro")
+    # touch the status file and mount it
+    status_path = Path(env.status_file)
+    status_path.unlink(missing_ok=True)
+    status_path.touch(mode=0o600, exist_ok=False)
+    add_mount_option(docker_args, env.status_file, env.status_target_file)
+
+    docker_args.append(f"--entrypoint={env.scripts_target_dir}/{env.entrypoint}")
+    docker_args.append("--userns=keep-id")
+    docker_args.append(env.box_image)
+    docker_args.append(env.box_name)
+    docker_short_cmd = os.path.basename(docker_cmd)
+    launch_result = subprocess.run(docker_args)
+    if launch_result.returncode != 0:
+        print_color("FAILED to launch container -- see the output above and check "
+                f"'{docker_short_cmd} logs {env.box_name}' for details", fg=fgcolor.red)
+        sys.exit(1)
+    return docker_short_cmd
+
+@typechecked
+def wait_for_container(docker_cmd: str, docker_short_cmd: str, env: Environ) -> None:
+    box_name = env.box_name
+    print_color("Waiting for container to be ready (see "
+            f"'{docker_short_cmd} logs -f {box_name}' for detailed progress)", fg=fgcolor.blue)
+    sys.stdout.flush()
+    max_wait_secs = 600
+    with open(env.status_file, "r", encoding="utf-8") as status_fd:
+        for secs in range(max_wait_secs):
+            # check the container status first
+            check_result = subprocess.run([docker_cmd, "inspect", "-f",
+                "{{.State.Status}}", box_name], capture_output=True)
+            if (check_result.returncode == 0 and
+                    check_result.stdout.decode("utf-8").startswith("running")):
+                while line := status_fd.readline():
+                    if line == "started\n":
+                        return
+                    print(line, end="") # line already includes the terminating newline
+            else:
+                with open(env.status_file, "a") as status_fd:
+                    status_fd.truncate(0)
+                print_color("FAILED waiting for container to be ready -- check "
+                        f"'{docker_short_cmd} logs {box_name}' for details", fg=fgcolor.red)
+                sys.exit(1)
+            # using simple poll per second rather than inotify or similar because the
+            # initialization will take a good amount of time and second granularity is enough
+            time.sleep(1)
+    # reading did not end after max_wait_secs
+    print_color(f"TIMED OUT waiting for ready container after {max_wait_secs}secs -- check "
+            f"'{docker_short_cmd} logs -f {box_name}' for details", fg=fgcolor.red)
+    sys.exit(1)
+
+
+main()

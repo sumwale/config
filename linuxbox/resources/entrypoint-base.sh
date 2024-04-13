@@ -88,15 +88,13 @@ usermod --lock $user
 
 # run the distribution specific initialization scripts
 if [ -r "$SCRIPT_DIR/init-base.sh" ]; then
-  /bin/bash "$SCRIPT_DIR/init-base.sh" $user
+  /bin/bash "$SCRIPT_DIR/init-base.sh" $user > /dev/null
 fi
 
 # add the given user for sudoers with NOPASSWD
-sudoers_dir=/etc/sudoers.d
-mkdir -p $sudoers_dir
-chmod 0750 $sudoers_dir
-echo "$user ALL=(ALL:ALL) NOPASSWD: ALL" > $sudoers_dir/$user
-chmod 0440 $sudoers_dir/$user
+sudoers_file=/etc/sudoers.d/$user
+echo "$user ALL=(ALL:ALL) NOPASSWD: ALL" > $sudoers_file
+chmod 0440 $sudoers_file
 echo_color "$fg_purple" "Added admin user '$user' to sudoers with NOPASSWD"
 
 # change ownership of user's /run/user/<uid> tree which may have root ownership due to the
