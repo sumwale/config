@@ -1,7 +1,7 @@
 # ensure that system path is always searched first for all the system utilities
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
-status_file=/usr/local/lbox-status
+status_file=/usr/local/zbox-status
 
 fg_red='\033[31m'
 fg_green='\033[32m'

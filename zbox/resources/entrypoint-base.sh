@@ -5,10 +5,10 @@ SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
 
 source "$SCRIPT_DIR/entrypoint-common.sh"
 
-user=lbox
+user=zbox
 uid=1000
-name=Linuxbox
-group=lbox
+name=zbox
+group=zbox
 gid=1000
 
 function show_usage() {
@@ -78,7 +78,7 @@ done
 /usr/bin/dbus-uuidgen --ensure=/etc/machine-id
 
 # add the user with the same UID/GID as provided which should normally be the same as the
-# user running this linuxbox (which avoids --userns=keep-id from increasing the image size
+# user running this zbox (which avoids --userns=keep-id from increasing the image size
 #   else the image size may get nearly doubled)
 groupadd -g $gid $group
 echo_color "$fg_blue" "Added group '$group'"

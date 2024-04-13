@@ -20,7 +20,7 @@ function show_usage() {
   echo "       [-s STARTUP_LIST] [-h] BOX_NAME"
   echo
   echo "Arguments:"
-  echo "  BOX_NAME         name of the linux box container being created"
+  echo "  BOX_NAME         name of the zbox container being created"
   echo
   echo "Options:"
   echo "  -c CONFIG_LIST   file having list of configuration files to be setup in user's HOME"
@@ -56,7 +56,7 @@ function link_config_files() {
 
 # install applications listed in the given file with 
 function install_apps() {
-  # source PKGMGR_* variables from the configuration file created by 'lbox-create'
+  # source PKGMGR_* variables from the configuration file created by 'zbox-create'
   source "$pkgmgr_conf"
   if [ -z "$PKGMGR_INSTALL" -o \
        -z "$PKGMGR_REMOVE" -o -z "$PKGMGR_UPDATE_ALL" ]; then
@@ -72,7 +72,7 @@ function install_apps() {
 
 # invoke the startup apps as listed in the container configuration file
 function invoke_startup_apps() {
-  log_dir="$HOME/.local/share/linuxbox/logs"
+  log_dir="$HOME/.local/share/zbox/logs"
   log_no=1
   # start apps in the order listed in the file
   while read -r app_line; do
@@ -134,11 +134,11 @@ fi
 box_name="${@:$OPTIND:1}"
 
 # create/update some common directories that are mounted and may have root permissions
-dir_init=".config .config/pulse .local .local/share .local/share/linuxbox"
-dir_init+=" .local/share/linuxbox/$box_name Downloads"
+dir_init=".config .config/pulse .local .local/share .local/share/zbox"
+dir_init+=" .local/share/zbox/$box_name Downloads"
 uid=$(id -u)
 gid=$(id -g)
-echo_color "$fg_orange" "Fixing directory permissions in $HOME" >> $status_file
+echo_color "$fg_orange" "Ensuring proper directory permissions in $HOME" >> $status_file
 for d in $dir_init; do
   dir=$HOME/$d
   sudo mkdir -p $dir || true

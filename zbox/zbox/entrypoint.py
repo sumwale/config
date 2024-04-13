@@ -10,19 +10,19 @@ sys.path.append(os.path.dirname(script_dir))
 
 from configparser import SectionProxy
 from typeguard import typechecked
-from lbox.util import *
+from zbox.util import *
 
 # add user and group as per the provided options
 parser = argparse.ArgumentParser()
-parser.add_argument("--user", type=str, help="login of the user to add", default="lbox")
+parser.add_argument("--user", type=str, help="login of the user to add", default="zbox")
 parser.add_argument("--uid", type=int, help="UID of the user", default=1000)
-parser.add_argument("--fullname", type=str, help="full name of the user", default="Linuxbox")
+parser.add_argument("--fullname", type=str, help="full name of the user", default="zbox")
 parser.add_argument("--group", type=str, help="primary group of the user to add",
-        default="lbox")
+        default="zbox")
 parser.add_argument("--gid", type=int, help="GID of the primary group of the user",
         default=1000)
 parser.add_argument("--config", type=str,
-        help="Linuxbox configuration file to be used for initialization")
+        help="zbox configuration file to be used for initialization")
 args = parser.parse_args()
 
 user = args.user
@@ -33,7 +33,7 @@ gid = args.gid
 config_file = args.config
 
 # add the user with the same UID/GID as provided which should normally be the same as the
-# user running this linuxbox (which avoids --userns=keep-id from increasing the image size
+# user running this zbox (which avoids --userns=keep-id from increasing the image size
 #   else the image size gets nearly doubled)
 os.system("dbus-uuidgen --ensure=/etc/machine-id")
 os.system(f"groupadd -g {gid} {group}")

@@ -16,6 +16,7 @@ if ! pacman -Q paru 2>/dev/null >/dev/null; then
 fi
 echo_color "$fg_cyan" "Installing neovim-symlinks" >> $status_file
 $PARU -S --needed neovim-symlinks
+echo_color "$fg_cyan" "Clearing package cache and refreshing package database" >> $status_file
 yes | paru -Sccd
 $PARU -Syu
 rm -rf .cache paru-bin

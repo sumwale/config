@@ -15,19 +15,19 @@ class Environ:
         os.environ["CONTAINER_NAME"] = box_name
         self._home_dir = os.environ['HOME']
         # local user home might be in a different location than /home but target user in the
-        # container will always be in /home as ensured by lbox/entrypoint.py script
+        # container will always be in /home as ensured by zbox/entrypoint.py script
         self._target_home = "/home/" + getpass.getuser()
         os.environ["TARGET_HOME"] = self._target_home
         self._box_name = box_name
-        self._box_image = f"linuxbox-local/{args.distribution}/{box_name}"
-        self._configuration_dirs = [f"{self._home_dir}/.config/linuxbox", "/etc/linuxbox"]
-        # user data directory is $HOME/.local/share/linuxbox
-        data_subdir = ".local/share/linuxbox"
+        self._box_image = f"zbox-local/{args.distribution}/{box_name}"
+        self._configuration_dirs = [f"{self._home_dir}/.config/zbox", "/etc/zbox"]
+        # user data directory is $HOME/.local/share/zbox
+        data_subdir = ".local/share/zbox"
         self._container_dir =  f"{self._home_dir}/{data_subdir}/{box_name}"
         os.environ["CONTAINER_DIR"] = self._container_dir
         self._configs_dir = f"{self._container_dir}/configs"
         self._target_configs_dir = f"{self._target_home}/{data_subdir}/{box_name}/configs"
-        self._scripts_dir = f"{self._container_dir}/lbox-scripts"
+        self._scripts_dir = f"{self._container_dir}/zbox-scripts"
         self._status_file = f"{self._container_dir}/status"
 
     # home directory of the current user
@@ -101,7 +101,7 @@ class Environ:
     @property
     @typechecked
     def scripts_target_dir(self) -> str:
-        return "/usr/local/lbox"
+        return "/usr/local/zbox"
 
     # local status file to communicate when the container is ready for use
     @property
@@ -113,7 +113,7 @@ class Environ:
     @property
     @typechecked
     def status_target_file(self) -> str:
-        return "/usr/local/lbox-status"
+        return "/usr/local/zbox-status"
 
 
 @typechecked
