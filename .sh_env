@@ -65,3 +65,6 @@ fi
 export CLOUDSDK_PYTHON USE_GKE_GCLOUD_AUTH_PLUGIN KUBECONFIG
 
 [ -r "$HOME/.sh_env.local" ] && . "$HOME/.sh_env.local"
+
+SHENV_READ=1
+export SHENV_READ

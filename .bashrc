@@ -4,6 +4,8 @@
 
 [[ $- != *i* ]] && return
 
+[ -z "$SHENV_READ" -a -f "$HOME/.sh_env" ] && . "$HOME/.sh_env"
+
 if [[ $- == *m* && "$INTERACTIVE_SHELL_IS_FISH" == "true" ]]; then
   export INTERACTIVE_SHELL_IS_FISH=false
   if [ -x /bin/fish ]; then

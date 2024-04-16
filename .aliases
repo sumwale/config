@@ -5,7 +5,6 @@ alias free='free -m'                      # show sizes in MB
 alias vi=nvim
 alias vim=nvim
 alias ldd=libtree
-alias cat=batcat
 
 type fdfind >/dev/null 2>/dev/null && alias fd=fdfind
 
