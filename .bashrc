@@ -20,6 +20,8 @@ if [[ $- == *m* && "$INTERACTIVE_SHELL_IS_FISH" == "true" ]]; then
   fi
 fi
 
+iatest=$(expr index "$-" i)
+
 colors() {
   local fgc bgc vals seq0
 
@@ -134,6 +136,9 @@ export HISTCONTROL=erasedups:ignoredups:ignorespace
 # Enable history appending instead of overwriting.  #139609
 shopt -s histappend
 
+# Allow ctrl-S for history navigation (with ctrl-R)
+[[ $- == *i* ]] && stty -ixon
+
 #
 # # ex - archive extractor
 # # usage: ex <file>
@@ -171,7 +176,28 @@ gitdiffall() {
   fi
 }
 
+# Copy file with a progress bar
+cpp() {
+  set -e
+  strace -q -ewrite cp -- "${1}" "${2}" 2>&1 \
+    | awk '{
+      count += $NF
+      if (count % 10 == 0) {
+        percent = count / total_size * 100
+        printf "%3d%% [", percent
+        for (i=0;i<=percent;i++)
+          printf "="
+          printf ">"
+          for (i=percent;i<100;i++)
+            printf " "
+            printf "]\r"
+          }
+      }
+    END { print "" }' total_size="$(stat -c '%s' "${1}")" count=0
+}
+
 # colors for less
+export CLICOLOR=1
 export LESS_TERMCAP_mb=$'\e[1;32m'
 export LESS_TERMCAP_md=$'\e[1;32m'
 export LESS_TERMCAP_me=$'\e[0m'
@@ -189,6 +215,16 @@ if [ -z "$LESSOPEN" ]; then
     export LESSOPEN="|$(which lesspipe) %s"
   fi
 fi
+
+# Disable the bell
+if [[ $iatest -gt 0 ]]; then bind "set bell-style visible"; fi
+
+# Ignore case on auto-completion
+# Note: bind used instead of sticking these in .inputrc
+if [[ $iatest -gt 0 ]]; then bind "set completion-ignore-case on"; fi
+
+# Show auto-completion list automatically, without double tab
+if [[ $iatest -gt 0 ]]; then bind "set show-all-if-ambiguous On"; fi
 
 # completions for tldr
 tldr_cachedir=
@@ -223,15 +259,26 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+
+
+# starship prompt and autojump
+if type starship >/dev/null 2>/dev/null; then
+  eval "$(starship init bash)"
+  if [ -f "/usr/share/autojump/autojump.sh" ]; then
+    . /usr/share/autojump/autojump.sh
+  elif [ -f "/usr/share/autojump/autojump.bash" ]; then
+    . /usr/share/autojump/autojump.bash
+  else
+    echo "missing autojump"
+  fi
+fi
+
+
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-
-
-
-# Generated for envman. Do not edit.
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
 
 
 # BEGIN_KITTY_SHELL_INTEGRATION

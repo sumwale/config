@@ -7,6 +7,8 @@ alias vim=nvim
 alias ldd=libtree
 
 type fdfind >/dev/null 2>/dev/null && alias fd=fdfind
+alias cat=bat
+type batcat >/dev/null 2>/dev/null && alias cat=batcat
 
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
@@ -18,6 +20,9 @@ alias ls='eza -gH --color=always --group-directories-first'
 alias la='eza -agH --color=always --group-directories-first'
 alias ll='eza -lgH --color=always --group-directories-first'
 alias lt='eza -gH --sort=modified --reverse --color=always --group-directories-first'
+alias tree='tree -CAhF --dirsfirst'
+alias treed='tree -CAFd'
+alias kssh="kitty +kitten ssh"
 
 alias cdl='cd ~/projects/lightspeed-spark'
 alias cds='cd ~/projects/spark'
