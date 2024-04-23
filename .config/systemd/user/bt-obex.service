@@ -1,0 +1,11 @@
+[Unit]
+Description=BT-OBEX agent to receive files via bluetooth
+Requires=bluetooth.target
+After=bluetooth.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/bt-obex -y -s "%h/Downloads/bluetooth"
+
+[Install]
+WantedBy=default.target
