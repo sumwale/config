@@ -108,7 +108,7 @@ patterns:
   - '- /home/sumedh/.ivy2'
   - '- /home/sumedh/.kube'
   - '- /home/sumedh/.local/share/containers'
-  - '- /home/sumedh/.local/share/zbox'
+  - '- /home/sumedh/.local/share/ybox'
   - '- /home/sumedh/.local/share/gnome-boxes/images'
   - '- /home/sumedh/.local/share/keyrings'
   - '+ /home/sumedh/.local/share/nvim/plugged'

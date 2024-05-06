@@ -36,7 +36,7 @@ local tags = {
     icon = icons.social,
     type = 'social',
     defaultApp = apps.default.social,
-    layout = awful.layout.suit.floating,
+    layout = awful.layout.suit.tile,
     screen = 1
   },
   {
@@ -50,7 +50,7 @@ local tags = {
     icon = icons.lab,
     type = 'any',
     defaultApp = apps.default.rofi,
-    layout = awful.layout.suit.tile,
+    layout = awful.layout.suit.floating,
     screen = 1
   }
 }

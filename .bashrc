@@ -266,13 +266,11 @@ export NVM_DIR="$HOME/.nvm"
 # starship prompt and autojump
 if type starship >/dev/null 2>/dev/null; then
   eval "$(starship init bash)"
-  if [ -f "/usr/share/autojump/autojump.sh" ]; then
-    . /usr/share/autojump/autojump.sh
-  elif [ -f "/usr/share/autojump/autojump.bash" ]; then
-    . /usr/share/autojump/autojump.bash
-  else
-    echo "missing autojump"
-  fi
+fi
+if [ -f "/usr/share/autojump/autojump.bash" ]; then
+  source /usr/share/autojump/autojump.bash
+elif [ -f "/usr/share/autojump/autojump.sh" ]; then
+  source /usr/share/autojump/autojump.sh
 fi
 
 
