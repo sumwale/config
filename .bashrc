@@ -246,7 +246,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 
 if type kubectl 2>/dev/null >/dev/null; then
   . ~/.kube_funcs
-  source <(kubectl completion bash)
+  source <(kubectl completion bash | dos2unix)
 
   if type eksctl 2>/dev/null >/dev/null; then
     source <(eksctl completion bash)

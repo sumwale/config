@@ -36,7 +36,7 @@ local tags = {
     icon = icons.social,
     type = 'social',
     defaultApp = apps.default.social,
-    layout = awful.layout.suit.tile,
+    layout = awful.layout.suit.max,
     screen = 1
   },
   {

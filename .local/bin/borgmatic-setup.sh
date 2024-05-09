@@ -13,12 +13,21 @@ HOMEDIR="`echo $HOME | sed 's,^/,,'`"
 
 rm -f $HOME/Documents/others.key.gpg $HOME/Documents/rest.key $HOME/Documents/rest.key.gpg
 
-if [ -d $HOME/.var/app/org.mozilla.firefox/.mozilla/firefox ]; then
+# first search in ybox $HOMEs
+if [ -d "$(echo $HOME/.local/share/ybox/*/home/.mozilla/firefox | head -n 1)" ]; then
+  FFOX="$HOMEDIR/.local/share/ybox/*/home/.mozilla/firefox"
+# then flatpak
+elif [ -d $HOME/.var/app/org.mozilla.firefox/.mozilla/firefox ]; then
   FFOX=$HOMEDIR/.var/app/org.mozilla.firefox/.mozilla/firefox
 else
   FFOX=$HOMEDIR/.mozilla/firefox
 fi
-if [ -d $HOME/.var/app/org.mozilla.Thunderbird/.thunderbird ]; then
+
+# first search in ybox $HOMEs
+if [ -d "$(echo $HOME/.local/share/ybox/*/home/.thunderbird | head -n 1)" ]; then
+  TBIRD="$HOMEDIR/.local/share/ybox/*/home/.thunderbird"
+# then flatpak
+elif [ -d $HOME/.var/app/org.mozilla.Thunderbird/.thunderbird ]; then
   TBIRD=$HOMEDIR/.var/app/org.mozilla.Thunderbird/.thunderbird
 else
   TBIRD=$HOMEDIR/.thunderbird
