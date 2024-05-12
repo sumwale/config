@@ -111,6 +111,7 @@ patterns:
   - '- /home/sumedh/.kube'
   - '- /home/sumedh/.local/share/containers'
   - '- /home/sumedh/.local/share/ybox/ROOTS'
+  - '- /home/sumedh/.local/share/ybox/SHARED_ROOTS'
   - '- /home/sumedh/.local/share/ybox/*/configs'
   - '- /home/sumedh/.local/share/ybox/*/logs'
   - '- /home/sumedh/.local/share/ybox/*/ybox-scripts'

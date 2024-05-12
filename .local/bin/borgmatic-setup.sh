@@ -14,7 +14,7 @@ HOMEDIR="`echo $HOME | sed 's,^/,,'`"
 rm -f $HOME/Documents/others.key.gpg $HOME/Documents/rest.key $HOME/Documents/rest.key.gpg
 
 # first search in ybox $HOMEs
-if [ -d "$(echo $HOME/.local/share/ybox/*/home/.mozilla/firefox | head -n 1)" ]; then
+if [ -d "$(/bin/ls -d $HOME/.local/share/ybox/*/home/.mozilla/firefox 2>/dev/null | head -n 1)" ]; then
   FFOX="$HOMEDIR/.local/share/ybox/*/home/.mozilla/firefox"
 # then flatpak
 elif [ -d $HOME/.var/app/org.mozilla.firefox/.mozilla/firefox ]; then
@@ -24,7 +24,7 @@ else
 fi
 
 # first search in ybox $HOMEs
-if [ -d "$(echo $HOME/.local/share/ybox/*/home/.thunderbird | head -n 1)" ]; then
+if [ -d "$(/bin/ls -d $HOME/.local/share/ybox/*/home/.thunderbird 2>/dev/null | head -n 1)" ]; then
   TBIRD="$HOMEDIR/.local/share/ybox/*/home/.thunderbird"
 # then flatpak
 elif [ -d $HOME/.var/app/org.mozilla.Thunderbird/.thunderbird ]; then
