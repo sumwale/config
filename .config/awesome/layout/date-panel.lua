@@ -4,7 +4,7 @@ local wibox = require('wibox')
 
 local dpi = require('beautiful').xresources.apply_dpi
 
-local textclock = wibox.widget.textclock('<span font="Fira Code 9">%a, %b %e %Y</span>')
+local textclock = wibox.widget.textclock('<span font="Fira Code 6">%b  %d</span>')
 
 -- uncomment below and comment out panel/backdrop connect_signal calls if no gsimplecal
 
@@ -17,45 +17,58 @@ local month_calendar = awful.widget.calendar_popup.month({
 month_calendar:attach(textclock)
 --]]
 
+-- Popup showing full date with weekday
+local textclock_popup =
+  awful.tooltip(
+  {
+    objects = {textclock},
+    timer_function = function()
+      return os.date('%a, %b %d, %Y')
+    end,
+    timeout = 60,
+    font = 'Fira Code 9',
+    margin_leftright = dpi(6),
+    margin_topbottom = dpi(6),
+    mode = 'mouse',
+    align = 'right'
+  }
+)
+
+
 local date_widget = wibox.container.margin(textclock, dpi(4), dpi(4), dpi(4), dpi(4))
 
 local DatePanel = function(s, offset)
-  local offsetx = 0
-  if offset == true then
-    offsetx = dpi(128)
-    offsety = dpi(4)
-  end
   local panel =
     wibox(
     {
       ontop = false,
       screen = s,
-      height = dpi(24),
-      width = dpi(130),
-      x = s.geometry.width - dpi(227),
-      y = s.geometry.y  + offsety,
+      height = dpi(30),
+      width = dpi(24),
+      x = s.geometry.x + dpi(4),
+      y = s.geometry.y + s.geometry.height - dpi(100),
       stretch = false,
       bg = beautiful.primary.hue_900,
       fg = beautiful.fg_normal,
       opacity = 0.75,
       struts = {
-        top = dpi(24)
+        left = dpi(24)
       }
     }
   )
 
   panel:struts(
     {
-      top = dpi(0)
+      left = dpi(0)
     }
   )
 
   panel:setup {
-      layout = wibox.layout.fixed.horizontal,
+      layout = wibox.layout.fixed.vertical,
       date_widget,
   }
 
-  -- used to close the calendar widget when clicked anywhere on wallpaper
+  -- used to open/close the calendar widget when clicked anywhere on date
   -- (close_on_unfocus in gsimplecal config closes if any other window clicked;
   --  ontop is false here else the clicks on gsimplecal are also captured by backdrop)
   local backdrop =

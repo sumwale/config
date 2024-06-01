@@ -5,7 +5,7 @@ local wibox = require('wibox')
 local dpi = require('beautiful').xresources.apply_dpi
 
 -- Clock 24h format
-local textclock = wibox.widget.textclock('<span font="Fira Code bold 9">%H:%M</span>', 15)
+local textclock = wibox.widget.textclock('<span font="Fira Code bold 8">%H %M</span>', 10)
 
 -- Popup showing 24h clock with seconds
 local textclock_popup =
@@ -16,46 +16,43 @@ local textclock_popup =
       return os.date('%H:%M:%S')
     end,
     timeout = 1,
-    font = 'Fira Code 9.5',
-    margin_leftright = dpi(8),
+    font = 'Fira Code 9',
+    margin_leftright = dpi(6),
     margin_topbottom = dpi(6),
     mode = 'mouse',
-    align = 'left'
+    align = 'right'
   }
 )
 
 local clock_widget = wibox.container.margin(textclock, dpi(4), dpi(4), dpi(4), dpi(4))
 
 local ClockPanel = function(s, offset)
-  if offset == true then
-    offsety = dpi(4)
-  end
   local panel =
     wibox(
     {
       ontop = false,
       screen = s,
-      height = dpi(24),
-      width = dpi(48),
-      x = s.geometry.width - dpi(96),
-      y = s.geometry.y  + offsety,
+      height = dpi(37),
+      width = dpi(24),
+      x = s.geometry.x + dpi(4),
+      y = s.geometry.y + s.geometry.height - dpi(69),
       stretch = false,
       bg = beautiful.primary.hue_500,
       fg = beautiful.fg_normal,
       struts = {
-        top = dpi(24)
+        left = dpi(24)
       }
     }
   )
 
   panel:struts(
     {
-      top = dpi(0)
+      left = dpi(0)
     }
   )
 
   panel:setup {
-      layout = wibox.layout.fixed.horizontal,
+      layout = wibox.layout.fixed.vertical,
       clock_widget,
   }
 

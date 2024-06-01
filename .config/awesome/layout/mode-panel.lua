@@ -43,9 +43,6 @@ local LayoutBox = function(s)
 end
 
 local ModePanel = function(s, offset)
-  if offset == true then
-    offsety = dpi(4)
-  end
   local panel =
     wibox(
     {
@@ -53,28 +50,28 @@ local ModePanel = function(s, offset)
       screen = s,
       height = dpi(24),
       width = dpi(24),
-      x = s.geometry.width - dpi(36),
-      y = s.geometry.y  + offsety,
+      x = s.geometry.x + dpi(4),
+      y = s.geometry.y + s.geometry.height - dpi(28),
       stretch = false,
       bg = beautiful.primary.hue_900,
       fg = beautiful.fg_normal,
       opacity = 0.75,
       struts = {
-        top = dpi(24)
+        left = dpi(24)
       }
     }
   )
 
   panel:struts(
     {
-      top = dpi(0)
+      left = dpi(0)
     }
   )
 
   panel:setup {
-    layout = wibox.layout.align.horizontal,
+    layout = wibox.layout.align.vertical,
     {
-      layout = wibox.layout.fixed.horizontal,
+      layout = wibox.layout.fixed.vertical,
       LayoutBox(s)
     },
     nil,

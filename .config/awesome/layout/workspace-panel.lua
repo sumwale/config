@@ -7,37 +7,38 @@ local dpi = require('beautiful').xresources.apply_dpi
 
 local WorkspacePanel = function(s, offset)
   local offsetx = 0
+  local offsety = 0
   if offset == true then
-    offsetx = dpi(48)
-    offsety = dpi(4)
+    offsetx = dpi(5)
+    offsety = dpi(32)
   end
   local panel =
     wibox(
     {
       ontop = false,
       screen = s,
-      height = dpi(24),
-      width = dpi(156),
+      height = dpi(164),
+      width = dpi(23),
       x = s.geometry.x + offsetx,
-      y = s.geometry.y  + offsety,
+      y = s.geometry.y + offsety,
       stretch = false,
       bg = beautiful.primary.hue_900,
       fg = beautiful.fg_normal,
       opacity = 0.75,
       struts = {
-        top = dpi(24)
+        left = dpi(24)
       }
     }
   )
 
   panel:struts(
     {
-      top = dpi(0)
+      left = dpi(0)
     }
   )
 
   panel:setup {
-      layout = wibox.layout.align.horizontal,
+      layout = wibox.layout.align.vertical,
       TagList(s)
   }
 

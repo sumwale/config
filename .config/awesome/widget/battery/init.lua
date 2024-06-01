@@ -30,7 +30,7 @@ local widget =
     widget = wibox.widget.imagebox,
     resize = true
   },
-  layout = wibox.layout.fixed.horizontal,
+  layout = wibox.layout.fixed.vertical,
   opacity = 0.75
 }
 

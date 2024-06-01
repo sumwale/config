@@ -71,14 +71,14 @@ local menu_widget = function(screen, menu, action_bar_width)
 end
 
 local menu_button = function(screen)
-   local action_bar_width = dpi(24)
+  local action_bar_width = dpi(24)
 
   local menu =
     wibox {
     screen = screen,
     width = dpi(24),
     height = dpi(24),
-    x = screen.geometry.x + dpi(12),
+    x = screen.geometry.x + dpi(4),
     y = screen.geometry.y + dpi(4),
     ontop = false,
     bg = beautiful.primary.hue_500,

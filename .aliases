@@ -25,6 +25,7 @@ alias treed='tree -CAFd'
 alias kssh="kitty +kitten ssh"
 
 alias cdl='cd ~/projects/lightspeed-spark'
+alias cdy='cd ~/projects/ybox'
 alias cds='cd ~/projects/spark'
 alias cdt='cd ~/product/tibco'
 alias cdm='cd ~/product/mariadb'

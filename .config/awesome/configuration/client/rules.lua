@@ -94,7 +94,7 @@ awful.rules.rules = {
   {
     rule = { class = 'Gsimplecal' },
     properties = {
-      placement = awful.placement.top_right,
+      placement = awful.placement.bottom_left,
       ontop = true,
       floating = true,
       drawBackdrop = true,
