@@ -38,9 +38,21 @@ awful.rules.rules = {
       skip_decoration = true
     }
   },
-  -- fix large open dialogs of firefox and thunderbird under distrobox
+  -- fix large open dialogs of firefox and thunderbird under ybox/distrobox
   {
     rule = { class = 'firefox', name = 'Open File' },
+    properties = {
+      ontop = true,
+      floating = true,
+      skip_decoration = true,
+      x = dpi(300),
+      y = dpi(100),
+      width = dpi(900),
+      height = dpi(675)
+    }
+  },
+  {
+    rule = { class = 'firefox', name = 'Save As' },
     properties = {
       ontop = true,
       floating = true,
@@ -65,6 +77,30 @@ awful.rules.rules = {
   },
   {
     rule = { class = 'thunderbird', name = 'Open' },
+    properties = {
+      ontop = true,
+      floating = true,
+      skip_decoration = true,
+      x = dpi(300),
+      y = dpi(100),
+      width = dpi(900),
+      height = dpi(690)
+    }
+  },
+  {
+    rule = { class = 'thunderbird', name = 'Choose Folder' },
+    properties = {
+      ontop = true,
+      floating = true,
+      skip_decoration = true,
+      x = dpi(300),
+      y = dpi(100),
+      width = dpi(900),
+      height = dpi(690)
+    }
+  },
+  {
+    rule = { class = 'thunderbird', name = 'Attach File(s)' },
     properties = {
       ontop = true,
       floating = true,
