@@ -42,7 +42,7 @@ return {
     '~/.local/bin/touchpad-settings.sh', -- touchpad tap to click, natural scrolling
     '~/.local/bin/user-services.sh', -- includes wifi, alsa restore
     'redshift',
-    -- 'caffeine & { caffeine-indicator || /bin/true; }', -- disable screen locking when required
+    'caffeine & sleep 1 && { caffeine-indicator || /bin/true; }', -- disable screen locking when required
     --'nitrogen --random --set-zoom-fill ~/Pictures/wallpapers', -- run by conky periodically
     -- Add applications that need to be killed between reloads
     -- to avoid multipled instances, inside the awspawn script
