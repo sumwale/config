@@ -32,15 +32,17 @@ add_button:buttons(
 )
 
 local TasklistPanel = function(s, offset)
-  local offsetx = 0
-  local offsety = 0
+  --local offsetx = 0
+  --local offsety = 0
   local tasklist_height = dpi(300)
-  if offset == true then
-    offsetx = dpi(4)
+  local offsetx = dpi(4)
+  local offsety = (s.geometry.height - tasklist_height - dpi(55)) / 2
+  --if offset == true then
+  --  offsetx = dpi(4)
     -- dpi(55) is the difference between upper one (tag-list + ...) and bottom one
     -- (system-tray + ...), so task-list is equidistant from the two
-    offsety = (s.geometry.height - tasklist_height - dpi(55)) / 2
-  end
+  --  offsety = (s.geometry.height - tasklist_height - dpi(55)) / 2
+  --end
   local panel =
     wibox(
     {

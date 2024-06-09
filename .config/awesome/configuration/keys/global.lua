@@ -474,7 +474,7 @@ local globalKeys =
   ),
   awful.key(
     {modkey},
-    'F7',
+    'F8',
     function()
       xrandr.xrandr()
     end,
@@ -682,7 +682,7 @@ local globalKeys =
   -- toggle wifi, bluetooth and airplane mode (all)
   awful.key(
     {modkey},
-    'F8',
+    'F9',
     function()
       awful.util.spawn_with_shell('notify-send "Wireless has been `airplane-toggle.sh wlan`"')
     end,
@@ -690,7 +690,7 @@ local globalKeys =
   ),
   awful.key(
     {modkey},
-    'F9',
+    'F10',
     function()
       awful.util.spawn_with_shell('notify-send "Bluetooth has been `airplane-toggle.sh bluetooth`"')
     end,
@@ -698,7 +698,7 @@ local globalKeys =
   ),
   awful.key(
     {modkey},
-    'F10',
+    'F11',
     function()
       awful.util.spawn_with_shell('notify-send "Airplane mode has been `airplane-toggle.sh`"')
     end,
@@ -707,7 +707,7 @@ local globalKeys =
   -- blank the screen
   awful.key(
     {modkey},
-    'F11',
+    'F12',
     function()
       os.execute('xblank.sh')
     end,

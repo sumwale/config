@@ -88,6 +88,7 @@ patterns:
   - R /usr/local
   - R /boot/grub/themes
   - '- /home/sumedh/.android/adbkey*'
+  - '- /home/sumedh/.asound.state'
   - '- /home/sumedh/.aws'
   - '- /home/sumedh/.bash_history'
   - '- /home/sumedh/**/.cache'

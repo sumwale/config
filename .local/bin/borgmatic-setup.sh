@@ -48,12 +48,20 @@ fi
 
 rm -f $HOME/Documents/rest.key
 
+mkdir -p $HOME/pkgs
 if type -p pacman > /dev/null; then
-  pacman -Qe > $HOME/pkgs-explicit.list
-  pacman -Q > $HOME/pkgs.list
+  pacman -Qe > $HOME/pkgs/pac-explicit.list
+  pacman -Q > $HOME/pkgs/pac.list
 elif type -p dpkg > /dev/null; then
-  dpkg -l > $HOME/pkgs.list
-  apt-mark showmanual > $HOME/pkgs-explicit.list
+  dpkg -l > $HOME/pkgs/deb.list
+  apt-mark showmanual > $HOME/pkgs/deb-explicit.list
 else
-  rpm -ql > $HOME/pkgs.list
+  rpm -ql > $HOME/pkgs/rpm.list
+fi
+
+if type -p ybox-ls > /dev/null; then
+  for container in $(ybox-ls --format='{{ .Names }}'); do
+    ybox-pkg list -z "$container" -p ' ' 2> /dev/null > "$HOME/pkgs/$container-explicit.list"
+    ybox-pkg list -z "$container" -a -p ' ' 2> /dev/null > "$HOME/pkgs/$container.list"
+  done
 fi

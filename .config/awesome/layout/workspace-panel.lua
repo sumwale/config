@@ -6,12 +6,14 @@ local TagList = require('widget.tag-list')
 local dpi = require('beautiful').xresources.apply_dpi
 
 local WorkspacePanel = function(s, offset)
-  local offsetx = 0
-  local offsety = 0
-  if offset == true then
-    offsetx = dpi(5)
-    offsety = dpi(32)
-  end
+  --local offsetx = 0
+  --local offsety = 0
+  local offsetx = dpi(5)
+  local offsety = dpi(32)
+  --if offset == true then
+  --  offsetx = dpi(5)
+  --  offsety = dpi(32)
+  --end
   local panel =
     wibox(
     {

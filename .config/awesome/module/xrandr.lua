@@ -140,7 +140,7 @@ local function xrandr()
   end
   state.cid = naughty.notify({ text = label,
   icon = icon_path,
-  timeout = 4,
+  timeout = 5,
   screen = mouse.screen,
   replaces_id = state.cid,
   destroy = naughty_destroy_callback}).id
