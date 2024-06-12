@@ -9,6 +9,8 @@ local apps = require('configuration.apps')
 local switcher = require('awesome-switcher')
 local naughty = require('naughty')
 local icons = require('theme.icons')
+local sharedtags = require('sharedtags')
+local tags = require('configuration.tags')
 local xrandr = require('module.xrandr')
 
 -- Utility functions to display notifications for hotkeys
@@ -795,9 +797,9 @@ for i = 1, 9 do
       '#' .. i + 9,
       function()
         local screen = awful.screen.focused()
-        local tag = screen.tags[i]
+        local tag = tags[i]
         if tag then
-          tag:view_only()
+          sharedtags.viewonly(tag, screen)
         end
       end,
       descr_view
@@ -808,9 +810,9 @@ for i = 1, 9 do
       '#' .. i + 9,
       function()
         local screen = awful.screen.focused()
-        local tag = screen.tags[i]
+        local tag = tags[i]
         if tag then
-          awful.tag.viewtoggle(tag)
+          sharedtags.viewtoggle(tag, screen)
         end
       end,
       descr_toggle
@@ -821,7 +823,7 @@ for i = 1, 9 do
       '#' .. i + 9,
       function()
         if _G.client.focus then
-          local tag = _G.client.focus.screen.tags[i]
+          local tag = tags[i]
           if tag then
             _G.client.focus:move_to_tag(tag)
           end
@@ -835,7 +837,7 @@ for i = 1, 9 do
       '#' .. i + 9,
       function()
         if _G.client.focus then
-          local tag = _G.client.focus.screen.tags[i]
+          local tag = tags[i]
           if tag then
             _G.client.focus:toggle_tag(tag)
           end
