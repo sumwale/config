@@ -9,6 +9,9 @@ set expandtab
 set shiftwidth=2
 "set smarttab
 
+set number
+set relativenumber
+
 "set mouse=a
 set hlsearch
 set incsearch
@@ -24,6 +27,11 @@ set pastetoggle=<F10>
 nnoremap <F5> :buffers<CR>:buffer<Space>
 nnoremap gn :bn<CR>
 nnoremap gN :bp<CR>
+" zz is for centering the view around the cursor
+nnoremap <C-d> <C-d>zz
+nnoremap <C-u> <C-u>zz
+nnoremap n nzzzv
+nnoremap N Nzzzv
 
 " write as root using sudo
 let $SUDO_ASKPASS = '/usr/libexec/seahorse/ssh-askpass'
