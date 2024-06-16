@@ -40,80 +40,32 @@ awful.rules.rules = {
   },
   -- fix large open dialogs of firefox and thunderbird under ybox/distrobox
   {
-    rule = { class = 'firefox', name = 'Open File' },
+    rule_any = {
+      class = { 'firefox', 'thunderbird', 'Wicd-client.py', 'calendar.google.com' }
+    },
+    except_any = { type = { 'normal' }, instance = { 'Firefox', 'Thunderbird' } },
     properties = {
+      placement = awful.placement.centered,
       ontop = true,
       floating = true,
-      skip_decoration = true,
+      drawBackdrop = true,
       x = dpi(300),
       y = dpi(100),
       width = dpi(900),
-      height = dpi(675)
+      height = dpi(690),
+      shape = function()
+        return function(cr, w, h)
+          gears.shape.rounded_rect(cr, w, h, 8)
+        end
+      end,
+      skip_decoration = true
     }
   },
   {
-    rule = { class = 'firefox', name = 'Save As' },
-    properties = {
-      ontop = true,
-      floating = true,
-      skip_decoration = true,
-      x = dpi(300),
-      y = dpi(100),
-      width = dpi(900),
-      height = dpi(675)
-    }
-  },
-  {
-    rule = { class = 'thunderbird', name = 'Open Message' },
-    properties = {
-      ontop = true,
-      floating = true,
-      skip_decoration = true,
-      x = dpi(300),
-      y = dpi(100),
-      width = dpi(900),
-      height = dpi(690)
-    }
-  },
-  {
-    rule = { class = 'thunderbird', name = 'Open' },
-    properties = {
-      ontop = true,
-      floating = true,
-      skip_decoration = true,
-      x = dpi(300),
-      y = dpi(100),
-      width = dpi(900),
-      height = dpi(690)
-    }
-  },
-  {
-    rule = { class = 'thunderbird', name = 'Choose Folder' },
-    properties = {
-      ontop = true,
-      floating = true,
-      skip_decoration = true,
-      x = dpi(300),
-      y = dpi(100),
-      width = dpi(900),
-      height = dpi(690)
-    }
-  },
-  {
-    rule = { class = 'thunderbird', name = 'Attach File(s)' },
-    properties = {
-      ontop = true,
-      floating = true,
-      skip_decoration = true,
-      x = dpi(300),
-      y = dpi(100),
-      width = dpi(900),
-      height = dpi(690)
-    }
-  },
-  -- Titlebars
-  {
-    rule_any = { type = { 'dialog' }, class = { 'Wicd-client.py', 'calendar.google.com' } },
+    rule_any = {
+      class = { 'firefox', 'thunderbird' }
+    },
+    except = { type = 'normal' },
     properties = {
       placement = awful.placement.centered,
       ontop = true,

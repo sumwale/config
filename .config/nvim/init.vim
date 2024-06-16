@@ -29,7 +29,9 @@ nnoremap gn :bn<CR>
 nnoremap gN :bp<CR>
 " zz is for centering the view around the cursor
 nnoremap <C-d> <C-d>zz
+nnoremap <C-f> <C-f>zz
 nnoremap <C-u> <C-u>zz
+nnoremap <C-b> <C-b>zz
 nnoremap n nzzzv
 nnoremap N Nzzzv
 
