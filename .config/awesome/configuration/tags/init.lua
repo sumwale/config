@@ -27,7 +27,7 @@ local tags = sharedtags({
     icon = icons.code,
     type = 'code',
     defaultApp = apps.default.editor,
-    layout = awful.layout.suit.max
+    layout = awful.layout.suit.floating
   },
   {
     icon = icons.mail,
