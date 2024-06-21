@@ -12,45 +12,59 @@ awful.layout.layouts = {
 
 local tags = sharedtags({
   {
+    name = 'console',
     icon = icons.console,
-    type = 'console',
     defaultApp = apps.default.terminal,
+    gap_single_client = false,
+    gap = 4,
     layout = awful.layout.suit.floating
   },
   {
+    name = 'firefox',
     icon = icons.firefox,
-    type = 'firefox',
     defaultApp = apps.default.browser,
+    gap_single_client = false,
+    gap = 0,
     layout = awful.layout.suit.max
   },
   {
+    name = 'code',
     icon = icons.code,
-    type = 'code',
     defaultApp = apps.default.editor,
+    gap_single_client = false,
+    gap = 4,
     layout = awful.layout.suit.floating
   },
   {
+    name = 'mail',
     icon = icons.mail,
-    type = 'mail',
     defaultApp = apps.default.mail,
+    gap_single_client = false,
+    gap = 0,
     layout = awful.layout.suit.max
   },
   {
+    name = 'social',
     icon = icons.social,
-    type = 'social',
     defaultApp = apps.default.social,
+    gap_single_client = false,
+    gap = 0,
     layout = awful.layout.suit.max
   },
   {
+    name = 'music',
     icon = icons.music,
-    type = 'music',
     defaultApp = apps.default.music,
+    gap_single_client = false,
+    gap = 4,
     layout = awful.layout.suit.tile
   },
   {
+    name = 'any',
     icon = icons.lab,
-    type = 'any',
     defaultApp = apps.default.rofi,
+    gap_single_client = false,
+    gap = 4,
     layout = awful.layout.suit.floating
   }
 })
@@ -77,6 +91,7 @@ awful.screen.connect_for_each_screen(
   end
 )
 
+--[[
 _G.tag.connect_signal(
   'property::layout',
   function(t)
@@ -88,5 +103,6 @@ _G.tag.connect_signal(
     end
   end
 )
+--]]
 
 return tags

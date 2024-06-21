@@ -36,7 +36,8 @@ awful.rules.rules = {
     properties = {
       floating = true,
       skip_decoration = true
-    }
+    },
+    screen = awful.screen.focused()
   },
   -- fix large open dialogs of firefox and thunderbird under ybox/distrobox
   {
