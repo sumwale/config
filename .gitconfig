@@ -34,9 +34,3 @@
 
 [includeIf "gitdir:~/product/mariadb/**"]
 	path = ~/.gitconfig.mariadb
-
-[includeIf "gitdir:~/product/tibco/**"]
-	path = ~/.gitconfig.tibco
-
-[includeIf "gitdir:/shared/sumedh/tibco/**"]
-	path = ~/.gitconfig.tibco
