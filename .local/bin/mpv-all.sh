@@ -18,5 +18,5 @@ fi
 if [ -z "${RND}" ]; then
   /bin/ls ${LS_ARGS} | sed 's/^/"/;s/$/"/;' | xargs mpv "$@"
 else
-  /bin/ls ${LS_ARGS} | sort -R | sed 's/^/"/;s/$/"/;' | xargs mpv "$@"
+  /bin/ls ${LS_ARGS} | shuf | sed 's/^/"/;s/$/"/;' | xargs mpv "$@"
 fi
