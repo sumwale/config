@@ -1,3 +1,5 @@
+# mask permissions for others by default
+umask 027
 # set PATH to include user's private bin and cargo
 GCMDIR=/gcm
 if [ -e /usr/local/jdk11 ]; then

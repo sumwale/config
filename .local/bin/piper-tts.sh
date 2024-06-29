@@ -10,8 +10,12 @@ fi
 if [[ ${#RATE} -gt 3 ]]; then
   ADJ_RATE=$((${RATE::-3} * 30 + $ADJ_RATE))
 fi
-mkdir -p "$VOICE_PATH"
-echo "$DATA" | piper --model $VOICE_PATH/$VOICE.onnx  --output-raw | \
+if type piper-tts >/dev/null 2>/dev/null; then
+  PIPER=piper-tts
+else
+  PIPER=piper
+fi
+echo "$DATA" | $PIPER --model $VOICE_PATH/$VOICE.onnx  --output-raw | \
   aplay -q -r $ADJ_RATE -f S16_LE -t raw -
 
 wait

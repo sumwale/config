@@ -2,6 +2,9 @@
 # ~/.bashrc
 #
 
+# mask permissions for others by default
+umask 027
+
 [[ $- != *i* ]] && return
 
 [ -z "$SHENV_READ" -a -f "$HOME/.sh_env" ] && . "$HOME/.sh_env"
