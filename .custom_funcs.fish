@@ -37,3 +37,11 @@ end
 function kswitchNS --description 'change current namespace for kubectl'
   kubectl config set-context --current "--namespace=$argv[1]"
 end
+
+function _fzf_compgen_path
+  fdfind . "$argv[1]" $FZF_FD_COMMON_OPTS
+end
+
+function _fzf_compgen_dir
+  fdfind . "$argv[1]" $FZF_FD_COMMON_OPTS --type d
+end

@@ -68,6 +68,11 @@ if [ -d "$HOME/.kube/configs" ]; then
 fi
 export CLOUDSDK_PYTHON USE_GKE_GCLOUD_AUTH_PLUGIN KUBECONFIG
 
+FZF_DEFAULT_COMMAND="fdfind --hidden --strip-cwd-prefix --exclude .git"
+FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND --type d"
+export FZF_DEFAULT_COMMAND FZF_CTRL_T_COMMAND FZF_ALT_C_COMMAND
+
 [ -r "$HOME/.sh_env.local" ] && . "$HOME/.sh_env.local"
 
 SHENV_READ=1

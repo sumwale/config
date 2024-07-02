@@ -101,11 +101,17 @@ setopt autocd autopushd pushdignoredups no_auto_remove_slash
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # common aliases
-[ -f ~/.aliases ] && . ~/.aliases
+[ -f ~/.aliases ] && source ~/.aliases
+
+# common functions
+[ -f ~/.custom_funcs.sh ] && source ~/.custom_funcs.sh
 
 if which kubectl 2>/dev/null >/dev/null; then
-  source ~/.kube_funcs
-  source <(kubectl completion zsh)
+  source <(kubectl completion zsh | dos2unix)
+
+  if type eksctl 2>/dev/null >/dev/null; then
+    source <(eksctl completion zsh)
+  fi
 fi
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!

@@ -245,10 +245,12 @@ fi
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # common aliases
-[ -f ~/.aliases ] && . ~/.aliases
+[ -f ~/.aliases ] && source ~/.aliases
+
+# common functions
+[ -f ~/.custom_funcs.sh ] && source ~/.custom_funcs.sh
 
 if type kubectl 2>/dev/null >/dev/null; then
-  . ~/.kube_funcs
   source <(kubectl completion bash | dos2unix)
 
   if type eksctl 2>/dev/null >/dev/null; then

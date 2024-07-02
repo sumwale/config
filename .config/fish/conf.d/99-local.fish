@@ -104,11 +104,15 @@ if test -n "$tldr_cachedir"
   complete -x -c tldr -a "(printf '%s\n' $tldr_cachedir/**/*.md | sed -r 's,^.*/([^/]*)/(.*)\.md,\2\t\1,')"
 end
 
-# common aliases
-if test -r ~/.aliases
-  source ~/.aliases
-end
+# fzf setup
+set FZF_FD_COMMON_OPTS --hidden --exclude .git
+set -gx FZF_DEFAULT_COMMAND "fdfind $FZF_FD_COMMON_OPTS --strip-cwd-prefix"
+# $dir in below commands is fish specific hence not exported (no -x to set)
+set -g FZF_CTRL_T_COMMAND "fdfind . \$dir $FZF_FD_COMMON_OPTS"
+set -g FZF_ALT_C_COMMAND "$FZF_CTRL_T_COMMAND --type d"
 
-if type kubectl 2>/dev/null >/dev/null
-  source ~/.kube_funcs.fish
-end
+# common aliases
+[ -f ~/.aliases ] && source ~/.aliases
+
+# common functions
+[ -f ~/.custom_funcs.fish ] && source ~/.custom_funcs.fish
