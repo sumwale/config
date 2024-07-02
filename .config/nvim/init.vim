@@ -103,3 +103,6 @@ if !exists('my_auto_commands_loaded')
     autocmd BufReadPre * let f=expand("<afile>") | if getfsize(f) > g:LargeFile | set eventignore+=FileType | setlocal noswapfile nohlsearch bufhidden=unload undolevels=-1 | elseif getfsize(f) > g:MediumFile | set eventignore+=FileType | setlocal nohlsearch | else | set eventignore-=FileType | endif
   augroup END
 endif
+
+" example of fzf initialization on debian/ubuntu
+"source /usr/share/doc/fzf/examples/fzf.vim
