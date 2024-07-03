@@ -106,9 +106,8 @@ end
 
 # fzf setup
 set FZF_FD_COMMON_OPTS --hidden --exclude .git
-set -gx FZF_DEFAULT_COMMAND "fdfind $FZF_FD_COMMON_OPTS --strip-cwd-prefix"
 # $dir in below commands is fish specific hence not exported (no -x to set)
-set -g FZF_CTRL_T_COMMAND "fdfind . \$dir $FZF_FD_COMMON_OPTS"
+set -g FZF_CTRL_T_COMMAND "$FD_CMD . \$dir $FZF_FD_COMMON_OPTS"
 set -g FZF_ALT_C_COMMAND "$FZF_CTRL_T_COMMAND --type d"
 
 # common aliases

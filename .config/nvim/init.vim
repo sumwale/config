@@ -105,4 +105,6 @@ if !exists('my_auto_commands_loaded')
 endif
 
 " example of fzf initialization on debian/ubuntu
-source /usr/share/doc/fzf/examples/fzf.vim
+if filereadable("/usr/share/doc/fzf/examples/fzf.vim")
+  source /usr/share/doc/fzf/examples/fzf.vim
+endif
