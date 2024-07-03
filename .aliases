@@ -24,6 +24,7 @@ alias lt='eza -gH --sort=modified --reverse --color=always --group-directories-f
 alias tree='tree -CAhF --dirsfirst'
 alias treed='tree -CAFd'
 alias kssh="kitty +kitten ssh"
+alias dmesg-user="journalctl --dmesg -o short-monotonic --no-hostname"
 
 alias cdl='cd ~/projects/lightspeed-spark'
 alias cdy='cd ~/projects/ybox'

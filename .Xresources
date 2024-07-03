@@ -1,8 +1,9 @@
 Xft.dpi:	120
 Xft.antialias:	1
+Xft.autohint:	0
 Xft.hinting:	1
 Xft.hintstyle:	hintfull
-Xft.lcdfilter:  lcddefault
+Xft.lcdfilter:	lcddefault
 Xft.rgba:	rgb
 Xcursor.size:	24
 Xcursor.theme:	Vimix-white-cursors
