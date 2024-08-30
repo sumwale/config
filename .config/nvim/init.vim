@@ -32,6 +32,8 @@ nnoremap <C-d> <C-d>zz
 nnoremap <C-f> <C-f>zz
 nnoremap <C-u> <C-u>zz
 nnoremap <C-b> <C-b>zz
+nnoremap <A-S-r> :FZF<CR>
+nnoremap <C-A-r> :FZF 
 nnoremap n nzzzv
 nnoremap N Nzzzv
 

@@ -15,7 +15,6 @@ new_tab
 enabled_layouts splits, stack
 layout splits
 
-cd ~
+cd ~/projects/ybox
 launch
-cd ~
 launch

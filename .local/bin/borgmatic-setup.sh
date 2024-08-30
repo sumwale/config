@@ -59,7 +59,7 @@ if type -p pacman > /dev/null; then
   pacman -Qe > "$HOME/pkgs/pac-explicit.list"
   pacman -Q > "$HOME/pkgs/pac.list"
 elif type -p dpkg > /dev/null; then
-  dpkg -l > "$HOME/pkgs/deb.list"
+  apt-mark showinstall > "$HOME/pkgs/deb.list"
   apt-mark showmanual > "$HOME/pkgs/deb-explicit.list"
 else
   rpm -ql > "$HOME/pkgs/rpm.list"
