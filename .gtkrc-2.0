@@ -2,7 +2,7 @@
 # Any customization should be done in ~/.gtkrc-2.0.mine instead.
 
 include "/home/sumedh/.gtkrc-2.0.mine"
-gtk-theme-name="WhiteSur-dark-purple"
+gtk-theme-name="WhiteSur-Dark-purple"
 gtk-icon-theme-name="Tela-circle-purple-dark"
 gtk-font-name="Cantarell 10"
 gtk-cursor-theme-size=24

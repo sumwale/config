@@ -67,7 +67,7 @@ The layout works is designed for a 1920x1080 screen and uses 120dpi with base fo
 Changing dpi/fonts requires changing .Xresources, .xsettingsd (or use lxappearance), awesome and kitty configuration files.
 
 * Copy the following directories from .config to your ~/.config: awesome, rofi, gimplecal, conky and kitty (skip latter three if you don't intend to use those). Optionally Kvantum for Kvantum QT theme.
-* Copy .themes/WhiteSur-dark-purple to your ~/.themes. Skip if you intend to use some other GTK theme.
+* Copy .themes/WhiteSur-Dark-purple to your ~/.themes. Skip if you intend to use some other GTK theme.
 * Copy .Xresources and .xsettingsd to your home. If you don't use GNOME, then you can use lxappearance to configure instead. For that case avoid kvantum for QT apps and instead use qt5ct to configure look-and-feel for QT apps with QT\_QPA\_PLATFORMTHEME as qt5ct or use gtk2 for the QT\_QPA\_PLATFORMTHEME.
 
 #### Required
@@ -107,7 +107,7 @@ Either add these to your .profile or remove "export" and add to /etc/environment
 
 #### Recommended
 
- * whitesur for gtk/qt, tela-circle for icons, vimix-cursors or whitesur for cursor theme. Specifically use the dark-purple version in the .themes which matches the colors used in awesome. On Arch: pamac install whitesur-gtk-theme-git whitesur-kvantum-theme-git vimix-cursors tela-circle-icon-theme-git (or yay/... whatever AUR helper you use). On other distros you may need to install the themes from gnome-look to your home directory manually (whitesur-gtk can be skipped if you use the WhiteSur-dark-purple from .themes).
+ * whitesur for gtk/qt, tela-circle for icons, vimix-cursors or whitesur for cursor theme. Specifically use the dark-purple version in the .themes which matches the colors used in awesome. On Arch: pamac install whitesur-gtk-theme-git whitesur-kvantum-theme-git vimix-cursors tela-circle-icon-theme-git (or yay/... whatever AUR helper you use). On other distros you may need to install the themes from gnome-look to your home directory manually (whitesur-gtk can be skipped if you use the WhiteSur-Dark-purple from .themes).
  * polkit-gnome/policykit-1-gnome, gnome-keyring -- for keyring with ssh/gpg agent support
  * xset from xorg-xset, rfkill from util-linux
  * conky -- note that floating layout is required for this to work acceptably which is setup in this awesome configuration for the first tag. Use conky-lua-nv if you have NVIDIA card.

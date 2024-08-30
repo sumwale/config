@@ -44,7 +44,7 @@ Net/EnableInputFeedbackSounds 1
 Net/FallbackIconTheme "gnome"
 Net/IconThemeName "Tela-circle-purple-dark"
 Net/SoundThemeName "__custom"
-Net/ThemeName "WhiteSur-dark-purple"
+Net/ThemeName "WhiteSur-Dark-purple"
 Xft/Antialias 1
 Xft/DPI 122880
 Xft/Hinting 1

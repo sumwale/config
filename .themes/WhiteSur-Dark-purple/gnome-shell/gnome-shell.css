@@ -2487,12 +2487,12 @@ StEntry StLabel.hint-text {
 }
 
 #panel {
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: rgba(0, 0, 0, 0.25);
   font-weight: 500;
   color: white;
   transition-duration: 250ms;
   height: 28px !important;
-  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.35);
 }
 
 #panel .panel-corner {
