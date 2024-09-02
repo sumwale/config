@@ -134,7 +134,7 @@ export HISTSIZE=5000
 export HISTFILESIZE=10000
 
 # Don't put duplicate lines in the history and do not add lines that start with a space
-export HISTCONTROL=erasedups:ignoredups:ignorespace
+export HISTCONTROL=erasedups:ignoredups
 
 # Enable history appending instead of overwriting.  #139609
 shopt -s histappend

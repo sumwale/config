@@ -16,6 +16,7 @@ alias fgrep='fgrep --color=auto'
 alias ip='ip -color=auto'
 alias ncdu='ncdu --color dark'
 alias tldr='tldr --pager'
+alias lg=lazygit
 
 alias ls='eza -gH --color=always --group-directories-first'
 alias la='eza -agH --color=always --group-directories-first'

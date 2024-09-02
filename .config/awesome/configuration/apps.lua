@@ -22,7 +22,7 @@ return {
     screenshot = 'gnome-screenshot -i',
     browser = 'firefox',
     mail = 'thunderbird',
-    editor = 'idea', -- gui text editor
+    editor = 'code', -- gui text editor
     social = 'zoom',
     game = rofi_command,
     files = 'nautilus --new-window',
