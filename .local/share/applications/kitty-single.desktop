@@ -1,10 +1,12 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=kitty custom
+Name=kitty (single window)
 GenericName=Terminal emulator
 Comment=A fast, feature full, GPU based terminal emulator
 TryExec=kitty
-Exec=kitty-custom.sh
+Exec=kitty-single.sh
 Icon=kitty
+Terminal=false
+StartupNotify=false
 Categories=System;TerminalEmulator;
