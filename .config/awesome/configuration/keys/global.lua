@@ -483,7 +483,7 @@ local globalKeys =
     {description = 'Switch monitor (xrandr)', group = 'layout'}
   ),
   awful.key(
-    {modkey},
+    {modkey, 'Shift'},
     'h',
     function()
       local c = _G.client.focus

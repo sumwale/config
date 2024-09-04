@@ -1,10 +1,13 @@
 [Desktop Entry]
-Name=Network
+Name=NetworkManager Applet
 Comment=Manage your network connections
-Exec=nm-applet
 Icon=nm-device-wireless
+Exec=nm-applet
 Terminal=false
 Type=Application
-Hidden=true
+NoDisplay=true
+NotShowIn=KDE;GNOME;
 X-GNOME-UsesNotifications=true
+X-Ubuntu-Gettext-Domain=nm-applet
+Hidden=true
 X-GNOME-Autostart-enabled=false
