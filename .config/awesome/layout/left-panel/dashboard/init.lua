@@ -3,7 +3,7 @@ local beautiful = require('beautiful')
 local wibox = require('wibox')
 local mat_list_item = require('widget.material.list-item')
 local mat_icon = require('widget.material.icon')
-local dpi = require('beautiful').xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
 local icons = require('theme.icons')
 
 return function(_, panel)

@@ -1,7 +1,7 @@
 local naughty = require('naughty')
 local beautiful = require('beautiful')
 local gears = require('gears')
-local dpi = require('beautiful').xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
 
 -- Naughty presets
 naughty.config.padding = 8

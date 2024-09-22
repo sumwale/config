@@ -66,7 +66,9 @@ function gitdiffall
 end
 
 # colors for ls
-if test -r ~/.dir_colors
+if type -p vivid >/dev/null
+  set -gx LS_COLORS $(vivid generate catppuccin-mocha)
+else if test -r ~/.dir_colors
   eval (dircolors -c ~/.dir_colors)
 else if test -r /etc/DIR_COLORS
   eval (dircolors -c /etc/DIR_COLORS)

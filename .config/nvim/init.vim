@@ -63,8 +63,9 @@ Plug 'vim-airline/vim-airline'
 "Plug 'vim-airline/vim-airline-themes'
 
 " Themes
-Plug 'morhetz/gruvbox'
+"Plug 'morhetz/gruvbox'
 Plug 'patstockwell/vim-monokai-tasty'
+Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 "Plug 'drewtempelmeyer/palenight.vim'
 "Plug 'ayu-theme/ayu-vim'
 "Plug 'mhartington/oceanic-next'
@@ -83,8 +84,12 @@ set background=dark
 
 "colorscheme gruvbox
 
-colorscheme vim-monokai-tasty
-let g:airline_theme='monokai_tasty'
+"colorscheme vim-monokai-tasty
+"let g:airline_theme = 'monokai_tasty'
+
+colorscheme catppuccin-mocha " catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha
+let g:airline_theme = 'catppuccin'
+
 
 " Protect large files from sourcing and other overhead.
 " Files become read only

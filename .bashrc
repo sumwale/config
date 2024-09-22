@@ -91,7 +91,9 @@ match_lhs=""
 
 if ${use_color} ; then
   # Enable colors for ls, etc.  Prefer ~/.dir_colors #64489
-  if type -P dircolors >/dev/null ; then
+  if type -P vivid >/dev/null ; then
+    export LS_COLORS="$(vivid generate catppuccin-mocha)"
+  elif type -P dircolors >/dev/null ; then
     if [[ -f ~/.dir_colors ]] ; then
       eval $(dircolors -b ~/.dir_colors)
     elif [[ -f /etc/DIR_COLORS ]] ; then

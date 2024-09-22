@@ -3,7 +3,7 @@ local beautiful = require('beautiful')
 local wibox = require('wibox')
 local clickable_container = require('widget.material.clickable-container')
 
-local dpi = require('beautiful').xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
 
 local LayoutBox = function(s)
   local layoutBox = clickable_container(awful.widget.layoutbox(s))

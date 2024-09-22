@@ -3,7 +3,7 @@ local beautiful = require('beautiful')
 local wibox = require('wibox')
 local apps = require('configuration.apps')
 
-local dpi = require('beautiful').xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
 
 local left_panel_grabber
 

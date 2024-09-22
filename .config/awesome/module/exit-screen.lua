@@ -5,7 +5,7 @@ local beautiful = require('beautiful')
 local icons = require('theme.icons')
 local clickable_container = require('widget.material.clickable-container')
 local apps = require('configuration.apps')
-local dpi = require('beautiful').xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
 
 -- Appearance
 local icon_size = beautiful.exit_screen_icon_size or dpi(140)

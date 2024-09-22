@@ -3,7 +3,7 @@ local beautiful = require('beautiful')
 local wibox = require('wibox')
 local TagList = require('widget.tag-list')
 
-local dpi = require('beautiful').xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
 
 local WorkspacePanel = function(s, offset)
   --local offsetx = 0

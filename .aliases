@@ -24,8 +24,9 @@ alias ll='eza -lgH --color=always --group-directories-first'
 alias lt='eza -gH --sort=modified --reverse --color=always --group-directories-first'
 alias tree='tree -CAhF --dirsfirst'
 alias treed='tree -CAFd'
-alias kssh="kitty +kitten ssh"
-alias dmesg-user="journalctl --dmesg -o short-monotonic --no-hostname"
+alias kssh='kitty +kitten ssh'
+alias dmesg-user='journalctl --dmesg -o short-monotonic --no-hostname'
+alias mk-build-dep='mk-build-deps --install --root-cmd sudo --remove'
 
 alias cdl='cd ~/projects/lightspeed-spark'
 alias cdy='cd ~/projects/ybox'

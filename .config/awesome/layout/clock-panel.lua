@@ -2,7 +2,7 @@ local awful = require('awful')
 local beautiful = require('beautiful')
 local wibox = require('wibox')
 
-local dpi = require('beautiful').xresources.apply_dpi
+local dpi = beautiful.xresources.apply_dpi
 
 -- Clock 24h format
 local textclock = wibox.widget.textclock('<span font="Fira Code bold 8">%H %M</span>', 10)
