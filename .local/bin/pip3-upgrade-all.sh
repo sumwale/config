@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PIP=pip
-if type pip3 >/dev/null 2>/dev/null; then
+if type pip3 2>/dev/null >/dev/null; then
   PIP=pip3
 fi
 

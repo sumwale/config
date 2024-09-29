@@ -121,13 +121,13 @@ Either add these to your .profile or remove "export" and add to /etc/environment
  * Fonts: cantarell, fira-code, terminus-ttf. On Arch: pamac install cantarell-fonts ttf-fira-code terminus-font-ttf. If you prefer some others then change awesome, conky, .xsettingsd and kitty configurations
  * nm-applet for network management
  * xfce4-power-manager, xss-lock for power management and screen locking. Can be skipped if the system is not a laptop. My /etc/systemd/logind.conf has HandleLidSwitch and HandleLidSwitchExternalPower set to lock.
- * xbacklight for brightness control, xinput for touchpad settings
+ * brightnessctl for brightness control, xinput for touchpad settings
 
 On Arch use this to get the required and recommended packages:
 
 pacman -S pamac-gtk
 
-pamac install awesome rofi picom gsimplecal procps lxappearance xsettingsd pulseaudio-alsa alsa-utils whitesur-gtk-theme-git whitesur-kvantum-theme-git kvantum-qt5 vimix-cursors tela-circle-icon-theme-git polkit-gnome gnome-keyring conky-lua-nv i3lock-fancy-git scrot imagemagick nitrogen libnotify libcanberra cantarell-fonts ttf-fira-code terminus-font-ttf network-manager-applet xfce4-power-manager xss-lock xorg-xbacklight xorg-xinput xorg-xset util-linux
+pamac install awesome rofi picom gsimplecal procps lxappearance xsettingsd pulseaudio-alsa alsa-utils whitesur-gtk-theme-git whitesur-kvantum-theme-git kvantum-qt5 vimix-cursors tela-circle-icon-theme-git polkit-gnome gnome-keyring conky-lua-nv i3lock-fancy-git scrot imagemagick nitrogen libnotify libcanberra cantarell-fonts ttf-fira-code terminus-font-ttf network-manager-applet xfce4-power-manager xss-lock brightnessctl xorg-xinput xorg-xset util-linux
 
 Use equivalent for other distributions.
 

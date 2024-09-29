@@ -10,7 +10,7 @@ fi
 if [[ ${#RATE} -gt 3 ]]; then
   ADJ_RATE=$((${RATE::-3} * 30 + $ADJ_RATE))
 fi
-if type piper-tts >/dev/null 2>/dev/null; then
+if type piper-tts 2>/dev/null >/dev/null; then
   PIPER=piper-tts
 else
   PIPER=piper

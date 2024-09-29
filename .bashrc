@@ -117,7 +117,7 @@ fi
 
 unset use_color safe_term match_lhs sh
 
-xhost +local:root > /dev/null 2>&1
+xhost +local:root >/dev/null 2>&1
 
 complete -cf sudo
 
@@ -271,7 +271,7 @@ export NVM_DIR="$HOME/.nvm"
 
 
 # starship prompt and autojump
-if type starship >/dev/null 2>/dev/null; then
+if type starship 2>/dev/null >/dev/null; then
   eval "$(starship init bash)"
 fi
 if [ -f "/usr/share/autojump/autojump.bash" ]; then

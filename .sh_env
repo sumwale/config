@@ -69,7 +69,7 @@ fi
 export CLOUDSDK_PYTHON USE_GKE_GCLOUD_AUTH_PLUGIN KUBECONFIG
 
 FD_CMD=fd
-type fdfind >/dev/null 2>/dev/null && FD_CMD=fdfind
+type fdfind 2>/dev/null >/dev/null && FD_CMD=fdfind
 FZF_DEFAULT_COMMAND="$FD_CMD --hidden --strip-cwd-prefix --exclude .git"
 FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND --type d"

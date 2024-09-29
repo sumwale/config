@@ -39,7 +39,7 @@ else
   TBIRD="$HOMEDIR/.thunderbird"
 fi
 
-if gpg --list-secret-key sumwale@gmail.com >/dev/null 2>/dev/null; then
+if gpg --list-secret-key sumwale@gmail.com 2>/dev/null >/dev/null; then
   GPG_ID="sumwale@gmail.com"
 else
   GPG_ID="swale@tibco.com"
@@ -55,24 +55,24 @@ fi
 shred -u "$HOME/Documents/rest.key"
 
 mkdir -p "$HOME/pkgs"
-if type -p pacman > /dev/null; then
+if type -p pacman >/dev/null; then
   pacman -Qe > "$HOME/pkgs/pac-explicit.list"
   pacman -Q > "$HOME/pkgs/pac.list"
-elif type -p dpkg > /dev/null; then
+elif type -p dpkg >/dev/null; then
   apt-mark showinstall > "$HOME/pkgs/deb.list"
   apt-mark showmanual > "$HOME/pkgs/deb-explicit.list"
 else
   rpm -ql > "$HOME/pkgs/rpm.list"
 fi
 
-if type -p ybox-ls > /dev/null; then
+if type -p ybox-ls >/dev/null; then
   for container in $(ybox-ls --format='{{ .Names }}'); do
-    ybox-pkg list -z "$container" -p ' ' 2> /dev/null > "$HOME/pkgs/$container-explicit.list"
-    ybox-pkg list -z "$container" -a -p ' ' 2> /dev/null > "$HOME/pkgs/$container.list"
+    ybox-pkg list -z "$container" -p ' ' 2>/dev/null > "$HOME/pkgs/$container-explicit.list"
+    ybox-pkg list -z "$container" -a -p ' ' 2>/dev/null > "$HOME/pkgs/$container.list"
   done
 fi
 
 # dump the full dconf configuration
-if type -p dconf > /dev/null; then
+if type -p dconf >/dev/null; then
   dconf dump / | gpg --batch --no-tty --encrypt -r "$GPG_ID" -o "$HOME/Documents/dconf-dump.gpg" -
 fi

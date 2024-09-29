@@ -6,9 +6,9 @@ alias vi=nvim
 alias vim=nvim
 alias ldd=libtree
 
-type fdfind >/dev/null 2>/dev/null && alias fd=fdfind
+type fdfind 2>/dev/null >/dev/null && alias fd=fdfind
 alias cat=bat
-type batcat >/dev/null 2>/dev/null && alias cat=batcat
+type batcat 2>/dev/null >/dev/null && alias cat=batcat
 
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'

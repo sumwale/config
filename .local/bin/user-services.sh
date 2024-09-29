@@ -16,5 +16,5 @@ fi
 
 alsa_state="$HOME/.asound.state"
 if [ -f "$alsa_state" ]; then
-  nohup /bin/sh -c "sleep 5 && alsactl restore -f \"$alsa_state\"" >/dev/null 2>/dev/null &
+  nohup /bin/sh -c "sleep 5 && alsactl restore -f \"$alsa_state\"" 2>/dev/null >/dev/null &
 fi

@@ -10,5 +10,5 @@ xinput set-prop "$touchpad" "libinput Tapping Enabled" 1
 xinput set-prop "$touchpad" "libinput Natural Scrolling Enabled" 1
 xinput set-prop "$touchpad" "libinput Disable While Typing Enabled" 1
 
-nohup /bin/sh -c "sleep 5 && xbacklight.sh -set 80" >/dev/null 2>/dev/null &
+nohup /bin/sh -c "sleep 5 && xbacklight.sh -set 80" 2>/dev/null >/dev/null &
 #xgamma -gamma 0.90

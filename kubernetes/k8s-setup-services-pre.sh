@@ -2,7 +2,7 @@
 
 DOCKER_REGISTRY="docker-registry.hosting:5000"
 
-sudo tee /etc/modules-load.d/99-kubernetes-cri.conf << EOF > /dev/null
+sudo tee /etc/modules-load.d/99-kubernetes-cri.conf << EOF >/dev/null
 overlay
 br_netfilter
 EOF
@@ -10,14 +10,14 @@ sudo modprobe overlay
 sudo modprobe br_netfilter
 
 # Setup required sysctl params, these persist across reboots.
-sudo tee /etc/sysctl.d/99-kubernetes-cri.conf << EOF > /dev/null
+sudo tee /etc/sysctl.d/99-kubernetes-cri.conf << EOF >/dev/null
 net.bridge.bridge-nf-call-iptables  = 1
 net.ipv4.ip_forward                 = 1
 net.bridge.bridge-nf-call-ip6tables = 1
 net.netfilter.nf_conntrack_max      = 1000000
 EOF
 # Apply sysctl params without reboot
-sudo sysctl --system > /dev/null
+sudo sysctl --system >/dev/null
 
 # Allow swap
 KADM_CONFS='/lib/systemd/system/kubelet.service.d/*kubeadm.conf /etc/systemd/system/kubelet.service.d/*kubeadm.conf'
@@ -35,7 +35,7 @@ fi
 
 if [ -e /run/containerd/containerd.sock ]; then
   sudo mkdir -p /etc/containerd
-  containerd config default | sudo tee /etc/containerd/config.toml > /dev/null
+  containerd config default | sudo tee /etc/containerd/config.toml >/dev/null
   if grep -q SystemdCgroup /etc/containerd/config.toml; then
     sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
   else
@@ -65,7 +65,7 @@ if [ -e /run/containerd/containerd.sock ]; then
       } else {
         print
       }
-    }' | sudo tee /etc/containerd/config.toml.tmp > /dev/null
+    }' | sudo tee /etc/containerd/config.toml.tmp >/dev/null
     sudo rm -f /etc/containerd/config.toml
     sudo mv -f /etc/containerd/config.toml.tmp /etc/containerd/config.toml
   fi
@@ -82,7 +82,7 @@ if [ -e /var/run/crio/crio.sock ]; then
     confFile=/etc/default/crio
   fi
   if ! grep -q docker-registry.hosting:5000 $confFile; then
-    echo 'CRIO_CONFIG_OPTIONS="--insecure-registry=docker-registry.hosting:5000"' | sudo tee -a $confFile > /dev/null
+    echo 'CRIO_CONFIG_OPTIONS="--insecure-registry=docker-registry.hosting:5000"' | sudo tee -a $confFile >/dev/null
     sudo systemctl restart crio
   fi
 fi
@@ -101,7 +101,7 @@ if [ -e /var/run/dockershim.sock -o -e /run/docker.sock ]; then
      ! grep -q log-opts /etc/docker/daemon.json ||
      ! grep -q insecure-registries /etc/docker/daemon.json; then
     echo Updating /etc/docker/daemon.json
-    sudo tee /etc/docker/daemon.json << EOF > /dev/null
+    sudo tee /etc/docker/daemon.json << EOF >/dev/null
 {$DOCKER_CONF_EXISTING
   "containerd": "/run/containerd/containerd.sock",
   "exec-opts": ["native.cgroupdriver=systemd"],
@@ -119,7 +119,7 @@ fi
 
 if [ -d /etc/NetworkManager/conf.d ]; then
   confFile=
-  sudo tee /etc/NetworkManager/conf.d/99-calico.conf << EOF > /dev/null
+  sudo tee /etc/NetworkManager/conf.d/99-calico.conf << EOF >/dev/null
 [keyfile]
 unmanaged-devices=interface-name:cali*;interface-name:tunl*;interface-name:vxlan.calico
 EOF
