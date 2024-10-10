@@ -1,15 +1,14 @@
-# DO NOT EDIT! This file will be overwritten by LXAppearance.
-# Any customization should be done in ~/.gtkrc-2.0.mine instead.
-
-include "/home/sumedh/.gtkrc-2.0.mine"
-gtk-theme-name="Yaru-magenta-dark"
-gtk-icon-theme-name="Tela-circle-purple-dark"
-gtk-font-name="Cantarell 10"
+gtk-enable-animations=1
+gtk-primary-button-warps-slider=0
+gtk-cursor-theme-name="Catppuccin-Mocha-Teal-Cursors"
+gtk-theme-name="Breeze"
+gtk-icon-theme-name="Breeze-openSUSE Dark Icons"
+gtk-font-name="Cantarell,  11"
 gtk-cursor-theme-size=24
-gtk-toolbar-style=GTK_TOOLBAR_BOTH_HORIZ
+gtk-toolbar-style=3
 gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR
-gtk-button-images=0
-gtk-menu-images=0
+gtk-button-images=1
+gtk-menu-images=1
 gtk-enable-event-sounds=1
 gtk-enable-input-feedback-sounds=0
 gtk-xft-antialias=1

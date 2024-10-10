@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="16"
+   version="1.1"
+   height="16"
+   id="svg1"
+   sodipodi:docname="start-here-kde-plasma.svg"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="11.90625"
+     inkscape:cx="4.6194226"
+     inkscape:cy="22.551181"
+     inkscape:window-width="1920"
+     inkscape:window-height="999"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs5455">
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.87425224,0,0,0.87425225,-1.6227578,-1.6056825)"
+       r="8.0068359"
+       fy="10.987305"
+       fx="11.006836"
+       cy="10.987305"
+       cx="11.006836"
+       id="radialGradient862-1"
+       xlink:href="#linearGradient4-5"
+       inkscape:collect="always" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4-5">
+      <stop
+         style="stop-color:#008080;stop-opacity:1;"
+         offset="0"
+         id="stop3-3" />
+      <stop
+         style="stop-color:#008080;stop-opacity:0.5;"
+         offset="1"
+         id="stop4-5" />
+    </linearGradient>
+  </defs>
+  <metadata
+     id="metadata5458" />
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-419.57143,-615.48041)">
+    <flowRoot
+       line-height="125%"
+       style="font-size:32.5px;font-family:sans-serif"
+       id="flowRoot4170"><flowRegion
+         id="flowRegion4172"><rect
+           width="87.75001"
+           x="452.32144"
+           y="489.79807"
+           height="48.750004"
+           id="rect4174" /></flowRegion><flowPara
+         id="flowPara4176">Plasm</flowPara></flowRoot>
+    <g
+       id="16-16-start-here-kde-2"
+       transform="translate(419.57143,615.48041)">
+      <path
+         style="fill:none"
+         d="M 0,0 V 16 H 16 V 0 Z"
+         id="path17" />
+      <path
+         style="color:#d3dae3;fill:url(#radialGradient862-1);fill-opacity:1;stroke-width:0.873933"
+         d="M 8.8819307,1 6.2455138,1.4589901 V 10.532966 L 8.8682712,10.195117 8.8546172,6.1051703 11.94865,10.631939 14.988028,10.195117 11.491031,5.5096892 14.999991,1.5784189 11.923035,1.011951 8.8546157,4.9431973 Z M 3.3376006,3.3171153 c -0.02533,0.0028 -0.049222,0.01328 -0.0683,0.03249 l -0.904986,0.9145698 c -0.039296,0.03962 -0.045841,0.1013296 -0.015364,0.148439 L 3.4417689,6.0898865 C 3.2356139,6.4554744 3.0798437,6.8563234 2.9790317,7.2757415 l -1.8868148,0.462404 c -0.052374,0.012926 -0.092207,0.060142 -0.092207,0.11431 V 8.4479466 9.043438 c 0,0.05413 0.039832,0.101459 0.092215,0.114312 l 1.8868119,0.462409 c 0.1008122,0.419416 0.2565822,0.820271 0.4627407,1.185857 l -1.0928202,1.677256 c -0.030487,0.04723 -0.02393,0.108896 0.015363,0.148457 l 0.9049885,0.914553 c 0.038158,0.03845 0.097356,0.04167 0.1434317,0.0137 l 1.7126433,-1.049383 c 0.3359997,0.195612 0.8615835,0.35298 1.2447863,0.457289 l 0.4012676,1.93661 C 6.7825725,14.960376 6.8270165,15 6.8824211,15 h 0.6744728 0.674471 c 0.05541,0 0.099841,-0.03958 0.1109902,-0.0955 l 0.4012665,-1.936644 c 0.3832029,-0.104346 0.9087879,-0.26169 1.2447859,-0.457291 l 1.7126485,1.04937 c 0.04606,0.02796 0.105266,0.02485 0.143414,-0.01369 l 0.905002,-0.914568 c 0.03931,-0.03952 0.04585,-0.101216 0.01537,-0.148445 l -0.910105,-1.397441 -0.11269,0.01703 -0.638614,-0.93504 c -0.652256,1.366311 -2.0316305,2.236996 -3.5465323,2.238647 -2.172764,0 -3.9341353,-1.760091 -3.9341353,-3.9312603 0.0012,-1.4922302 0.8478893,-2.8551235 2.1856274,-3.5183266 V 4.0986113 C 5.5589979,4.1817713 5.3139693,4.2754791 5.125359,4.3852802 L 3.4127158,3.3359141 c -0.023033,-0.01397 -0.049802,-0.02083 -0.075126,-0.018848 z"
+         class="ColorScheme-Text"
+         id="path10-2" />
+    </g>
+  </g>
+</svg>

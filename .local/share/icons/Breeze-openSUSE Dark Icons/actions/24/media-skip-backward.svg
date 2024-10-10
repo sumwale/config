@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 22 22"
+   id="svg6"
+   width="22"
+   height="22"
+   version="1.1"
+   sodipodi:docname="media-skip-backward.svg"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="15.875"
+     inkscape:cx="10.456693"
+     inkscape:cy="15.338583"
+     inkscape:window-width="1920"
+     inkscape:window-height="994"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6"
+     showgrid="true">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14902"
+       empspacing="5"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="true" />
+  </sodipodi:namedview>
+  <style
+     type="text/css"
+     id="current-color-scheme">.ColorScheme-Text { color: #fcfcfc; } </style>
+  <path
+     style="opacity:0.00100002;fill:#d6dbf1;fill-opacity:1"
+     d="M 0,0 H 22 V 22 H 0 Z"
+     id="path37" />
+  <g
+     id="g1"
+     transform="rotate(90,11.05,11.05)"
+     style="fill:#d6dbf1;fill-opacity:1">
+    <path
+       d="M 16.74222,5.357803 C 15.22179,3.83732 13.20009,3 11.05,3 8.89992,3 6.87821,3.83732 5.35793,5.357803 3.837331,6.878287 3,8.899819 3,11.050001 3,13.200183 3.837331,15.221713 5.35793,16.742197 6.87821,18.262562 8.89992,19.1 11.05,19.1 c 2.15023,0 4.17179,-0.837438 5.69222,-2.357803 C 18.26256,15.221713 19.1,13.200183 19.1,11.050001 19.1,8.89982 18.26256,6.878199 16.74222,5.357803 Z M 15.82298,16.292331 C 14.34076,17.549612 13.14535,18.143976 11.05,18.128627 8.82554,18.112247 8.00042,17.694389 6.27703,16.291899 4.87671,14.891701 3.971374,13.030263 3.971374,11.050002 3.971374,9.069626 4.90545,6.964345 6.27703,5.807438 7.81576,4.455319 9.09832,3.986159 11.05,3.971375 c 1.98021,-0.01506 3.30559,0.61681 4.77298,1.83621 1.40028,1.40028 2.30565,3.262041 2.30565,5.242417 0,1.980261 -0.90537,3.842136 -2.30565,5.242329 z"
+       id="path2-36-912-3-3-35-3-75-2"
+       style="fill:#d3dae3;fill-opacity:1;stroke-width:0.0251561"
+       sodipodi:nodetypes="cscscscsccscscscsc" />
+    <path
+       d="m 7.74827,13.1 h 6.65587 c 1.69843,0.0063 1.69843,1.993619 0,2 H 7.74827 c -1.69843,-0.0063 -1.69843,-1.993619 0,-2 z m 6.65587,0.399992 z"
+       id="path8-6-7-36-2-9"
+       style="fill:#d3dae3;fill-opacity:1;stroke-width:0.226275"
+       sodipodi:nodetypes="cccccccccc" />
+    <path
+       d="m 11.062,13.099999 c -0.13986,2.53e-4 -0.2742,-0.05591 -0.373,-0.155953 L 6.69823,8.7014577 C 6.37881,8.2744943 6.33453,7.1104102 7.42076,7.110026 h 3.35102 2.90967 c 0.4063,0 1.18738,-0.09059 1.54821,0.27284 v 0 c 0.36045,0.3644101 0.36045,0.9552432 0,1.3196533 L 11.435,12.944046 c -0.0988,0.100093 -0.23315,0.156206 -0.373,0.155953 z"
+       id="path4-3-75-3-7-3"
+       style="fill:#d3dae3;fill-opacity:1;stroke-width:0.265128"
+       sodipodi:nodetypes="ccccccssccc" />
+  </g>
+</svg>

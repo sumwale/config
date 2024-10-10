@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666667 8.4666667"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="libreoffice-base.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#9c9c9c"
+     borderopacity="0.24705882"
+     inkscape:showpageshadow="false"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#5e5e5e"
+     inkscape:document-units="px"
+     showgrid="true"
+     inkscape:zoom="20.70196"
+     inkscape:cx="26.905666"
+     inkscape:cy="21.060808"
+     inkscape:window-width="2560"
+     inkscape:window-height="1363"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid132"
+       originx="0"
+       originy="0" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g10819"
+       transform="translate(-13.229186,-10.58344)">
+      <path
+         style="color:#000000;fill:#815a84;fill-opacity:1;stroke-width:0.264583;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"
+         d="m 14.552084,10.848023 c -0.288582,0 -0.529167,0.240585 -0.529167,0.529166 v 6.879167 c 0,0.288581 0.240585,0.529167 0.529167,0.529167 h 5.820833 c 0.288581,0 0.529167,-0.240586 0.529167,-0.529167 v -3.96875 a 0.26460979,0.26460979 0 0 0 -0.07751,-0.187068 l -3.175,-3.175 A 0.26460979,0.26460979 0 0 0 17.4625,10.848023 Z m 0,0.529166 h 2.800862 l 3.019971,3.01997 v 3.859197 h -5.820833 z"
+         id="path2011" />
+      <g
+         id="path2005"
+         style="fill:#815a84;fill-opacity:1"
+         transform="matrix(0.26458333,0,0,0.26458333,13.229167,-64.201142)">
+        <path
+           style="color:#000000;fill:#815a84;fill-opacity:1;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"
+           d="m 20,283.65039 a 1.0001,1.0001 0 0 0 -0.707031,1.70703 l 8,8 A 1.0001,1.0001 0 0 0 29,292.65039 v -7 c 0,0 0.01379,-0.45875 -0.230469,-0.94727 C 28.525275,284.21461 27.833332,283.65039 27,283.65039 Z m 2.414062,2 H 27 v 4.58594 z"
+           id="path2017" />
+      </g>
+      <path
+         style="color:#000000;fill:#ba81bd;fill-opacity:1;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"
+         d="m 18.520834,11.1125 2.116666,2.116667 v -1.852083 c 0,0 0,-0.264584 -0.264583,-0.264584 z"
+         id="path2015" />
+      <path
+         style="color:#000000;fill:#ba81bd;fill-opacity:1;stroke-width:0.529167;stroke-linecap:round;stroke-linejoin:round;-inkscape-stroke:none"
+         d="M 14.552083,11.1125 H 17.4625 l 3.175,3.175 v 3.96875 c 0,0.146579 -0.118003,0.264583 -0.264582,0.264583 h -5.820835 c -0.146579,0 -0.264583,-0.118004 -0.264583,-0.264583 v -6.879166 c 0,-0.14658 0.118004,-0.264584 0.264583,-0.264584 z"
+         id="path2009" />
+      <path
+         id="rect4496-3"
+         d="m 15.345834,13.229167 v 1.322917 2.910416 h 4.233333 V 14.552084 H 18.25625 v -1.322917 z m 0.264583,0.264583 h 2.38125 v 1.058334 h -2.38125 z M 15.875,13.758334 V 14.2875 h 1.852084 v -0.529166 z m -0.264583,1.058333 h 3.704167 V 15.875 H 15.610417 Z M 15.875,15.08125 v 0.529167 H 19.05 V 15.08125 Z m -0.264583,1.058334 h 3.704167 v 1.058333 H 15.610417 Z M 15.875,16.404167 v 0.529166 h 3.175 v -0.529166 z"
+         style="opacity:0.98;fill:#e5cfe6;fill-opacity:1;stroke:none;stroke-width:0.529167;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+</svg>

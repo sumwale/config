@@ -9,11 +9,11 @@ local rofi_command = 'env /usr/bin/rofi -dpi ' .. get_dpi() .. ' -width ' .. wit
 return {
   -- List of apps to start by default on some actions
   default = {
-    terminal = 'kitty-custom.sh',
+    terminal = 'kitty',
     rofi = rofi_command,
     rofi_combi = 'rofi -combi-modi window,drun,ssh -show combi -modi combi -display-combi ""',
     lock = 'i3lock-fancy -- scrot -z -o',
-    quake = 'kitty',
+    quake = 'kitty-single.sh',
     screenshot_save = 'gnome-screenshot || spectacle',
     screenshot_save_win = 'scrot -u -z -o ~/Pictures/Screenshot_of_window_from_%F-%T.png -e "canberra-gtk-play -i camera-shutter -d screenshot"',
     screenshot_save_area = 'scrot -s -z -f -o ~/Pictures/Screenshot_of_area_from_%F-%T.png -e "canberra-gtk-play -i camera-shutter -d screenshot"',
@@ -28,7 +28,7 @@ return {
     game = rofi_command,
     files = 'nautilus --new-window',
     music = 'sh -c "smplayer || totem"',
-    software = 'sh -c "pamac-manager || kitty aptitude"'
+    software = 'sh -c "pamac-manager || kitty -c NONE aptitude"'
   },
   -- List of apps to start once on start-up
   run_on_start_up = {
