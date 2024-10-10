@@ -85,6 +85,9 @@ repositories:
 patterns:
   - R /home/sumedh
   - R /etc
+  - R /usr/bin/Xorg
+  - R /usr/share/libdvd-pkg/debian/rules
+  - R /usr/share/pam-configs
   - R /usr/local
   - R /boot/grub/themes
   - '- /home/sumedh/.android/adbkey*'
@@ -200,7 +203,6 @@ patterns:
   - '! /etc/security/opasswd'
   - '! /etc/ssh/*key*'
   - '! /etc/ssl/private'
-  - '! /etc/sudoers'
   - '! /etc/systemd/system/multi-user.target.wants/throttled.service'
   - '! /etc/systemd/system/multi-user.target.wants/wattage.service'
   - '! /etc/throttled.conf'
