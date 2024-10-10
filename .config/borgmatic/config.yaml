@@ -200,7 +200,6 @@ patterns:
   - '! /etc/security/opasswd'
   - '! /etc/ssh/*key*'
   - '! /etc/ssl/private'
-  - '! /etc/sudoers'
   - '! /etc/systemd/system/multi-user.target.wants/throttled.service'
   - '! /etc/systemd/system/multi-user.target.wants/wattage.service'
   - '! /etc/throttled.conf'
