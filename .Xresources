@@ -3,7 +3,7 @@ Xft.antialias:	1
 Xft.autohint:	0
 Xft.hinting:	1
 Xft.hintstyle:	hintfull
-Xft.lcdfilter:	lcddefault
+Xft.lcdfilter:	lcdlight
 Xft.rgba:	rgb
 Xcursor.size:	24
 Xcursor.theme:	Catppuccin-Mocha-Teal-Cursors
