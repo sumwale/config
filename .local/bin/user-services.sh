@@ -6,7 +6,9 @@ systemctl --user start borgmatic-check.timer
 if [ "$DESKTOP_SESSION" = "awesome" ]; then
   systemctl --user start nm-applet.service
   # run ibus explicitly if required (ibus preferences from GUI)
-  ibus exit 2>/dev/null
+  if type ibus 2>/dev/null >/dev/null; then
+    ibus exit 2>/dev/null
+  fi
 else
   systemctl --user stop nm-applet.service
 fi

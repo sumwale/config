@@ -8,4 +8,5 @@
 FNAME="$1"
 shift
 #avconv -threads 4 -i "${FNAME}" -vcodec libx264 -acodec mp3 "$@"
-ffmpeg -threads 12 -i "${FNAME}" -vcodec libx264 -acodec mp3 "$@"
+#ffmpeg -threads 12 -i "${FNAME}" -vcodec libx264 -acodec pcm_s16le "$@"
+ffmpeg -i "${FNAME}" -vcodec libx264 -acodec aac "$@"
