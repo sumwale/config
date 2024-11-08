@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Hindi KaGaPa layout (KDE)
+Comment=Show Hindi KaGaPa layout (KDE)
+Exec=tastenbrett --model pc104 --layout in --variant hin-kagapa --title 'Hindi (KaGaPa, phonetic)'
+Icon=input-keyboard
+Terminal=false
+StartupNotify=false
+Categories=System;
