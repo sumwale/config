@@ -15,7 +15,7 @@ function strip_lead_slash() {
 
 HOMEDIR="$(strip_lead_slash "$HOME")"
 
-rm -f "$HOME/Documents/others.key.gpg" "$HOME/Documents/rest.key" "$HOME/Documents/rest.key.gpg" "$HOME/Documents/dconf-dump.gpg"
+rm -f "$HOME/Documents/others.key.gpg" "$HOME/Documents/rest.key" "$HOME/Documents/rest.key.gpg" "$HOME/Documents/dconf-dump.gpg" "$HOME/pkgs/deb-diversions"
 
 # first search in ybox $HOMEs
 ybox_ffox="$(/bin/ls -d "$HOME/.local/share/ybox"/*/home/.mozilla/firefox 2>/dev/null | head -n 1)"
@@ -63,6 +63,10 @@ elif type -p dpkg >/dev/null; then
   apt-mark showmanual > "$HOME/pkgs/deb-explicit.list"
 else
   rpm -ql > "$HOME/pkgs/rpm.list"
+fi
+
+if [ -r /var/lib/dpkg/diversions ]; then
+  /bin/cp -f /var/lib/dpkg/diversions "$HOME/pkgs/deb-diversions"
 fi
 
 if type -p ybox-ls >/dev/null; then

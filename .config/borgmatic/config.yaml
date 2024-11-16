@@ -87,6 +87,7 @@ patterns:
   - R /etc
   - R /usr/bin/Xorg
   - R /usr/share/libdvd-pkg/debian/rules
+  - R /usr/share/im-config/data
   - R /usr/share/pam-configs
   - R /usr/local
   - R /boot/grub/themes
