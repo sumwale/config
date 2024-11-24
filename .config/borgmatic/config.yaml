@@ -124,6 +124,7 @@ patterns:
   - '! /home/sumedh/.local/share/ybox/*/ybox-scripts'
   - '! /home/sumedh/.local/share/gnome-boxes/images'
   - '! /home/sumedh/.local/share/keyrings'
+  - '! /home/sumedh/.local/share/libvirt/images'
   - '+ /home/sumedh/.local/share/nvim/plugged'
   - '- /home/sumedh/.local/share/nvim'
   - '- /home/sumedh/.local/share/tldr'
