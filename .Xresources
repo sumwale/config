@@ -7,3 +7,4 @@ Xft.lcdfilter:	lcdlight
 Xft.rgba:	rgb
 Xcursor.size:	24
 Xcursor.theme:	Catppuccin-Mocha-Teal-Cursors
+*TkTheme:	clam
