@@ -97,6 +97,8 @@ patterns:
   - '- /home/sumedh/.bash_history'
   - '- /home/sumedh/**/.cache'
   - '- /home/sumedh/**/.conda'
+  - '- /home/sumedh/**/.pytest_cache'
+  - '- /home/sumedh/**/__pycache__'
   - '- /home/sumedh/**/.tox'
   - '- /home/sumedh/**/.venv'
   - '- /home/sumedh/**/CachedData'
