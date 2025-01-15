@@ -1,0 +1,160 @@
+/home/sumedh/.config/Code
+/home/sumedh/.config/JetBrains
+/home/sumedh/.config/chromium
+/home/sumedh/.config/libreoffice
+/home/sumedh/.gradle/gradle.properties
+/home/sumedh/.local/share/nvim/plugged
+/home/sumedh/.sbt/repositories
+- /home/sumedh/.android/adbkey*
+- /home/sumedh/.asound.state
+- /home/sumedh/.aws
+- /home/sumedh/.bash_history
+- /home/sumedh/.cache
+- /home/sumedh/**/.cache
+- /home/sumedh/**/.conda
+- /home/sumedh/**/.pytest_cache
+- /home/sumedh/**/__pycache__
+- /home/sumedh/**/.tox
+- /home/sumedh/**/.venv
+- /home/sumedh/**/CachedData
+- /home/sumedh/**/component_crx_cache
+- /home/sumedh/.cargo/git
+- /home/sumedh/.cargo/registry
+- /home/sumedh/**/.cargo/git
+- /home/sumedh/**/.cargo/registry
+- /home/sumedh/.cert
+- /home/sumedh/**/.config/pulse/cookie
+- /home/sumedh/.config
+- /home/sumedh/.gnupg
+- /home/sumedh/.gradle
+- /home/sumedh/**/.gradle
+- /home/sumedh/.ivy2
+- /home/sumedh/**/.ivy2
+- /home/sumedh/.kube
+- /home/sumedh/**/.kube
+- /home/sumedh/.local/share/containers
+- /home/sumedh/.local/share/ybox/ROOTS
+- /home/sumedh/.local/share/ybox/SHARED_ROOTS
+- /home/sumedh/.local/share/ybox/*/configs
+- /home/sumedh/.local/share/ybox/*/logs
+- /home/sumedh/.local/share/ybox/*/ybox-scripts
+- /home/sumedh/.local/share/gnome-boxes/images
+- /home/sumedh/.local/share/keyrings
+- /home/sumedh/.local/share/libvirt/images
+- /home/sumedh/.local/share/nvim
+- /home/sumedh/.local/share/tldr
+- /home/sumedh/.local/share/Steam
+- /home/sumedh/**/.local/share/Steam
+- /home/sumedh/.m2/repository
+- /home/sumedh/**/.m2/repository
+- /home/sumedh/.mozilla/**/key4.db
+- /home/sumedh/.mozilla/**/login*.json
+- /home/sumedh/.mozilla/**/favicons*
+- /home/sumedh/.mozilla/**/places*
+- /home/sumedh/.mozilla/**/recovery.*
+- /home/sumedh/.mozilla/**/webappsstore*
+- /home/sumedh/**/.mozilla/**/key4.db
+- /home/sumedh/**/.mozilla/**/login*.json
+- /home/sumedh/**/.mozilla/**/favicons*
+- /home/sumedh/**/.mozilla/**/places*
+- /home/sumedh/**/.mozilla/**/recovery.*
+- /home/sumedh/**/.mozilla/**/webappsstore*
+- /home/sumedh/.npm/_cacache
+- /home/sumedh/.npm/_logs
+- /home/sumedh/**/.npm/_cacache
+- /home/sumedh/**/.npm/_logs
+- /home/sumedh/.nv/GLCache
+- /home/sumedh/**/.nv/GLCache
+- /home/sumedh/.nvm/versions
+- /home/sumedh/**/.nvm/versions
+- /home/sumedh/.pyenv
+- /home/sumedh/**/.pyenv
+- /home/sumedh/.rustup/toolchains
+- /home/sumedh/**/.rustup/toolchains
+- /home/sumedh/.sbt
+- /home/sumedh/**/.sbt
+- /home/sumedh/.sdkman/archives
+- /home/sumedh/**/.sdkman/candidates
+- /home/sumedh/**/.sdkman/archives
+- /home/sumedh/**/.sdkman/candidates
+- /home/sumedh/.ssh
+- /home/sumedh/.thunderbird/**/key4.db
+- /home/sumedh/.thunderbird/**/login*.json
+- /home/sumedh/.thunderbird/**/global-messages*
+- /home/sumedh/**/.thunderbird/**/key4.db
+- /home/sumedh/**/.thunderbird/**/login*.json
+- /home/sumedh/**/.thunderbird/**/global-messages*
+- /home/sumedh/.var/app/*/.cache
+- /home/sumedh/.var/app/*/cache
+- /home/sumedh/.viminfo
+- /home/sumedh/.xsession-errors*
+- /home/sumedh/.zsh/cache
+- /home/sumedh/dwhelper
+- /home/sumedh/Downloads
+- /home/sumedh/mnt
+- /home/sumedh/**/.data
+- /home/sumedh/**/build-artifacts
+- /home/sumedh/**/store/native/dist
+- /home/sumedh/**/project/**/*.class
+- /home/sumedh/**/target/**/*.class
+- /home/sumedh/**/*.o
+- /home/sumedh/**/*.pyc
+/home/sumedh
+- /etc/.pwd.lock
+- /etc/apt/auth.conf.d
+- /etc/borgmatic
+- /etc/brlapi.key
+- /etc/credstore
+- /etc/credstore.encrypted
+- /etc/crypttab
+- /etc/cups/classes.conf*
+- /etc/cups/printers.conf*
+- /etc/cups/ssl
+- /etc/cups/*.O
+- /etc/default/cacerts
+- /etc/dma/auth.conf
+- /etc/fstab
+- /etc/gufw
+- /etc/hostid
+- /etc/hostname
+- /etc/libaudit.conf
+- /etc/libvirt/nwfilter
+- /etc/libvirt/qemu/*.xml
+- /etc/libvirt/qemu/networks
+- /etc/libvirt/qemu.conf
+- /etc/libvirt/secrets
+- /etc/libvirt/storage/*.xml
+- /etc/lvm/cache
+- /etc/machine-id
+- /etc/mtab
+- /etc/netplan
+- /etc/NetworkManager/system-connections
+- /etc/nvme/hostid
+- /etc/nvme/hostnqn
+- /etc/pacman.d/gnupg
+- /etc/pam.d/common-*
+- /etc/polkit-1/localauthority
+- /etc/polkit-1/rules.d
+- /etc/ppp/*secrets*
+- /etc/resolv.conf
+- /etc/samba/private
+- /etc/security/opasswd
+- /etc/ssh/*key*
+- /etc/ssl/private
+- /etc/systemd/system/multi-user.target.wants/throttled.service
+- /etc/systemd/system/multi-user.target.wants/wattage.service
+- /etc/throttled.conf
+- /etc/tlp.d/*-dell.conf
+- /etc/ufw/*.init
+- /etc/ufw/*.rules
+- /etc/*shadow*
+- /etc/*vpn*
+/etc
+/usr/bin/Xorg
+/usr/share/libdvd-pkg/debian/rules
+/usr/share/im-config/data
+/usr/share/pam-configs
+- /usr/local/etc/powerlimit.conf
+/usr/local
+/boot/grub/themes
+- /**

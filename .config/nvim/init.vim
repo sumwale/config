@@ -52,7 +52,9 @@ else
   set t_Co=256
 endif
 
-set updatetime=750
+set updatetime=2000
+
+let g:python3_host_prog = '/usr/bin/python3'
 
 " Plugins will be downloaded under the specified directory.
 call plug#begin('~/.local/share/nvim/plugged')
