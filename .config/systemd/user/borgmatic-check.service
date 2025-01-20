@@ -8,6 +8,7 @@ OnFailure=service-failure-email@%n.service
 Type=oneshot
 
 Environment=SSH_AUTH_SOCK=/run/user/%U/keyring/ssh
+EnvironmentFile=%h/.sh_env.local
 
 # Lower CPU and I/O priority.
 Nice=19
@@ -24,7 +25,7 @@ LogRateLimitIntervalSec=0
 # Delay start to prevent check running before backup or graphical login is done.
 ExecStartPre=sleep 10m
 # Note that systemd-inhibit requires dbus and dbus-user-session to be installed.
-ExecStart=systemd-inhibit --who="borgmatic" --why="Prevent interrupting scheduled backup check" /usr/local/bin/borgmatic check --syslog-verbosity 1
+ExecStart=systemd-inhibit --who="borgmatic" --why="Prevent interrupting scheduled backup check" %h/.local/bin/borgmatic check --syslog-verbosity 1
 
 #[Install]
 #WantedBy=default.target
