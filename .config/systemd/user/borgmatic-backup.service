@@ -24,7 +24,7 @@ LogRateLimitIntervalSec=0
 # Delay start to prevent backups running before graphical login and other initialization is done.
 ExecStartPre=sleep 5m
 # Note that systemd-inhibit requires dbus and dbus-user-session to be installed.
-ExecStart=systemd-inhibit --who="borgmatic" --why="Prevent interrupting scheduled backup" /usr/local/bin/borgmatic --syslog-verbosity 1
+ExecStart=systemd-inhibit --who="borgmatic" --why="Prevent interrupting scheduled backup" /usr/local/bin/borgmatic --syslog-verbosity 1 --stats
 
 #[Install]
 #WantedBy=default.target

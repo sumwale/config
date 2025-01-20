@@ -26,8 +26,10 @@
 # ReadWritePaths list. Prior to borgmatic 1.7.10, repositories was a
 # list of plain path strings.
 repositories:
-  - path: ssh://a3wo0of7@a3wo0of7.repo.borgbase.com/./repo
-    label: borgbase
+  # - path: ssh://a3wo0of7@a3wo0of7.repo.borgbase.com/./repo
+  #   label: borgbase
+  - path: ssh://${BORG_BACKUP_SERVER}/./backup
+    label: alphavps
 
 # Working directory for the "borg create" command. Tildes are
 # expanded. Useful for backing up using relative paths. See
@@ -136,7 +138,7 @@ patterns:
   - '- /home/sumedh/**/.mozilla/**/login*.json'
   - '- /home/sumedh/**/.mozilla/**/favicons*'
   - '- /home/sumedh/**/.mozilla/**/places*'
-  - '- /home/sumedh/**/.mozilla/**/recovery.*'
+  - '- /home/sumedh/**/.mozilla/**/recovery*'
   - '- /home/sumedh/**/.mozilla/**/webappsstore*'
   - '- /home/sumedh/**/.npm/_cacache'
   - '- /home/sumedh/**/.npm/_logs'
@@ -152,6 +154,10 @@ patterns:
   - '- /home/sumedh/**/.thunderbird/**/key4.db'
   - '- /home/sumedh/**/.thunderbird/**/login*.json'
   - '- /home/sumedh/**/.thunderbird/**/global-messages*'
+  - '- /home/sumedh/**/.thunderbird/**/favicons*'
+  - '- /home/sumedh/**/.thunderbird/**/places*'
+  - '- /home/sumedh/**/.thunderbird/**/recovery*'
+  - '- /home/sumedh/**/.thunderbird/**/webappsstore*'
   - '- /home/sumedh/.var/app/*/.cache'
   - '- /home/sumedh/.var/app/*/cache'
   - '- /home/sumedh/.viminfo'
@@ -190,15 +196,16 @@ patterns:
   - '! /etc/libvirt/qemu/networks'
   - '! /etc/libvirt/qemu.conf'
   - '! /etc/libvirt/secrets'
+  - '! /etc/libvirt/storage'
   - '! /etc/lvm/cache'
   - '! /etc/machine-id'
+  - '! /etc/mailname'
   - '! /etc/mtab'
   - '! /etc/netplan'
   - '! /etc/NetworkManager/system-connections'
   - '! /etc/nvme/hostid'
   - '! /etc/nvme/hostnqn'
   - '! /etc/pacman.d/gnupg'
-  - '! /etc/pam.d/common-*'
   - '! /etc/polkit-1/localauthority'
   - '! /etc/polkit-1/rules.d'
   - '! /etc/ppp/*secrets*'
@@ -441,7 +448,7 @@ lock_wait: 900
 keep_daily: 7
 
 # Number of weekly archives to keep.
-# keep_weekly: 4
+keep_weekly: 4
 
 # Number of monthly archives to keep.
 keep_monthly: 1
