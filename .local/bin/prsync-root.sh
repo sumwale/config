@@ -41,33 +41,6 @@ if [ -n "$pkg_diffs" ]; then
 fi
 
 
-# Compare all YBOX container packages with the backup and offer to apply any changes.
-
-if type -p ybox-ls >/dev/null; then
-  for container in $(ybox-ls --format='{{ .Names }}'); do
-    pkg_list="$HOME/pkgs/$container-YBOX-explicit.list"
-    [ ! -f "$pkg_list" ] && continue
-    echo -e "${fg_green}Comparing packages on this YBOX '$container' with the backup.$fg_reset"
-    pkg_diffs=$(comm -3 <(tail -n+2 "$pkg_list" | awk '{ print $1 }' | sort) \
-      <(ybox-pkg list -z "$container" -p ' ' 2>/dev/null | tail -n+2 | awk '{ print $1 }' | sort) \
-      | sed 's/^\</INSTALL: /;s/^\s\+/PURGE: /')
-    if [ -n "$pkg_diffs" ]; then
-      echo -e "${fg_orange}Changes detected, see the following package modifications.$fg_reset"
-      echo "$pkg_diffs"
-      echo -en "${fg_orange}Perform the above changes (y/N)? $fg_reset"
-      if read resp && [ "$resp" = y -o "$resp" = Y ]; then
-        for pkg in $(echo "$pkg_diffs" | sed -n 's/^PURGE: //p'); do
-          ybox-pkg uninstall "$pkg" -z "$container"
-        done
-        for pkg in $(echo "$pkg_diffs" | sed -n 's/^INSTALL: //p'); do
-          ybox-pkg install "$pkg" -z "$container"
-        done
-      fi
-    fi
-  done
-fi
-
-
 # Sync data from backup (including system /etc, /usr/local etc).
 
 echo -e "${fg_green}Running rsync to synchronize HOME with remote...$fg_reset"

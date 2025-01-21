@@ -54,7 +54,7 @@ FFOX_TBIRD_INC="$FFOX_TBIRD_INC $(cd / && /bin/ls $TBIRD/*/key4.db $TBIRD/*/logi
   tar $EXCLUDES -cpSf - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $FFOX_TBIRD_INC $HOMEDIR/.ssh etc/grub.d | \
   xz -7 -T 0 -F xz -c - | \
   gpg --batch --no-tty --encrypt -r $GPG_ID -o $HOMEDIR/Documents/others.key.gpg - 2>/dev/null && \
-  tar chpSJf $HOMEDIR/Documents/rest.key $HOMEDIR/.gnupg && \
+  tar chpSJf $HOMEDIR/Documents/rest.key $HOMEDIR/.gnupg 2>/dev/null && \
   secret-tool lookup borg-repository borgbase-store | \
   gpg --batch --no-tty --pinentry-mode loopback --symmetric --cipher-algo AES256 --no-symkey-cache --passphrase-fd 0 -o $HOMEDIR/Documents/rest.key.gpg $HOMEDIR/Documents/rest.key 2>/dev/null )
 
