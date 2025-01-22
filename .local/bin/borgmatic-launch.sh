@@ -17,7 +17,7 @@ borgmatic-setup.sh
 start=$(date +'%s.%N')
 notify-send -i document-save -u normal -t 10000 "Backup started" "Started on $(date +'%b %d %H:%M:%S'). Status can be seen with 'systemctl --user status borgmatic-backup.service'"
 
-if podman unshare borgmatic -c $HOME/.config/borgmatic/config.yaml "$@"; then
+if borgmatic -c $HOME/.config/borgmatic/config.yaml "$@"; then
   end=$(date +'%s.%N')
   elapsed=$(bc -l <<< "scale=2; ($end - $start + 0.005) / 1")
   notify-send -i document-save -u normal -t 10000 "Backup finished" "Finished on $(date +'%b %d %H:%M:%S') in $elapsed secs. Detailed logs can be seen with 'journalctl -t borgmatic'"

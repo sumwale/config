@@ -5,7 +5,7 @@
 fg_green='\033[32m'
 fg_orange='\033[33m'
 fg_reset='\033[00m'
-rsync_common_flags='-aHSAX --progress --zc=zstd --zl=1'
+rsync_common_options='-aHSAX --progress --zc=zstd --zl=1'
 
 # First deal with package modifications since they may have new files from backup
 # which should be overwritten by the backup (else if /etc file is synced from backup,
@@ -16,7 +16,7 @@ apt-fast update
 
 # Sync package lists
 
-rsync $rsync_common_flags $1/$HOME/pkgs/ $HOME/pkgs/
+rsync $rsync_common_options $1/$HOME/pkgs/ $HOME/pkgs/
 
 # Compare host machine packages with the backup and offer to apply any changes.
 
@@ -43,13 +43,13 @@ fi
 
 # Sync data from backup (including system /etc, /usr/local etc).
 
-echo -e "${fg_green}Running rsync to synchronize HOME with remote...$fg_reset"
-rsync $rsync_common_flags --delete --exclude-from=$HOME/.config/prsync/excludes-home.list \
-  --include-from=$HOME/.config/prsync/includes-home.list $1/$HOME/ $HOME/
+echo -e "${fg_green}Running mprsync.sh to synchronize HOME from remote...$fg_reset"
+mprsync.sh $rsync_common_options --delete --exclude-from=$HOME/.config/mprsync/excludes-home.list \
+  --include-from=$HOME/.config/mprsync/includes-home.list --jobs=10 $1/$HOME/ $HOME/
 
-echo -e "${fg_green}Running rsync to synchronize system configs with remote...$fg_reset"
-sudo rsync $rsync_common_flags --exclude=/borgmatic --exclude=/home \
-  --exclude-from=$HOME/.config/prsync/excludes-root.list $1/ /
+# non-HOME changes are small, so use the plain rsync
+echo -e "${fg_green}Running rsync to synchronize system configs from remote...$fg_reset"
+sudo rsync $rsync_common_options --exclude-from=$HOME/.config/mprsync/excludes-root.list $1/ /
 
 echo -e "${fg_green}Unpacking and writing encrypted sensitive data.$fg_reset"
 gpg --decrypt $HOME/Documents/others.key.gpg | sudo tar --xz -C / -xpSf -
