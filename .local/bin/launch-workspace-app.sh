@@ -1,4 +1,6 @@
-#!/bin/sh -e
+#!/bin/sh
+
+set -e
 
 ws_znum="`wmctrl -d | awk '{ if ($2 == "*") print $1 }'`"
 if [ -n "$ws_znum" ]; then

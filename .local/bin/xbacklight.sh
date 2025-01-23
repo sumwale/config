@@ -1,4 +1,6 @@
-#!/bin/sh -e
+#!/bin/sh
+
+set -e
 
 # Script that uses either brightnessctl, xbacklight or light to set the screen brightness
 

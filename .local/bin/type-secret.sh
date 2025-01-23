@@ -1,4 +1,6 @@
-#!/bin/sh -e
+#!/bin/sh
+
+set -e
 
 # delay in keystrokes is to avoid missing keys in some rare cases
 if type ydotool 2>/dev/null >/dev/null; then

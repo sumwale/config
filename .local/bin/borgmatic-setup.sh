@@ -1,5 +1,6 @@
-#!/bin/bash -e
+#!/bin/bash
 
+set -e
 
 # script to separately encrypt directories containing sensitive information and these
 # must be excluded from regular home backups
@@ -38,12 +39,7 @@ else
   TBIRD=$HOMEDIR/.thunderbird
 fi
 
-if gpg --list-secret-key sumwale@gmail.com 2>/dev/null >/dev/null; then
-  GPG_ID=sumwale@gmail.com
-else
-  GPG_ID=swale@tibco.com
-fi
-
+GPG_ID=sumwale@gmail.com
 # firefox can have multiple configuration directories, so expand each of them
 for ffox_dir in $FFOX; do
   FFOX_TBIRD_INC="$FFOX_TBIRD_INC $(cd / && /bin/ls $ffox_dir/*/key4.db $ffox_dir/*/logins*.json $ffox_dir/*/places* $ffox_dir/*/recovery* $ffox_dir/*/webappsstore* 2>/dev/null || true)"

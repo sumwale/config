@@ -1,4 +1,6 @@
-#!/bin/sh -e
+#!/bin/sh
+
+set -e
 
 # Encrypt listed directories making a copy of those. This can be usually done while
 # logged into GUI (close all other apps to ensure files being copied are not being
@@ -8,7 +10,7 @@
 
 ENC_PREFIX="enc-init"
 for dir in `cat enc.dirs`; do
-  if [ -d $dir -a ! -e $dir.$ENC_PREFIX ]; then
+  if [ -d $dir -a ! -e $dir.$ENC_PREFIX ] && ! fscrypt status $dir >/dev/null 2>/dev/null; then
     mkdir $dir.$ENC_PREFIX && \
       fscrypt encrypt $dir.$ENC_PREFIX --no-recovery && \
       cp -a -T $dir $dir.$ENC_PREFIX

@@ -1,4 +1,6 @@
-#!/bin/sh -e
+#!/bin/sh
+
+set -e
 
 dir_perms="$HOME/software:ro $HOME/config:ro $HOME/.icons:ro $HOME/.themes:ro $HOME/.local/share/icons:ro $HOME/.config/speech-dispatcher:ro $HOME/.local/bin:ro"
 

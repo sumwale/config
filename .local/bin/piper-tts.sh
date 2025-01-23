@@ -1,4 +1,6 @@
-#!/bin/bash -e
+#!/bin/bash
+
+set -e
 
 VOICE_PATH="$HOME/software/piper-tts"
 
