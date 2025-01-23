@@ -135,6 +135,7 @@ patterns:
   - '- /home/sumedh/**/.mozilla/**/webappsstore*'
   - '- /home/sumedh/**/.npm/_cacache'
   - '- /home/sumedh/**/.npm/_logs'
+  - '- /home/sumedh/**/.nv/ComputeCache'
   - '- /home/sumedh/**/.nv/GLCache'
   - '- /home/sumedh/**/.nvm/versions'
   - '- /home/sumedh/**/.pyenv'

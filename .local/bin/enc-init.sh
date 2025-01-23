@@ -10,8 +10,9 @@ set -e
 
 ENC_PREFIX="enc-init"
 for dir in `cat enc.dirs`; do
-  if [ -d $dir -a ! -e $dir.$ENC_PREFIX ] && ! fscrypt status $dir >/dev/null 2>/dev/null; then
-    mkdir $dir.$ENC_PREFIX && \
+  if [ ! -e $dir.$ENC_PREFIX ] && ! fscrypt status $dir >/dev/null 2>/dev/null; then
+    echo Encrypting $dir...
+    mkdir -p $dir $dir.$ENC_PREFIX && \
       fscrypt encrypt $dir.$ENC_PREFIX --no-recovery && \
       cp -a -T $dir $dir.$ENC_PREFIX
   fi
@@ -36,6 +37,7 @@ if [ -n "$NEW_PROTECTOR" ]; then
     if [ -d $dir.$ENC_PREFIX ]; then
       POLICY="`fscrypt status $dir.$ENC_PREFIX | sed -n 's/^.*Policy:[ ]*\([^ \t]*\).*$/\1/p'`"
       if [ -n "$POLICY" ]; then
+        echo Adding additional protector to $dir...
         fscrypt metadata add-protector-to-policy --protector=$HOME_MNT:$NEW_PROTECTOR --policy=$HOME_MNT:$POLICY
       fi
     fi

@@ -102,8 +102,7 @@ if ! cmp $HOME/enc.dirs $HOME/enc.dirs.new >/dev/null; then
   echo -en "${fg_orange}Encrypt the above directories (y/N)? $fg_reset"
   if read resp && [ "$resp" = y -o "$resp" = Y ]; then
     rm -f $HOME/enc.dirs && mv $HOME/enc.dirs.new $HOME/enc.dirs
-    enc-init.sh
-    enc-finish.sh
+    ( cd $HOME && enc-init.sh && enc-finish.sh )
   fi
 fi
 
