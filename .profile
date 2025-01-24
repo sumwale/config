@@ -19,7 +19,7 @@ fi
 #  perl -pi -e 's/theme=.*/theme=WhiteSur-dark#/' "$HOME/.config/Kvantum/kvantum.kvconfig"
 #
   # reduce backlight for the theme
-#  xbacklight -set 80
+#  xbacklight -set 75
 #elif [ -n "$DESKTOP_SESSION" ]; then
 #  # set the kvantum theme
 #  perl -pi -e 's/theme=.*/theme=Sweet#/' "$HOME/.config/Kvantum/kvantum.kvconfig"
