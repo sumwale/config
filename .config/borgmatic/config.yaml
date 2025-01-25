@@ -11,7 +11,7 @@
 # List of source directories and files to back up. Globs and tildes
 # are expanded. Do not backslash spaces in path names.
 # source_directories:
-#   - /home/sumedh
+#   - ${HOME}
 #   - /etc
 #   - /usr/local
 #   - /boot/grub/themes
@@ -28,7 +28,7 @@
 repositories:
   - path: ssh://a3wo0of7@a3wo0of7.repo.borgbase.com/./repo
     label: borgbase
-  - path: ssh://sumedh@${BORG_BACKUP_SERVER}/./backup
+  - path: ssh://${USER}@${BORG_BACKUP_SERVER}/./backup
     label: alphavps
 
 # Working directory for the "borg create" command. Tildes are
@@ -85,7 +85,7 @@ repositories:
 # contains leading punctuation, so it parses correctly. Note that only
 # one of "patterns" and "source_directories" may be used.
 patterns:
-  - R /home/sumedh
+  - R ${HOME}
   - R /etc
   - R /usr/bin/Xorg
   - R /usr/share/libdvd-pkg/debian/rules
@@ -93,79 +93,79 @@ patterns:
   - R /usr/share/pam-configs
   - R /usr/local
   - R /boot/grub/themes
-  - '- /home/sumedh/.android/adbkey*'
-  - '- /home/sumedh/.asound.state'
-  - '- /home/sumedh/.aws'
-  - '- /home/sumedh/**/.cache'
-  - '- /home/sumedh/**/.pytest_cache'
-  - '- /home/sumedh/**/.tox'
-  - '- /home/sumedh/**/CachedData'
-  - '- /home/sumedh/**/component_crx_cache'
-  - '- /home/sumedh/**/.cargo/git'
-  - '- /home/sumedh/**/.cargo/registry'
-  - '- /home/sumedh/.cert'
-  - '- /home/sumedh/**/.config/pulse/cookie'
-  - '- /home/sumedh/**/.config/libreoffice/**/cache'
-  - '- /home/sumedh/**/.config/Code/*Cache'
-  - '+ /home/sumedh/.config/Code'
-  - '+ /home/sumedh/.config/JetBrains'
-  - '+ /home/sumedh/.config/chromium'
-  - '+ /home/sumedh/.config/libreoffice'
-  - '- /home/sumedh/.config/*'
-  - '- /home/sumedh/.gnupg'
-  - '+ /home/sumedh/.gradle/gradle.properties'
-  - '- /home/sumedh/**/.gradle/*'
-  - '- /home/sumedh/**/.ivy2'
-  - '- /home/sumedh/.kube'
-  - '! /home/sumedh/.local/share/containers/storage/overlay/*/work'
-  - '! /home/sumedh/.local/share/gnome-boxes/images'
-  - '! /home/sumedh/.local/share/keyrings'
-  - '! /home/sumedh/.local/share/libvirt/images'
-  - '+ /home/sumedh/.local/share/nvim/plugged'
-  - '- /home/sumedh/.local/share/nvim/*'
-  - '- /home/sumedh/.local/share/ybox/archbox-games'
-  - '- /home/sumedh/.local/share/ybox/nvidia'
-  - '- /home/sumedh/**/.local/share/Steam'
-  - '- /home/sumedh/**/.m2/repository'
-  - '- /home/sumedh/**/.mozilla/**/key4.db'
-  - '- /home/sumedh/**/.mozilla/**/login*.json'
-  - '- /home/sumedh/**/.mozilla/**/favicons*'
-  - '- /home/sumedh/**/.mozilla/**/places*'
-  - '- /home/sumedh/**/.mozilla/**/recovery*'
-  - '- /home/sumedh/**/.mozilla/**/webappsstore*'
-  - '- /home/sumedh/**/.npm/_cacache'
-  - '- /home/sumedh/**/.npm/_logs'
-  - '- /home/sumedh/**/.nv/ComputeCache'
-  - '- /home/sumedh/**/.nv/GLCache'
-  - '- /home/sumedh/**/.nvm/versions'
-  - '- /home/sumedh/**/.pyenv/**/__pycache__'
-  - '- /home/sumedh/**/.rustup/toolchains'
-  - '+ /home/sumedh/**/.sbt/repositories'
-  - '- /home/sumedh/**/.sbt/*'
-  - '- /home/sumedh/**/.sdkman/archives'
-  - '- /home/sumedh/**/.sdkman/candidates'
-  - '- /home/sumedh/.ssh'
-  - '- /home/sumedh/**/.thunderbird/**/key4.db'
-  - '- /home/sumedh/**/.thunderbird/**/login*.json'
-  - '- /home/sumedh/**/.thunderbird/**/global-messages*'
-  - '- /home/sumedh/**/.thunderbird/**/favicons*'
-  - '- /home/sumedh/**/.thunderbird/**/places*'
-  - '- /home/sumedh/**/.thunderbird/**/recovery*'
-  - '- /home/sumedh/**/.thunderbird/**/webappsstore*'
-  - '- /home/sumedh/.var/app/*/.cache'
-  - '- /home/sumedh/.var/app/*/cache'
-  - '- /home/sumedh/**/.venv/**/__pycache__'
-  - '- /home/sumedh/.xsession-errors*'
-  - '- /home/sumedh/.zsh/cache'
-  - '- /home/sumedh/dwhelper'
-  - '- /home/sumedh/Downloads'
-  - '- /home/sumedh/mnt'
-  - '- /home/sumedh/**/.data'
-  - '- /home/sumedh/**/build-artifacts'
-  - '- /home/sumedh/**/firefox/default/cache*'
-  - '- /home/sumedh/**/store/native/dist'
-  - '- /home/sumedh/**/project/**/*.class'
-  - '- /home/sumedh/**/target/**/*.class'
+  - '- ${HOME}/.android/adbkey*'
+  - '- ${HOME}/.asound.state'
+  - '- ${HOME}/.aws'
+  - '- ${HOME}/**/.cache'
+  - '- ${HOME}/**/.pytest_cache'
+  - '- ${HOME}/**/.tox'
+  - '- ${HOME}/**/CachedData'
+  - '- ${HOME}/**/component_crx_cache'
+  - '- ${HOME}/**/.cargo/git'
+  - '- ${HOME}/**/.cargo/registry'
+  - '- ${HOME}/.cert'
+  - '- ${HOME}/**/.config/pulse/cookie'
+  - '- ${HOME}/**/.config/libreoffice/**/cache'
+  - '- ${HOME}/**/.config/Code/*Cache'
+  - '+ ${HOME}/.config/Code'
+  - '+ ${HOME}/.config/JetBrains'
+  - '+ ${HOME}/.config/chromium'
+  - '+ ${HOME}/.config/libreoffice'
+  - '- ${HOME}/.config/*'
+  - '- ${HOME}/.gnupg'
+  - '+ ${HOME}/.gradle/gradle.properties'
+  - '- ${HOME}/**/.gradle/*'
+  - '- ${HOME}/**/.ivy2'
+  - '- ${HOME}/.kube'
+  - '! ${HOME}/.local/share/containers/storage/overlay/*/work'
+  - '! ${HOME}/.local/share/gnome-boxes/images'
+  - '! ${HOME}/.local/share/keyrings'
+  - '! ${HOME}/.local/share/libvirt/images'
+  - '+ ${HOME}/.local/share/nvim/plugged'
+  - '- ${HOME}/.local/share/nvim/*'
+  - '- ${HOME}/.local/share/ybox/archbox-games'
+  - '- ${HOME}/.local/share/ybox/nvidia'
+  - '- ${HOME}/**/.local/share/Steam'
+  - '- ${HOME}/**/.m2/repository'
+  - '- ${HOME}/**/.mozilla/**/key4.db'
+  - '- ${HOME}/**/.mozilla/**/login*.json'
+  - '- ${HOME}/**/.mozilla/**/favicons*'
+  - '- ${HOME}/**/.mozilla/**/places*'
+  - '- ${HOME}/**/.mozilla/**/recovery*'
+  - '- ${HOME}/**/.mozilla/**/webappsstore*'
+  - '- ${HOME}/**/.npm/_cacache'
+  - '- ${HOME}/**/.npm/_logs'
+  - '- ${HOME}/**/.nv/ComputeCache'
+  - '- ${HOME}/**/.nv/GLCache'
+  - '- ${HOME}/**/.nvm/versions'
+  - '- ${HOME}/**/.pyenv/**/__pycache__'
+  - '- ${HOME}/**/.rustup/toolchains'
+  - '+ ${HOME}/**/.sbt/repositories'
+  - '- ${HOME}/**/.sbt/*'
+  - '- ${HOME}/**/.sdkman/archives'
+  - '- ${HOME}/**/.sdkman/candidates'
+  - '- ${HOME}/.ssh'
+  - '- ${HOME}/**/.thunderbird/**/key4.db'
+  - '- ${HOME}/**/.thunderbird/**/login*.json'
+  - '- ${HOME}/**/.thunderbird/**/global-messages*'
+  - '- ${HOME}/**/.thunderbird/**/favicons*'
+  - '- ${HOME}/**/.thunderbird/**/places*'
+  - '- ${HOME}/**/.thunderbird/**/recovery*'
+  - '- ${HOME}/**/.thunderbird/**/webappsstore*'
+  - '- ${HOME}/.var/app/*/.cache'
+  - '- ${HOME}/.var/app/*/cache'
+  - '- ${HOME}/**/.venv/**/__pycache__'
+  - '- ${HOME}/.xsession-errors*'
+  - '- ${HOME}/.zsh/cache'
+  - '- ${HOME}/dwhelper'
+  - '- ${HOME}/Downloads'
+  - '- ${HOME}/mnt'
+  - '- ${HOME}/**/.data'
+  - '- ${HOME}/**/build-artifacts'
+  - '- ${HOME}/**/firefox/default/cache*'
+  - '- ${HOME}/**/store/native/dist'
+  - '- ${HOME}/**/project/**/*.class'
+  - '- ${HOME}/**/target/**/*.class'
   - '! /etc/.pwd.lock'
   - '! /etc/apt/auth.conf.d'
   - '! /etc/borgmatic'
@@ -280,7 +280,7 @@ exclude_caches: true
 # passcommand/repokey/keyfile encryption. Note that if both
 # encryption_passcommand and encryption_passphrase are set, then
 # encryption_passphrase takes precedence. Defaults to not set.
-encryption_passcommand: secret-tool lookup borg-repository borgbase-laptop
+encryption_passcommand: secret-tool lookup borg-repository borgbase-store
 
 # Passphrase to unlock the encryption key with. Only use on
 # repositories that were initialized with passphrase/repokey/keyfile
