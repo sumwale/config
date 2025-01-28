@@ -90,6 +90,7 @@ patterns:
   - R /usr/bin/Xorg
   - R /usr/share/libdvd-pkg/debian/rules
   - R /usr/share/im-config/data
+  - R /usr/share/keyrings
   - R /usr/share/pam-configs
   - R /usr/local
   - R /boot/grub/themes
@@ -216,7 +217,8 @@ patterns:
   - '! /etc/ufw/*.rules'
   - '! /etc/*shadow*'
   - '! /etc/*vpn*'
-  - '! /usr/local/etc/powerlimit.conf'
+  - '- /usr/local/etc/powerlimit.conf'
+  - '- /usr/share/keyrings/ubuntu-*'
 
 # Read include/exclude patterns from one or more separate named files,
 # one pattern per line. Note that Borg considers this option
