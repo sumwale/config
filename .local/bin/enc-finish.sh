@@ -7,7 +7,8 @@
 ENC_PREFIX="enc-init"
 for dir in `cat enc.dirs`; do
   if [ -d $dir -a -d $dir.$ENC_PREFIX ]; then
-    ( find $dir -type f -print0 | xargs -r -0 shred -n1 --remove=unlink )
+    echo Shredding $dir and moving $dir.$ENC_PREFIX to $dir
+    find $dir -type f -print0 | xargs -r -0 shred -n1 --remove=unlink
     rm -rf $dir && mv $dir.$ENC_PREFIX $dir
   fi
 done

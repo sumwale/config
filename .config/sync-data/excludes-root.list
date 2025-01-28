@@ -1,5 +1,7 @@
 /borgmatic
 /etc/fscrypt.conf
+/etc/group*
 /etc/hosts
 /etc/mailname
+/etc/passwd*
 /home

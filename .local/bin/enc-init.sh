@@ -24,9 +24,12 @@ else
   decrypt_opts="--decrypt --quiet"
 fi
 
+fg_g='\033[32m'
+fg_k='\033[00m'
 ENC_PREFIX="enc-init"
 for dir in $(cat enc.dirs); do
-  if [ ! -e $dir.$ENC_PREFIX ] && ! fscrypt status $dir >/dev/null 2>/dev/null; then
+  if { [ ! -e $dir.$ENC_PREFIX ] || ! fscrypt status $dir.$ENC_PREFIX >/dev/null 2>/dev/null; } &&
+    ! fscrypt status $dir >/dev/null 2>/dev/null; then
     if [ $login_pass_read -eq 0 ]; then
       [ -f $login_pass_file ] && shred -u $login_pass_file
       echo -n "Enter the login passphrase for $USER: "
@@ -34,7 +37,7 @@ for dir in $(cat enc.dirs); do
       head -n1 | gpg -r $gpg_id --encrypt --batch -o $login_pass_file
       stty echo
       echo
-      echo "Encrypted the passphrase using 'gpg -r $gpg_id' (gpg passphrase may be asked later)"
+      echo -e "${fg_g}Encrypted using 'gpg -r $gpg_id' (gpg passphrase may be asked later)$fg_k"
       login_pass_read=1
     fi
     if [ -z "$login_protector" ]; then
@@ -46,7 +49,7 @@ for dir in $(cat enc.dirs); do
     if [ -n "$login_protector" ]; then
       protector_arg="--protector=/:$login_protector"
     fi
-    echo Encrypting $dir...
+    echo Encrypting $dir.$ENC_PREFIX ...
     mkdir -p $dir $dir.$ENC_PREFIX
     gpg $decrypt_opts $login_pass_file |
       fscrypt encrypt $dir.$ENC_PREFIX --quiet --no-recovery $protector_arg
@@ -58,6 +61,7 @@ done
 # is not available (e.g. root filesystem has changed)
 dir_mnt=$(findmnt -n -o TARGET -T .)
 if ! fscrypt status $dir_mnt | grep -qF 'custom protector'; then
+  echo -e "${fg_g}Creating an additional encryption key$fg_k"
   fscrypt metadata create protector $dir_mnt
 fi
 custom_protector=($(fscrypt status $dir_mnt |
@@ -77,7 +81,7 @@ if [ ${#custom_protector[@]} -eq 2 ]; then
           echo
           other_pass_read=1
         fi
-        echo Adding additional protector to $dir...
+        echo Adding additional protector to $dir.$ENC_PREFIX ...
         { gpg $decrypt_opts $other_pass_file && gpg $decrypt_opts $login_pass_file; } |
           fscrypt metadata add-protector-to-policy --quiet \
             --protector=$dir_mnt:${custom_protector[0]} --policy=$dir_mnt:$policy_id

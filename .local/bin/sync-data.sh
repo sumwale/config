@@ -72,6 +72,7 @@ function usage() {
 function cleanup() {
   echo -e "${fg_red}Cleaning up...$fg_reset"
   rm -rf /tmp/$SCRIPT /tmp/enc-init.sh /tmp/enc-finish.sh $sync_data_conf /tmp/mprsync.sh $pkgs_err
+  rm -rf $HOME/pkgs $HOME/passwd $HOME/group
   [ -e $sync_enc_data ] && shred -u $sync_enc_data
   if [ -f $home_dir/enc.dirs.orig ]; then
     sudo rm -f $home_dir/enc.dirs
@@ -119,6 +120,7 @@ else
 fi
 [ $# -eq 2 -a "$2" != "/" ] && sync_root=$2
 sync_root_fs=${sync_root:-/}
+sync_etc=$sync_root/etc
 
 if [ -n "$sync_root" ]; then
   divert_root_arg="--root $sync_root"
@@ -222,17 +224,18 @@ fi
 # most rsync calls will use sudo since the current user's UID may be different from that
 # of the backup user whose data is being restored; '-E' option is to enable using
 # current user's ssh key for remote server public key authentication
-rsync $rsync_common_options --delete $remote_home/pkgs $enc_bundles $HOME/
+rsync $rsync_common_options --delete $remote_root/etc/group $remote_root/etc/passwd \
+  $remote_home/pkgs $enc_bundles $HOME/
 sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
-  $remote_root/etc/apt/ $sync_root/etc/apt/
+  $remote_root/etc/apt/ $sync_etc/apt/
 sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/usr/share/keyrings/ $sync_root/usr/share/keyrings/
 # check for ubuntu pro repositories and if they are accessible, else remove them
-if compgen -G "$sync_root/etc/apt/sources.list.d/ubuntu-esm-*" >/dev/null; then
+if compgen -G "$sync_etc/apt/sources.list.d/ubuntu-esm-*" >/dev/null; then
   pro_status=$(sudo $chroot_arg pro status --format=yaml | $AWK '/attached:/ { print $2 }')
   if [ "$pro_status" != true ]; then
     echo -e "${fg_orange}Removing Ubuntu Pro repositories since it is not enabled.$fg_reset"
-    sudo rm -f $sync_root/etc/apt/sources.list.d/ubuntu-esm-*
+    sudo rm -f $sync_etc/apt/sources.list.d/ubuntu-esm-*
   fi
 fi
 # enable 32-bit packages and update package lists after the changes to apt configuration
@@ -341,6 +344,79 @@ sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST dist-upgrade --purge |
 sudo $chroot_arg $APT_FAST clean
 rm -rf $HOME/pkgs
 
+# Check for any new system users or groups (/etc/group and /etc/passwd are deliberately
+#   not synced since IDs may have changed for the same user/group names)
+
+user_conf=$sync_etc/adduser.conf
+last_sys_uid=$(sed -n 's/^\s*LAST_SYSTEM_UID\s*=\s*["'\'']\?\([0-9]*\).*/\1/p' $user_conf)
+last_sys_uid=${last_sys_uid:-999}
+last_sys_gid=$(sed -n 's/^\s*LAST_SYSTEM_GID\s*=\s*["'\'']\?\([0-9]*\).*/\1/p' $user_conf)
+last_sys_gid=${last_sys_gid:-999}
+
+function user_gid() {
+  # args: <user> <passwd file>
+  $AWK -F: "{ if (\$1 == \"$1\") print \$4 }" "$2"
+}
+
+function group_name() {
+  # args: <gid> <group file>
+  $AWK -F: "{ if (\$3 == \"$1\") print \$1 }" "$2"
+}
+
+function user_groups() {
+  # args: <user> <primary gid> <group file>
+  $AWK -F: "{ if (\$3 != \"$2\" && \$4 ~ /(^|,)$1(,|$)/) printf \"%s,\",\$1 }" "$3" | sed 's/,$//'
+}
+
+gid_awk_cmd="{ if (\$3 <= $last_sys_gid) print \$1 }"
+new_sys_groups=$(comm -13 <($AWK -F: "$gid_awk_cmd" $sync_etc/group | sort) \
+                          <($AWK -F: "$gid_awk_cmd" $HOME/group | sort))
+if [ -n "$new_sys_groups" ]; then
+  echo
+  echo -e "Following new system groups have been found in backup /etc/group:" $new_sys_groups
+  echo -en "${fg_orange}Add these system groups to the restored setup (Y/n)? $fg_reset"
+  if read resp && [ "$resp" != n -a "$resp" != N ]; then
+    for sys_group in $new_sys_groups; do
+      sudo $chroot_arg groupadd -r "$sys_group"
+    done
+  fi
+fi
+
+uid_awk_cmd="{ if (\$3 <= $last_sys_uid) print \$1 }"
+new_sys_users=$(comm -13 <($AWK -F: "$uid_awk_cmd" $sync_etc/passwd | sort) \
+                         <($AWK -F: "$uid_awk_cmd" $HOME/passwd | sort))
+if [ -n "$new_sys_users" ]; then
+  echo
+  echo -e "Following new system users have been found in backup /etc/passwd:" $new_sys_users
+  echo -en "${fg_orange}Add these system users to the restored setup (Y/n)? $fg_reset"
+  if read resp && [ "$resp" != n -a "$resp" != N ]; then
+    for sys_user in $new_sys_users; do
+      readarray -t -d : user_details < <($AWK -F: \
+        "{ if (\$1 == \"$sys_user\") printf \"%s:%s:%s:%s\",\$4,\$5,\$6,\$7 }" $HOME/passwd)
+      primary_group=$(group_name ${user_details[0]} $HOME/group)
+      secondary_groups=$(user_groups "$sys_user" ${user_details[0]} $HOME/group)
+      sudo $chroot_arg useradd -r -g "$primary_group" -G "$secondary_groups" \
+        -c "${user_details[1]}" -d "${user_details[2]}" -s "${user_details[3]}" "$sys_user"
+    done
+  fi
+fi
+
+# Also check for restored user's secondary groups
+
+sync_gid=$(user_gid $sync_user $sync_etc/passwd)
+sync_new_gid=$(user_gid $sync_user $HOME/passwd) # can this be empty?
+new_groups=$(comm -13 <(user_groups $sync_user "$sync_gid" $sync_etc/group | tr ',' '\n' | sort) \
+                      <(user_groups $sync_user "$sync_new_gid" $HOME/group | tr ',' '\n' | sort))
+if [ -n "$new_groups" ]; then
+  echo
+  echo "Restored user '$sync_user' present in these additional groups in the backup:" $new_groups
+  echo -en "${fg_orange}Add user '$sync_user' to these groups (Y/n)? $fg_reset"
+  if read resp && [ "$resp" != n -a "$resp" != N ]; then
+    sudo $chroot_arg usermod -aG "$(echo -n "$new_groups" | tr '\n' ',')" $sync_user
+  fi
+fi
+rm -f $HOME/passwd $HOME/group
+
 # Encrypt any new directories listed in backup
 
 [ ! -e $home_dir/enc.dirs ] && $chroot_arg_user touch $home_dir_local/enc.dirs
@@ -357,10 +433,10 @@ if ! sudo cmp $home_dir/enc.dirs.orig $home_dir/enc.dirs >/dev/null 2>/dev/null;
   echo -n "fscrypt (as well as '$home_mnt' if different) and filesystems have been "
   echo -n "marked for encryption (e.g. tune2fs -O encrypt /dev/... for ext4). "
   echo -n "This script will try to do this setup if not detected but if that fails,"
-  echo -n "then do it manually first and then proceed."
+  echo "then do it manually first and then proceed."
   echo
   echo -n "The PAM configuration for auto-unlocking directories using your login "
-  echo -n "password should be copied during the sync from the backup."
+  echo "password should be copied during the sync from the backup."
   echo
   echo -en "${fg_orange}Encrypt the above directories (y/N)? $fg_reset"
   if read resp && [ "$resp" = y -o "$resp" = Y ]; then
@@ -427,9 +503,16 @@ fi
 echo -e "${fg_green}Updating PAM configuration.$fg_reset"
 sudo $chroot_arg pam-auth-update --package --force
 
+echo -e $fg_orange
+echo "Note the following steps that may need to be taken manually:"
 echo
-echo -e "${fg_green}ALL DONE. You may need to do some things manually if you skipped any of the"
-echo "options asked before (package installation, directory encryption). Apart from those, the"
-echo "Ubuntu Pro subscription may need to be attached (check with 'pro status' in the restored"
-echo "system), if required. Else remove 'ubuntu-esm-*' files in /etc/apt/sources.list.d directory."
+echo "1. If there are any normal users other than the backup user being synced, then they"
+echo "   will need to be created manually and their data restored by other means."
+echo "2. User container images and data were restored from the backup, but some containers may"
+echo "   fail to start due to the changes in machine environment and may need to be recreated."
+echo "3. Ubuntu Pro subscription, if configured in the backup, was removed in the restored setup"
+echo "   and you will need to go to the site (https://ubuntu.com/login) to set it up again."
+echo -e $fg_green
+echo "ALL DONE. If you skipped any of the options asked before (package installation,"
+echo "directory encryption etc), then you may also need to perform those changes manually."
 echo -e $fg_reset
