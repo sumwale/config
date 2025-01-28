@@ -492,6 +492,10 @@ sudo tar -C $sync_root/ --overwrite -xpSJf $sync_enc_data
 sudo $chroot_arg update-grub
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg-reconfigure libdvd-pkg || true
 
+echo -e "${fg_green}Disabling automatic borgmatic backup timer.$fg_reset"
+sudo sed -i 's/systemctl --user start borgmatic-backup/systemctl --user stop borgmatic-backup/' \
+  $home_dir/.local/bin/user-services.sh
+
 # Check for fprintd that may not be present on the target, then update PAM configuration.
 
 if [ ! -f $sync_root/usr/share/pam-configs/fprintd ] ||
@@ -506,12 +510,30 @@ sudo $chroot_arg pam-auth-update --package --force
 echo -e $fg_orange
 echo "Note the following steps that may need to be taken manually:"
 echo
-echo "1. If there are any normal users other than the backup user being synced, then they"
-echo "   will need to be created manually and their data restored by other means."
-echo "2. User container images and data were restored from the backup, but some containers may"
+echo "1. You may need to generate ssh key for the restored setup and register it in the"
+echo "   authorized_keys of the backup server, if not done already. For example, a good"
+echo "   command to generate the public-private keypair is:"
+echo "     ssh-keygen -o -a 100 -t ed25519"
+echo "   After this, ssh to the backup server(s) manually at least once to accept the"
+echo "   server keys and provide the password used for the mentioned ssh-keygen which"
+echo "   will get stored in keyring and will allow the automatic backup service to succeed."
+echo "2. Borg backup timer service has been stopped to disable automatic backups due to"
+echo "   above reason and possible other required changes. Once the restored machine has"
+echo "   been verified, you can enable the daily backup timer by changing the 'stop' to"
+echo "   'start' in the line 'systemctl --user stop borgmatic-backup.timer' in"
+echo "   $home_dir_local/.local/bin/user-services.sh"
+echo "3. User container images and data were restored from the backup, but some containers may"
 echo "   fail to start due to the changes in machine environment and may need to be recreated."
-echo "3. Ubuntu Pro subscription, if configured in the backup, was removed in the restored setup"
+echo "   Note that if these were for ybox containers, then you should review and update"
+echo "   the profiles in $home_dir_local/.config/ybox/profiles for the new machine as"
+echo "   required before recreating those containers."
+echo "4. Ubuntu Pro subscription, if configured in the backup, was removed in the restored setup"
 echo "   and you will need to go to the site (https://ubuntu.com/login) to set it up again."
+echo "5. The backup does not include conky configuration directly which is machine-specific"
+echo "   ($home_dir_local/.config/conky/conky.conf). Review the couple of configurations"
+echo "   present in $home_dir_local/config/.config/conky and adapt to the new machine."
+echo "6. If there are any normal users other than the user data that was restored from backup,"
+echo "   then they will need to be created manually and their data restored by other means."
 echo -e $fg_green
 echo "ALL DONE. If you skipped any of the options asked before (package installation,"
 echo "directory encryption etc), then you may also need to perform those changes manually."
