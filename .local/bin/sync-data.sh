@@ -72,7 +72,10 @@ function usage() {
 function cleanup() {
   echo -e "${fg_red}Cleaning up...$fg_reset"
   rm -rf /tmp/$SCRIPT /tmp/enc-init.sh /tmp/enc-finish.sh $sync_data_conf /tmp/mprsync.sh $pkgs_err
-  rm -rf $HOME/pkgs $HOME/passwd $HOME/group
+  rm -rf $HOME/passwd $HOME/group
+  if [ $home_dir != $HOME ]; then
+    rm -rf $HOME/pkgs
+  fi
   [ -e $sync_enc_data ] && shred -u $sync_enc_data
   if [ -f $home_dir/enc.dirs.orig ]; then
     sudo rm -f $home_dir/enc.dirs
@@ -80,7 +83,7 @@ function cleanup() {
   fi
   if [ $ssh_key_created -eq 1 -a -n "$keyfile" ]; then
     remote_server=${remote_root%:*}
-    ssh $remote_server mv -f .ssh/$auth_keys_orig .ssh/authorized_keys
+    ssh $remote_server mv -f .ssh/$auth_keys_orig .ssh/authorized_keys || true
     ssh-add -d $keyfile
     rm -f $keyfile*
   fi
@@ -88,7 +91,7 @@ function cleanup() {
     kill $SSH_AGENT_PID
   fi
   if [ $unpack_gpg_key -eq 1 -a $home_dir != $HOME ]; then
-    find $HOME/.gnupg -type f -print0 | xargs -0 shred -n1 -u
+    find $HOME/.gnupg -type f -print0 | xargs -0 shred -u
     rm -rf $HOME/.gnupg
   fi
 }
@@ -126,18 +129,18 @@ if [ -n "$sync_root" ]; then
   divert_root_arg="--root $sync_root"
   dpkg_root_arg="--root=$sync_root"
   chroot_arg="chroot $sync_root"
-  if [ -n "$sync_user" ]; then
-    home_dir=$(sudo $chroot_arg getent passwd $sync_user | cut -d: -f6)
-    echo -e "${fg_green}Using '$home_dir' as the HOME for backup user '$sync_user'$fg_reset"
-    echo
-  else
-    sync_user=$USER
-  fi
+fi
+if [ -n "$sync_user" ]; then
+  home_dir=$(sudo $chroot_arg getent passwd $sync_user | cut -d: -f6)
   sync_user_group=$(sudo $chroot_arg id -gn $sync_user)
-  chroot_arg_user="sudo chroot --userspec=$sync_user:$sync_user_group $sync_root"
+  echo -e "${fg_green}Using '$home_dir' as the HOME for backup user '$sync_user'$fg_reset"
+  echo
 else
-  sync_user=${sync_user:-$USER}
+  sync_user=$USER
   sync_user_group=$(id -gn $sync_user)
+fi
+if [ -n "$sync_root" ]; then
+  chroot_arg_user="sudo chroot --userspec=$sync_user:$sync_user_group $sync_root"
 fi
 remote_home=$remote_root$home_dir
 home_dir_local=$home_dir
@@ -184,8 +187,8 @@ else
     keyfile=$HOME/.ssh/id_ed25519
     ssh-keygen -o -a 100 -t ed25519 -f $keyfile
     cat $keyfile.pub | ssh -o PubkeyAuthentication=no $remote_server \
-      "mv .ssh/authorized_keys .ssh/$auth_keys_orig &&
-      cat .ssh/$auth_keys_orig - > .ssh/authorized_keys && chmod 400 .ssh/authorized_keys"
+      "mv -f .ssh/authorized_keys .ssh/$auth_keys_orig &&
+       cat .ssh/$auth_keys_orig - > .ssh/authorized_keys && chmod 400 .ssh/authorized_keys"
     ssh_key_created=1
   fi
 fi
@@ -222,7 +225,7 @@ if ! gpg --quiet --list-secret-key sumwale@gmail.com >/dev/null 2>/dev/null; the
   unpack_gpg_key=1
 fi
 # most rsync calls will use sudo since the current user's UID may be different from that
-# of the backup user whose data is being restored; '-E' option is to enable using
+# of the backup user whose data is being synced; '-E' option is to enable using
 # current user's ssh key for remote server public key authentication
 rsync $rsync_common_options --delete $remote_root/etc/group $remote_root/etc/passwd \
   $remote_home/pkgs $enc_bundles $HOME/
@@ -243,6 +246,7 @@ sudo $chroot_arg dpkg --add-architecture i386
 sudo $chroot_arg apt-get update || true
 
 if [ $unpack_gpg_key -eq 1 ]; then
+  find $HOME/.gnupg -type f -print0 | xargs -0 shred -u
   rm -rf $HOME/.gnupg/*
   gpg --decrypt $HOME/rest.key.gpg | tar --strip-components=2 -C $HOME -xpSJf -
   shred -u $HOME/rest.key.gpg
@@ -250,6 +254,7 @@ if [ $unpack_gpg_key -eq 1 ]; then
   if [ $home_dir != $HOME ]; then
     $chroot_arg_user mkdir -p $home_dir_local/.gnupg
     $chroot_arg_user chmod 0700 $home_dir_local/.gnupg
+    sudo find $home_dir/.gnupg -type f -print0 | sudo xargs -0 shred -u
     sudo rm -rf $home_dir/.gnupg/*
     sudo cp -a $HOME/.gnupg/* $home_dir/.gnupg/.
     sudo rm -f $home_dir/.gnupg/gpg.conf
@@ -288,9 +293,9 @@ $AWK -v root=$sync_root -v root_arg="$divert_root_arg" '{
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg --configure -a
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -f --purge
 echo -e "${fg_green}Comparing packages on this host with the backup.$fg_reset"
-new_pkgs=$(sed -n 's/^ii\s\+\(\S\+\).*$/\1/p' $HOME/pkgs/deb.list | sort)
 # "apt-mark showinstall" does not include arch in package names, so better to use
 # "dpkg -l" rather than curating their outputs for arch
+new_pkgs=$(sed -n 's/^ii\s\+\(\S\+\).*$/\1/p' $HOME/pkgs/deb.list | sort)
 pkg_diffs=$(comm -3 <(echo "$new_pkgs") \
                     <(dpkg -l $dpkg_root_arg | sed -n 's/^ii\s\+\(\S\+\).*$/\1/p' | sort) |
   grep -vwE 'fprintd|libfprint|command-configure|srvadmin' |
@@ -310,9 +315,10 @@ if [ -n "$pkg_diffs" ]; then
     if [ -n "$install_pkgs" ]; then
       # unfortunately apt provides no way to skip unavailable packages (e.g. separately downloaded
       #   in deb-local and elsewhere), so need to check for the available ones
-      selected_pkgs=$(sudo $chroot_arg apt-cache -q0 show $install_pkgs 2> $pkgs_err |
+      selected_pkgs=$(sudo $chroot_arg apt-cache -q=0 show $install_pkgs 2> $pkgs_err |
         $AWK '/^Package: / {
           pkg = $2
+          arch = ""
           while (getline != 0) {
             if ($1 == "Architecture:") {
               arch = $2
@@ -342,7 +348,9 @@ if [ -n "$pkg_diffs" ]; then
 fi
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST dist-upgrade --purge || true
 sudo $chroot_arg $APT_FAST clean
-rm -rf $HOME/pkgs
+if [ $home_dir != $HOME ]; then
+  rm -rf $HOME/pkgs
+fi
 
 # Check for any new system users or groups (/etc/group and /etc/passwd are deliberately
 #   not synced since IDs may have changed for the same user/group names)
@@ -357,12 +365,10 @@ function user_gid() {
   # args: <user> <passwd file>
   $AWK -F: "{ if (\$1 == \"$1\") print \$4 }" "$2"
 }
-
 function group_name() {
   # args: <gid> <group file>
   $AWK -F: "{ if (\$3 == \"$1\") print \$1 }" "$2"
 }
-
 function user_groups() {
   # args: <user> <primary gid> <group file>
   $AWK -F: "{ if (\$3 != \"$2\" && \$4 ~ /(^|,)$1(,|$)/) printf \"%s,\",\$1 }" "$3" | sed 's/,$//'
@@ -374,10 +380,10 @@ new_sys_groups=$(comm -13 <($AWK -F: "$gid_awk_cmd" $sync_etc/group | sort) \
 if [ -n "$new_sys_groups" ]; then
   echo
   echo -e "Following new system groups have been found in backup /etc/group:" $new_sys_groups
-  echo -en "${fg_orange}Add these system groups to the restored setup (Y/n)? $fg_reset"
+  echo -en "${fg_orange}Add these system groups to the sync desination (Y/n)? $fg_reset"
   if read resp && [ "$resp" != n -a "$resp" != N ]; then
-    for sys_group in $new_sys_groups; do
-      sudo $chroot_arg groupadd -r "$sys_group"
+    for s_group in $new_sys_groups; do
+      sudo $chroot_arg groupadd -r "$s_group"
     done
   fi
 fi
@@ -388,20 +394,20 @@ new_sys_users=$(comm -13 <($AWK -F: "$uid_awk_cmd" $sync_etc/passwd | sort) \
 if [ -n "$new_sys_users" ]; then
   echo
   echo -e "Following new system users have been found in backup /etc/passwd:" $new_sys_users
-  echo -en "${fg_orange}Add these system users to the restored setup (Y/n)? $fg_reset"
+  echo -en "${fg_orange}Add these system users to the sync destination (Y/n)? $fg_reset"
   if read resp && [ "$resp" != n -a "$resp" != N ]; then
-    for sys_user in $new_sys_users; do
+    for s_user in $new_sys_users; do
       readarray -t -d : user_details < <($AWK -F: \
-        "{ if (\$1 == \"$sys_user\") printf \"%s:%s:%s:%s\",\$4,\$5,\$6,\$7 }" $HOME/passwd)
+        "{ if (\$1 == \"$s_user\") printf \"%s:%s:%s:%s\",\$4,\$5,\$6,\$7 }" $HOME/passwd)
       primary_group=$(group_name ${user_details[0]} $HOME/group)
-      secondary_groups=$(user_groups "$sys_user" ${user_details[0]} $HOME/group)
+      secondary_groups=$(user_groups "$s_user" ${user_details[0]} $HOME/group)
       sudo $chroot_arg useradd -r -g "$primary_group" -G "$secondary_groups" \
-        -c "${user_details[1]}" -d "${user_details[2]}" -s "${user_details[3]}" "$sys_user"
+        -c "${user_details[1]}" -d "${user_details[2]}" -s "${user_details[3]}" "$s_user"
     done
   fi
 fi
 
-# Also check for restored user's secondary groups
+# Also check for synced user's secondary groups
 
 sync_gid=$(user_gid $sync_user $sync_etc/passwd)
 sync_new_gid=$(user_gid $sync_user $HOME/passwd) # can this be empty?
@@ -409,7 +415,7 @@ new_groups=$(comm -13 <(user_groups $sync_user "$sync_gid" $sync_etc/group | tr 
                       <(user_groups $sync_user "$sync_new_gid" $HOME/group | tr ',' '\n' | sort))
 if [ -n "$new_groups" ]; then
   echo
-  echo "Restored user '$sync_user' present in these additional groups in the backup:" $new_groups
+  echo "Synced user '$sync_user' is present in these additional groups in the backup:" $new_groups
   echo -en "${fg_orange}Add user '$sync_user' to these groups (Y/n)? $fg_reset"
   if read resp && [ "$resp" != n -a "$resp" != N ]; then
     sudo $chroot_arg usermod -aG "$(echo -n "$new_groups" | tr '\n' ',')" $sync_user
@@ -432,8 +438,8 @@ if ! sudo cmp $home_dir/enc.dirs.orig $home_dir/enc.dirs >/dev/null 2>/dev/null;
   echo -n "Encryption will work only if '$sync_root_fs' has already been setup by "
   echo -n "fscrypt (as well as '$home_mnt' if different) and filesystems have been "
   echo -n "marked for encryption (e.g. tune2fs -O encrypt /dev/... for ext4). "
-  echo -n "This script will try to do this setup if not detected but if that fails,"
-  echo "then do it manually first and then proceed."
+  echo -n "This script will try to do this setup, if not detected, for an ext4 filesystem"
+  echo "but if that fails, then do it manually first and then proceed."
   echo
   echo -n "The PAM configuration for auto-unlocking directories using your login "
   echo "password should be copied during the sync from the backup."
@@ -470,15 +476,11 @@ fi
 # Sync data from backup (including system /etc, /usr/local etc).
 
 echo -e "${fg_green}Running mprsync.sh to synchronize $home_dir from remote...$fg_reset"
-mprsync_sh=$(type -p mprsync.sh || true)
-if [ -z "$mprsync_sh" ]; then
-  curl -fsSL -o /tmp/mprsync.sh "https://github.com/sumwale/mprsync/blob/main/mprsync.sh?raw=true"
-  chmod +x /tmp/mprsync.sh
-  mprsync_sh=/tmp/mprsync.sh
-fi
+curl -fsSL -o /tmp/mprsync.sh "https://github.com/sumwale/mprsync/blob/main/mprsync.sh?raw=true"
+chmod +x /tmp/mprsync.sh
 # sudo is used here since there are some directories in HOME marked with "t" and owned by subuid
 # that cannot be modified/deleted despite write ACLs (e.g. /tmp inside ybox shared ROOTS)
-sudo -E "$mprsync_sh" $rsync_common_options -A --delete \
+sudo -E /tmp/mprsync.sh $rsync_common_options -A --delete \
   --exclude-from=$sync_data_conf/excludes-home.list \
   --include-from=$sync_data_conf/includes-home.list --jobs=10 $remote_home/ $home_dir/
 
@@ -489,18 +491,19 @@ sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root
 
 echo -e "${fg_green}Unpacking and writing encrypted data.$fg_reset"
 sudo tar -C $sync_root/ --overwrite -xpSJf $sync_enc_data
+shred -u $sync_enc_data
 sudo $chroot_arg update-grub
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg-reconfigure libdvd-pkg || true
 
 echo -e "${fg_green}Disabling automatic borgmatic backup timer.$fg_reset"
 sudo sed -i 's/systemctl --user start borgmatic-backup/systemctl --user stop borgmatic-backup/' \
-  $home_dir/.local/bin/user-services.sh
+  $home_dir/.local/bin/user-services.sh || true
 
 # Check for fprintd that may not be present on the target, then update PAM configuration.
 
 if [ ! -f $sync_root/usr/share/pam-configs/fprintd ] ||
   ! dpkg -s $dpkg_root_arg libpam-fprintd 2>/dev/null >/dev/null; then
-  echo -e "${fg_orange}Removing any changes related to fingerprint authentication.$fg_reset"
+  echo -e "${fg_orange}Removing changes related to fingerprint authentication.$fg_reset"
   sudo mv -f $sync_root/usr/share/pam-configs/fprintd \
     $sync_root/usr/local/share/pam-configs/fprintd.bak 2>/dev/null || true
 fi
@@ -510,7 +513,7 @@ sudo $chroot_arg pam-auth-update --package --force
 echo -e $fg_orange
 echo "Note the following steps that may need to be taken manually:"
 echo
-echo "1. You may need to generate ssh key for the restored setup and register it in the"
+echo "1. You may need to generate ssh key for the synced setup and register it in the"
 echo "   authorized_keys of the backup server, if not done already. For example, a good"
 echo "   command to generate the public-private keypair is:"
 echo "     ssh-keygen -o -a 100 -t ed25519"
@@ -518,20 +521,20 @@ echo "   After this, ssh to the backup server(s) manually at least once to accep
 echo "   server keys and provide the password used for the mentioned ssh-keygen which"
 echo "   will get stored in keyring and will allow the automatic backup service to succeed."
 echo "2. Borg backup timer service has been stopped to disable automatic backups due to"
-echo "   above reason and possible other required changes. Once the restored machine has"
+echo "   above reason and possible other required changes. Once the sync destination has"
 echo "   been verified, you can enable the daily backup timer by changing the 'stop' to"
 echo "   'start' in the line 'systemctl --user stop borgmatic-backup.timer' in"
 echo "   $home_dir_local/.local/bin/user-services.sh"
 echo "3. User container images and data were restored from the backup, but some containers may"
-echo "   fail to start due to the changes in machine environment and may need to be recreated."
+echo "   fail to start due to the changes in the new environment and may need to be recreated."
 echo "   Note that if these were for ybox containers, then you should review and update"
-echo "   the profiles in $home_dir_local/.config/ybox/profiles for the new machine as"
+echo "   the profiles in $home_dir_local/.config/ybox/profiles for the new setup as"
 echo "   required before recreating those containers."
-echo "4. Ubuntu Pro subscription, if configured in the backup, was removed in the restored setup"
+echo "4. Ubuntu Pro subscription, if configured in the backup, was removed in the sync destination"
 echo "   and you will need to go to the site (https://ubuntu.com/login) to set it up again."
 echo "5. The backup does not include conky configuration directly which is machine-specific"
 echo "   ($home_dir_local/.config/conky/conky.conf). Review the couple of configurations"
-echo "   present in $home_dir_local/config/.config/conky and adapt to the new machine."
+echo "   present in $home_dir_local/config/.config/conky and adapt to the new setup."
 echo "6. If there are any normal users other than the user data that was restored from backup,"
 echo "   then they will need to be created manually and their data restored by other means."
 echo -e $fg_green
