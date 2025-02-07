@@ -97,6 +97,7 @@ patterns:
   - '- ${HOME}/.android/adbkey*'
   - '- ${HOME}/.asound.state'
   - '- ${HOME}/.aws'
+  - '- ${HOME}/**/.buildenv'
   - '- ${HOME}/**/.cache'
   - '- ${HOME}/**/.pytest_cache'
   - '- ${HOME}/**/.tox'

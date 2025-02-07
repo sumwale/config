@@ -30,6 +30,7 @@ alias mk-build-dep='mk-build-deps --install --root-cmd sudo --remove'
 
 alias cdl='cd ~/projects/lightspeed-spark'
 alias cdy='cd ~/projects/ybox'
+alias cdr='cd ~/projects/mprsync'
 alias cds='cd ~/projects/spark'
 alias cdm='cd ~/product/mariadb'
 alias cds0='cd ~/product/snappydata'
