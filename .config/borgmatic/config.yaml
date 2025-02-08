@@ -119,6 +119,7 @@ patterns:
   - '- ${HOME}/**/.gradle/*'
   - '- ${HOME}/**/.ivy2'
   - '- ${HOME}/.kube'
+  - '! ${HOME}/.local/share/containers/storage/overlay/*/work'
   - '! ${HOME}/.local/share/gnome-boxes/images'
   - '! ${HOME}/.local/share/keyrings'
   - '! ${HOME}/.local/share/libvirt/images'
@@ -168,21 +169,41 @@ patterns:
   - '- ${HOME}/**/project/**/*.class'
   - '- ${HOME}/**/target/**/*.class'
   - '! /etc/.pwd.lock'
+  - '! /etc/apt/auth.conf.d'
+  - '! /etc/borgmatic'
   - '! /etc/brlapi.key'
   - '! /etc/credstore'
   - '! /etc/credstore.encrypted'
+  - '! /etc/crypttab'
+  - '! /etc/cups/classes.conf*'
+  - '! /etc/cups/printers.conf*'
   - '! /etc/cups/ssl'
+  - '! /etc/cups/*.O'
+  - '! /etc/default/cacerts'
+  - '! /etc/dma/auth.conf'
   - '! /etc/fstab'
   - '! /etc/grub.d'
+  - '! /etc/gufw'
   - '! /etc/hostid'
   - '! /etc/hostname'
+  - '! /etc/libaudit.conf'
+  - '! /etc/libvirt/nwfilter'
+  - '! /etc/libvirt/qemu/networks'
+  - '! /etc/libvirt/qemu.conf'
   - '! /etc/libvirt/secrets'
+  - '! /etc/libvirt/storage'
+  - '! /etc/lvm/cache'
   - '! /etc/machine-id'
   - '! /etc/mailname'
   - '! /etc/mtab'
+  - '! /etc/netplan'
+  - '! /etc/NetworkManager/system-connections'
   - '! /etc/nvme/hostid'
   - '! /etc/nvme/hostnqn'
+  - '! /etc/pacman.d/gnupg'
   - '! /etc/pam.d/common-*'
+  - '! /etc/polkit-1/localauthority'
+  - '! /etc/polkit-1/rules.d'
   - '! /etc/ppp/*secrets*'
   - '! /etc/resolv.conf'
   - '! /etc/samba/private'
@@ -193,6 +214,8 @@ patterns:
   - '! /etc/systemd/system/*.target.wants/wattage*.service'
   - '! /etc/throttled.conf'
   - '! /etc/tlp.d/*-dell.conf'
+  - '! /etc/ufw/*.init'
+  - '! /etc/ufw/*.rules'
   - '! /etc/*shadow*'
   - '! /etc/*vpn*'
   - '- /usr/local/etc/powerlimit.conf'
@@ -260,7 +283,7 @@ exclude_caches: true
 # passcommand/repokey/keyfile encryption. Note that if both
 # encryption_passcommand and encryption_passphrase are set, then
 # encryption_passphrase takes precedence. Defaults to not set.
-encryption_passcommand: sudo -E -u ${USER} secret-tool lookup borg-repository borgbase-store
+encryption_passcommand: secret-tool lookup borg-repository borgbase-store
 
 # Passphrase to unlock the encryption key with. Only use on
 # repositories that were initialized with passphrase/repokey/keyfile
@@ -491,7 +514,7 @@ check_last: 1
 # List of one or more shell commands or scripts to execute before
 # creating a backup, run once per repository.
 # before_backup:
-  # - ( ping -q -c 1 8.8.8.8 >/dev/null || ping -q -c 1 8.8.4.4 >/dev/null ) && borgmatic-setup.sh
+  # - ( ping -q -c 1 8.8.8.8 >/dev/null || ping -q -c 1 8.8.4.4 >/dev/null ) && borgmatic-setup
 
 # List of one or more shell commands or scripts to execute before
 # pruning, run once per repository.

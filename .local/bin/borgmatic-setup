@@ -5,6 +5,8 @@ set -e
 # script to separately encrypt directories containing sensitive information and these
 # must be excluded from regular home backups
 
+export PATH="$PATH:$HOME/.local/bin"
+umask 027
 # the new encrypted file always overwrites resulting in a new file in backup, so exclude some
 # large directories that do not have any sensitive information (also conky.conf and ssh keys
 #   which are machine specific)
@@ -71,12 +73,13 @@ if [ -r /var/lib/dpkg/diversions ]; then
   /bin/cp -f /var/lib/dpkg/diversions $HOME/pkgs/deb-diversions
 fi
 
-if type -p ybox-ls >/dev/null; then
-  for container in $(ybox-ls --format='{{ .Names }}'); do
-    ybox-pkg list -z "$container" -p ' ' 2>/dev/null > "$HOME/pkgs/$container-YBOX-explicit.list"
-    ybox-pkg list -z "$container" -a -p ' ' 2>/dev/null > "$HOME/pkgs/$container-YBOX.list"
-  done
-fi
+# not required anymore since the entire ybox data is now backed up
+#if type -p ybox-ls >/dev/null; then
+#  for container in $(ybox-ls --format='{{ .Names }}'); do
+#    ybox-pkg list -z "$container" -p ' ' 2>/dev/null > "$HOME/pkgs/$container-YBOX-explicit.list"
+#    ybox-pkg list -z "$container" -a -p ' ' 2>/dev/null > "$HOME/pkgs/$container-YBOX.list"
+#  done
+#fi
 
 # dump the full dconf configuration
 if type -p dconf >/dev/null; then
