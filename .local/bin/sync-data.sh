@@ -50,6 +50,7 @@ fg_green='\033[32m'
 fg_orange='\033[33m'
 fg_reset='\033[00m'
 rsync_common_options='-aHSOJ --info=progress2 --zc=zstd --zl=1'
+rsync_ssh_opt='ssh -o Compression=no -c aes256-gcm@openssh.com'
 sync_enc_data=/tmp/others.txz
 ssh_key_created=0
 auth_keys_orig=authorized_keys.sync-bak
@@ -71,7 +72,7 @@ function usage() {
 
 function cleanup() {
   echo -e "${fg_red}Cleaning up...$fg_reset"
-  rm -rf /tmp/$SCRIPT /tmp/enc-init.sh /tmp/enc-finish.sh $sync_data_conf /tmp/mprsync.sh $pkgs_err
+  rm -rf /tmp/$SCRIPT /tmp/enc-init.sh /tmp/enc-finish.sh $sync_data_conf /tmp/sync.py $pkgs_err
   rm -rf $HOME/passwd $HOME/group
   if [ $home_dir != $HOME ]; then
     rm -rf $HOME/pkgs
@@ -475,18 +476,18 @@ fi
 
 # Sync data from backup (including system /etc, /usr/local etc).
 
-echo -e "${fg_green}Running mprsync.sh to synchronize $home_dir from remote...$fg_reset"
-curl -fsSL -o /tmp/mprsync.sh "https://github.com/sumwale/mprsync/blob/main/mprsync.sh?raw=true"
-chmod +x /tmp/mprsync.sh
+echo -e "${fg_green}Running mprsync to synchronize $home_dir from remote...$fg_reset"
+curl -fsSL -o /tmp/sync.py "https://github.com/sumwale/mprsync/blob/main/mprsync/sync.py?raw=true"
 # sudo is used here since there are some directories in HOME marked with "t" and owned by subuid
 # that cannot be modified/deleted despite write ACLs (e.g. /tmp inside ybox shared ROOTS)
-sudo -E /tmp/mprsync.sh $rsync_common_options -A --delete \
+sudo -E python3 /tmp/sync.py $rsync_common_options -A -e "$rsync_ssh_opt" --delete \
   --exclude-from=$sync_data_conf/excludes-home.list \
-  --include-from=$sync_data_conf/includes-home.list --jobs=10 $remote_home/ $home_dir/
+  --include-from=$sync_data_conf/includes-home.list --jobs=10 --full-rsync $remote_home/ $home_dir/
 
 # non-HOME changes are small, so use the plain rsync
 echo -e "${fg_green}Running rsync to synchronize system configs from remote...$fg_reset"
-sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
+sudo -E rsync $rsync_common_options -e "$rsync_ssh_opt" \
+  --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/boot $remote_root/etc $remote_root/usr $sync_root/
 
 echo -e "${fg_green}Unpacking and writing encrypted data.$fg_reset"

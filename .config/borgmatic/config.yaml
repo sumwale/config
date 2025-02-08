@@ -211,7 +211,7 @@ patterns:
   - '! /etc/ssh/*key*'
   - '! /etc/ssl/private'
   - '! /etc/systemd/system/multi-user.target.wants/throttled.service'
-  - '! /etc/systemd/system/multi-user.target.wants/wattage.service'
+  - '! /etc/systemd/system/*.target.wants/wattage*.service'
   - '! /etc/throttled.conf'
   - '! /etc/tlp.d/*-dell.conf'
   - '! /etc/ufw/*.init'
