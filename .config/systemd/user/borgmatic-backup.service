@@ -1,3 +1,6 @@
+# Adapted from:
+#  https://github.com/borgmatic-collective/borgmatic/blob/main/sample/systemd/borgmatic-user.service
+
 [Unit]
 Description=borgmatic backup
 Wants=network-online.target
@@ -6,10 +9,6 @@ OnFailure=service-failure-email@%n.service
 
 [Service]
 Type=oneshot
-
-Environment=SSH_AUTH_SOCK=/run/user/%U/keyring/ssh
-Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/bus
-EnvironmentFile=%h/.sh_env.local
 
 # Lower CPU and I/O priority.
 Nice=19
@@ -27,6 +26,3 @@ LogRateLimitIntervalSec=0
 ExecStartPre=sleep 5m
 # Note that systemd-inhibit requires dbus and dbus-user-session to be installed.
 ExecStart=systemd-inhibit --who="borgmatic-launch.sh" --what="sleep:shutdown" --why="Prevent interrupting scheduled backup" %h/.local/bin/borgmatic-launch.sh --syslog-verbosity 1 --stats
-
-#[Install]
-#WantedBy=default.target

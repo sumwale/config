@@ -1,6 +1,6 @@
 #!/bin/sh
 
-systemctl --user start borgmatic-backup.timer
+#systemctl --user start borgmatic-backup.timer
 #systemctl --user start borgmatic-check.timer
 
 if [ "$DESKTOP_SESSION" = "awesome" ]; then

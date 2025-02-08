@@ -3,4 +3,4 @@ Description=Send service failure email
 
 [Service]
 Type=oneshot
-ExecStart=sh -c '/usr/bin/systemctl --user --lines=20 status %I | mailx -a "X-Priority:1" -s "[SYSTEMD_%I on %H] FAILURE" sumedh@localhost'
+ExecStart=sh -c '/usr/bin/systemctl --user --lines=20 status %i | mailx -a "X-Priority:1" -s "[SYSTEMD_%i on %H] FAILURE" root@localhost'

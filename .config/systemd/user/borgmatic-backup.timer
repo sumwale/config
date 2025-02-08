@@ -1,3 +1,6 @@
+# Adapted from:
+#  https://github.com/borgmatic-collective/borgmatic/blob/main/sample/systemd/borgmatic-user.timer
+
 [Unit]
 Description=Run borgmatic backup
 
