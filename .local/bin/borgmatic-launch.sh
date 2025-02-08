@@ -15,6 +15,9 @@ if [ "$1" = "--user" ]; then
   export HOME=$(getent passwd $USER | cut -d: -f6)
   # notify-send won't work as root and has to be executed as the provided user
   do_sudo="sudo -E -u $USER"
+  stat_cmd="systemctl status"
+else
+  stat_cmd="systemctl --user status"
 fi
 
 uid=$(id -u $USER)
@@ -30,10 +33,10 @@ if ! ping -q -c 1 8.8.8.8 >/dev/null && ! ping -q -c 1 8.8.4.4 >/dev/null; then
 fi
 
 echo -e '\033[32mRunning pre-backup actions\033[00m'
-borgmatic-setup.sh
+$do_sudo borgmatic-setup.sh
 
 start=$(date +'%s.%N')
-$do_sudo notify-send -i document-save -u normal -t 10000 "Backup started" "Started on $(date +'%b %d %H:%M:%S'). Status can be seen with 'systemctl --user status borgmatic-backup.service'"
+$do_sudo notify-send -i document-save -u normal -t 10000 "Backup started" "Started on $(date +'%b %d %H:%M:%S'). Status can be seen with '$stat_cmd borgmatic-backup.service'"
 
 #if systemd-inhibit --who="borgmatic" --what="sleep:shutdown" --why="Prevent interrupting backup" borgmatic -c $HOME/.config/borgmatic/config.yaml "$@" check; then
 if borgmatic -c $HOME/.config/borgmatic/config.yaml "$@" check; then
