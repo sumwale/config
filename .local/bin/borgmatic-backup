@@ -11,8 +11,10 @@ set -e
 
 if [ $(id -u) -eq 0 ]; then
   borgmatic_conf=/etc/borgmatic/config.yaml
+  stat_cmd="systemctl status"
 else
   borgmatic_conf=$HOME/.config/borgmatic/config.yaml
+  stat_cmd="systemctl --user status"
 fi
 
 # switch HOME and DBUS_SESSION_BUS_ADDRESS etc to the given user, if provided
@@ -24,9 +26,6 @@ if [ "$1" = "--user" ]; then
   cd $HOME
   # notify-send won't work as root and has to be executed as the provided user
   do_sudo="sudo -E -u $USER"
-  stat_cmd="systemctl status"
-else
-  stat_cmd="systemctl --user status"
 fi
 
 uid=$(id -u $USER)
