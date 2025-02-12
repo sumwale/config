@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e
+
+# Simple script to launch borgmatic with given options as root or normal user.
+# Especially useful for the root user when borgmatic is not installed system-wide
+# and is in user's HOME, and password is also obtained using user's credentials
+# (e.g. using secret-tool).
+#
+# Script assumes no spaces or weird characters in $USER and $HOME.
+
+if [ $(id -u) -eq 0 ]; then
+  borgmatic_conf=/etc/borgmatic/config.yaml
+  # switch HOME, DBUS_SESSION_BUS_ADDRESS etc to the given user, if provided, or sudo user
+  if [ "$1" = "--user" ]; then
+    shift
+    export USER=$1
+    shift
+  elif [ -n "$SUDO_USER" ]; then
+    export USER=$SUDO_USER
+  fi
+  export HOME=$(getent passwd $USER | cut -d: -f6)
+  [ -r /etc/borgmatic/backup.conf ] && source /etc/borgmatic/backup.conf
+  cd $HOME
+else
+  borgmatic_conf=$HOME/.config/borgmatic/config.yaml
+fi
+
+uid=$(id -u $USER)
+export SSH_AUTH_SOCK=/run/user/$uid/keyring/ssh
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$uid/bus
+export PATH="$PATH:$HOME/.local/bin"
+
+borgmatic -c $borgmatic_conf "$@"

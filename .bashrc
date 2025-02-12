@@ -222,7 +222,7 @@ if [ -z "$LESSOPEN" ]; then
 fi
 
 # Disable the bell
-if [[ $iatest -gt 0 ]]; then bind "set bell-style visible"; fi
+if [[ $iatest -gt 0 ]]; then bind "set bell-style audible"; fi
 
 # Ignore case on auto-completion
 # Note: bind used instead of sticking these in .inputrc

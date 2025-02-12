@@ -2,8 +2,8 @@
 
 set -e
 
-# Simple script to launch borgmatic with given options using notify-send to show
-# success/failure popups. If this is being launched by the root user, then it
+# Simple script to run a full backup using borgmatic with given options. Uses notify-send
+# to show success/failure popups. If this is being launched by the root user, then it
 # will need "--user <USER>" as the first two arguments to specify the current
 # logged in user where the notifications will be sent.
 #
