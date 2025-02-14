@@ -221,7 +221,7 @@ if [ -z "$LESSOPEN" ]; then
   fi
 fi
 
-# Disable the bell
+# Enable the bell which is turned into visual flash in kitty/... terminal settings
 if [[ $iatest -gt 0 ]]; then bind "set bell-style audible"; fi
 
 # Ignore case on auto-completion
