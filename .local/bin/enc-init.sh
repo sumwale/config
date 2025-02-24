@@ -37,7 +37,7 @@ for dir in $(cat enc.dirs); do
       head -n1 | gpg -r $gpg_id --encrypt --batch -o $login_pass_file
       stty echo
       echo
-      echo -e "${fg_g}Encrypted using 'gpg -r $gpg_id' (gpg passphrase may be asked later)$fg_k"
+      echo -e "${fg_g}Password encrypted using 'gpg -r $gpg_id' (gpg passphrase may be asked)$fg_k"
       login_pass_read=1
     fi
     if [ -z "$login_protector" ]; then

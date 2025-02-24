@@ -162,6 +162,7 @@ patterns:
   - '- ${HOME}/dwhelper'
   - '- ${HOME}/Downloads'
   - '- ${HOME}/mnt'
+  - '- ${HOME}/vmware/*/*.vmdk'
   - '- ${HOME}/**/.data'
   - '- ${HOME}/**/build-artifacts'
   - '- ${HOME}/**/firefox/default/cache*'
