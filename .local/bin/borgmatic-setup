@@ -49,7 +49,7 @@ done
 FFOX_TBIRD_INC="$FFOX_TBIRD_INC $(cd / && /bin/ls $TBIRD/*/key4.db $TBIRD/*/logins*.json $TBIRD/*/places* $TBIRD/*/recovery* $TBIRD/*/webappsstore* 2>/dev/null || true)"
 
 ( cd / && \
-  tar $EXCLUDES -cpSf - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $FFOX_TBIRD_INC $HOMEDIR/.ssh etc/grub.d | \
+  tar $EXCLUDES -cpSf - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $HOMEDIR/.local/share/kwalletd $FFOX_TBIRD_INC $HOMEDIR/.ssh etc/grub.d | \
   xz -7 -T 0 -F xz -c - | \
   gpg --batch --no-tty --encrypt -r $GPG_ID -o $HOMEDIR/Documents/others.key.gpg - 2>/dev/null && \
   tar chpSJf $HOMEDIR/Documents/rest.key $HOMEDIR/.gnupg 2>/dev/null && \

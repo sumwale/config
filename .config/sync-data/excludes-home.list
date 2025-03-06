@@ -20,6 +20,7 @@
 /.kube
 /.local/share/gnome-boxes/images
 /.local/share/keyrings
+/.local/share/kwalletd
 /.local/share/libvirt/images
 /.local/share/nvim
 /.local/share/ybox/archbox-games

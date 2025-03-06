@@ -17,7 +17,7 @@ rm -f $HOME/others.key
 TAR_EXCLUDES="`echo $CONFIG_EXCLUDES | sed 's,\<,--exclude=,g'`"
 HOMEDIR="`echo $HOME | sed 's,^/,,'`"
 
-(cd / && tar $TAR_EXCLUDES -cpSJf $HOMEDIR/others.key $HOMEDIR/.config $HOMEDIR/.gnupg $HOMEDIR/.local/share/keyrings $HOMEDIR/.mozilla/firefox/*/key4.db $HOMEDIR/.mozilla/firefox/*/logins*.json $HOMEDIR/.ssh $HOMEDIR/.thunderbird/*/key4.db $HOMEDIR/.thunderbird/*/logins*.json) && \
+(cd / && tar $TAR_EXCLUDES -cpSJf $HOMEDIR/others.key $HOMEDIR/.config $HOMEDIR/.gnupg $HOMEDIR/.local/share/keyrings $HOMEDIR/.local/share/kwalletd $HOMEDIR/.mozilla/firefox/*/key4.db $HOMEDIR/.mozilla/firefox/*/logins*.json $HOMEDIR/.ssh $HOMEDIR/.thunderbird/*/key4.db $HOMEDIR/.thunderbird/*/logins*.json) && \
 rm -f $HOME/Documents/others.key.gpg && \
 gpg --encrypt -r sumwale@gmail.com -o $HOME/Documents/others.key.gpg $HOME/others.key
 
