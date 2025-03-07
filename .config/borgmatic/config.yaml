@@ -26,8 +26,8 @@
 # ReadWritePaths list. Prior to borgmatic 1.7.10, repositories was a
 # list of plain path strings.
 repositories:
-  - path: ssh://a3wo0of7@a3wo0of7.repo.borgbase.com/./repo
-    label: borgbase
+  - path: ${HOME}/borg-backups
+    label: local
   - path: ssh://${USER}@${BORG_BACKUP_SERVER}/./backup
     label: alphavps
 
@@ -160,6 +160,7 @@ patterns:
   - '- ${HOME}/**/.venv/**/__pycache__'
   - '- ${HOME}/.xsession-errors*'
   - '- ${HOME}/.zsh/cache'
+  - '- ${HOME}/borg-backups'
   - '- ${HOME}/dwhelper'
   - '- ${HOME}/Downloads'
   - '- ${HOME}/mnt'
