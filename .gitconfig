@@ -18,6 +18,11 @@
 [user]
 	email = sumwale@gmail.com
 	name = Sumedh Wale
+	signingkey = F6F955142B0ED1AC
+[commit]
+	gpgsign = true
+[tag]
+	gpgSign = true
 [status]
 	submoduleSummary = true
 [diff]
