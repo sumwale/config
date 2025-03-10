@@ -161,6 +161,7 @@ patterns:
   - '- ${HOME}/dwhelper'
   - '- ${HOME}/Downloads'
   - '- ${HOME}/mnt'
+  - '- ${HOME}/vmware/*/autoinst.*'
   - '- ${HOME}/vmware/*/*.vmdk'
   - '- ${HOME}/**/.data'
   - '- ${HOME}/**/build-artifacts'
@@ -284,7 +285,7 @@ exclude_caches: true
 # passcommand/repokey/keyfile encryption. Note that if both
 # encryption_passcommand and encryption_passphrase are set, then
 # encryption_passphrase takes precedence. Defaults to not set.
-encryption_passcommand: secret-tool lookup borg-repository borgbase-store
+encryption_passcommand: secret-tool lookup borg-repository borgbase-laptop
 
 # Passphrase to unlock the encryption key with. Only use on
 # repositories that were initialized with passphrase/repokey/keyfile
