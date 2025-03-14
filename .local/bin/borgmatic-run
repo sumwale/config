@@ -26,9 +26,14 @@ else
   borgmatic_conf=$HOME/.config/borgmatic/config.yaml
 fi
 
-uid=$(id -u $USER)
-export SSH_AUTH_SOCK=/run/user/$uid/keyring/ssh
-export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$uid/bus
+xdg_rt_dir=/run/user/$(id -u $USER)
+for ssh_sock in gcr/ssh keyring/ssh; do
+  if [ -w "$xdg_rt_dir/$ssh_sock" ]; then
+    export SSH_AUTH_SOCK="$xdg_rt_dir/$ssh_sock"
+    break
+  fi
+done
+export DBUS_SESSION_BUS_ADDRESS=unix:path=$xdg_rt_dir/bus
 export PATH="$PATH:$HOME/.local/bin"
 
 borgmatic -c $borgmatic_conf "$@"

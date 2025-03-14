@@ -1,6 +1,6 @@
 [ -f "$HOME/.sh_env" ] && . "$HOME/.sh_env"
 
-systemctl --user import-environment PATH SSH_AUTH_SOCK
+systemctl --user import-environment SSH_AUTH_SOCK
 
 # if running bash
 if [ -n "$BASH_VERSION" ]; then

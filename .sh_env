@@ -20,20 +20,14 @@ PYSPARK_DRIVER_PYTHON=ipython3
 #CLUTTER_VBLANK=none
 
 if [ -z "$SSH_AUTH_SOCK" ]; then
-  if [ -n "$XDG_RUNTIME_DIR" ]; then
-    SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/keyring/ssh"
-    export SSH_AUTH_SOCK
-  else
-    SSH_AUTH_SOCK="/run/user/`id -u`/keyring/ssh"
-    if [ -e "$SSH_AUTH_SOCK" ]; then
+  xdg_rt_dir="${XDG_RUNTIME_DIR:-/run/user/`id -u`}"
+  for ssh_sock in gcr/ssh keyring/ssh; do
+    if [ -w "$xdg_rt_dir/$ssh_sock" ]; then
+      SSH_AUTH_SOCK="$xdg_rt_dir/$ssh_sock"
       export SSH_AUTH_SOCK
-    else
-      SSH_AUTH_SOCK="/var$SSH_AUTH_SOCK"
-      if [ -e "$SSH_AUTH_SOCK" ]; then
-        export SSH_AUTH_SOCK
-      fi
+      break
     fi
-  fi
+  done
 fi
 
 if [ -x /usr/lib/seahorse/ssh-askpass ]; then
