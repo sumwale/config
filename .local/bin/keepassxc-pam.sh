@@ -11,12 +11,10 @@
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin
 export PATH
 
+. "/usr/local/etc/keepassxc-pam.conf"
+
 user_id="`/usr/bin/id -u $PAM_USER`"
-user_home="`/usr/bin/getent passwd $user_id | cut -d: -f6`"
-
-. "$user_home/.config/keepassxc/passwd.conf"
-
-mkpasswd_args="-m sha512crypt -R $SALT_ROUNDS -S $SALT --stdin"
+mkpasswd_args="-m sha512crypt -R $ROUNDS -S $SALT --stdin"
 sed_pattern='s/^.*\$'$SALT'\$//'
 if [ "$PAM_TYPE" = "auth" ]; then
   if keyctl show %:_uid.$user_id 2>/dev/null >/dev/null; then
