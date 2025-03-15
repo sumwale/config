@@ -11,7 +11,7 @@
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin
 export PATH
 
-. "/usr/local/etc/keepassxc-pam.conf"
+. "/etc/keepassxc-pam.conf"
 
 user_id="`/usr/bin/id -u $PAM_USER`"
 mkpasswd_args="-m sha512crypt -R $ROUNDS -S $SALT --stdin"

@@ -193,6 +193,7 @@ patterns:
   - '! /etc/libvirt/qemu.conf'
   - '! /etc/libvirt/secrets'
   - '! /etc/libvirt/storage'
+  - '! /etc/luks'
   - '! /etc/lvm/cache'
   - '! /etc/machine-id'
   - '! /etc/mailname'

@@ -21,7 +21,6 @@ if [ $(id -u) -eq 0 ]; then
   fi
   export HOME=$(getent passwd $USER | cut -d: -f6)
   [ -r /etc/borgmatic/backup.conf ] && source /etc/borgmatic/backup.conf
-  cd $HOME
 else
   borgmatic_conf=$HOME/.config/borgmatic/config.yaml
 fi
