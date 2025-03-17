@@ -50,7 +50,7 @@ $do_sudo borgmatic-setup
 start=$(date +'%s.%N')
 $do_sudo notify-send -i document-save -u normal -t 10000 "Backup started" "Started on $(date +'%b %d %H:%M:%S'). Status can be seen with '$stat_cmd borgmatic-backup.service'"
 
-if systemd-inhibit --who="borgmatic" --what="sleep:shutdown" --why="Prevent interrupting backup" borgmatic -c $borgmatic_conf "$@"; then
+if systemd-inhibit --who="borgmatic" --what="idle:sleep:shutdown:handle-lid-switch" --why="Prevent interrupting backup" borgmatic -c $borgmatic_conf "$@"; then
   end=$(date +'%s.%N')
   elapsed=$(bc -l <<< "scale=2; ($end - $start + 0.005) / 1")
   $do_sudo notify-send -i document-save -u normal -t 10000 "Backup finished" "Finished on $(date +'%b %d %H:%M:%S') in $elapsed secs. Detailed logs can be seen with 'journalctl -t borgmatic'"

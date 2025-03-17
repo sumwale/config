@@ -182,7 +182,6 @@ patterns:
   - '! /etc/cups/*.O'
   - '! /etc/default/cacerts'
   - '! /etc/dma/auth.conf'
-  - '! /etc/fstab'
   - '! /etc/grub.d'
   - '! /etc/gufw'
   - '! /etc/hostid'

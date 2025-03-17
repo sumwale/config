@@ -426,53 +426,53 @@ rm -f $HOME/passwd $HOME/group
 
 # Encrypt any new directories listed in backup
 
-[ ! -e $home_dir/enc.dirs ] && $chroot_arg_user touch $home_dir_local/enc.dirs
-$chroot_arg_user mv -f $home_dir_local/enc.dirs $home_dir_local/enc.dirs.orig
-sudo -E rsync $rsync_common_options $remote_home/enc.dirs $home_dir/
-sudo cp -f $SCRIPT_DIR/enc-init.sh $SCRIPT_DIR/enc-finish.sh $home_dir/
-sudo chmod 0755 $home_dir/enc-*.sh
-if ! sudo cmp $home_dir/enc.dirs.orig $home_dir/enc.dirs >/dev/null 2>/dev/null; then
-  echo -e "${fg_green}Following new directories require encryption:$fg_reset"
-  comm -13 <(sudo sort $home_dir/enc.dirs.orig) <(sudo sort $home_dir/enc.dirs)
-  home_mnt=$(findmnt -n -o TARGET --target $home_dir)
-  echo
-  echo -n "Encryption will work only if '$sync_root_fs' has already been setup by "
-  echo -n "fscrypt (as well as '$home_mnt' if different) and filesystems have been "
-  echo -n "marked for encryption (e.g. tune2fs -O encrypt /dev/... for ext4). "
-  echo -n "This script will try to do this setup, if not detected, for an ext4 filesystem"
-  echo "but if that fails, then do it manually first and then proceed."
-  echo
-  echo -n "The PAM configuration for auto-unlocking directories using your login "
-  echo "password should be copied during the sync from the backup."
-  echo
-  echo -en "${fg_orange}Encrypt the above directories (y/N)? $fg_reset"
-  if read resp && [ "$resp" = y -o "$resp" = Y ]; then
-    # check if fscrypt needs to be setup for root and possibly home mount
-    if ! sudo $chroot_arg which fscrypt >/dev/null; then
-      sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge libpam-fscrypt
-    fi
-    if ! sudo $chroot_arg fscrypt status / --quiet 2>/dev/null; then
-      # set encrypt flag for ext4
-      if [ $(findmnt -n -o FSTYPE --target $sync_root_fs) = ext4 ]; then
-        sudo tune2fs -O encrypt $(findmnt -n -o SOURCE --target $sync_root_fs)
-      fi
-      sudo $chroot_arg fscrypt setup --all-users
-    fi
-    if [ $sync_root_fs != $home_mnt ]; then
-      home_mnt=${home_mnt#$sync_root_fs}
-      if ! sudo $chroot_arg fscrypt status $home_mnt --quiet 2>/dev/null; then
-        # set encrypt flag for ext4
-        if [ $(findmnt -n -o FSTYPE --target $sync_root_fs$home_mnt) = ext4 ]; then
-          sudo tune2fs -O encrypt $(findmnt -n -o SOURCE --target $sync_root_fs$home_mnt)
-        fi
-        sudo $chroot_arg fscrypt setup $home_mnt --all-users
-      fi
-    fi
-    $chroot_arg_user /bin/bash -c "export HOME=$home_dir_local && export USER=$sync_user &&
-      export LOGNAME=$sync_user && cd $home_dir_local && ./enc-init.sh --tty && ./enc-finish.sh"
-    sudo rm -f $home_dir/enc-init.sh $home_dir/enc-finish.sh $home_dir/enc.dirs.orig
-  fi
-fi
+#[ ! -e $home_dir/enc.dirs ] && $chroot_arg_user touch $home_dir_local/enc.dirs
+#$chroot_arg_user mv -f $home_dir_local/enc.dirs $home_dir_local/enc.dirs.orig
+#sudo -E rsync $rsync_common_options $remote_home/enc.dirs $home_dir/
+#sudo cp -f $SCRIPT_DIR/enc-init.sh $SCRIPT_DIR/enc-finish.sh $home_dir/
+#sudo chmod 0755 $home_dir/enc-*.sh
+#if ! sudo cmp $home_dir/enc.dirs.orig $home_dir/enc.dirs >/dev/null 2>/dev/null; then
+#  echo -e "${fg_green}Following new directories require encryption:$fg_reset"
+#  comm -13 <(sudo sort $home_dir/enc.dirs.orig) <(sudo sort $home_dir/enc.dirs)
+#  home_mnt=$(findmnt -n -o TARGET --target $home_dir)
+#  echo
+#  echo -n "Encryption will work only if '$sync_root_fs' has already been setup by "
+#  echo -n "fscrypt (as well as '$home_mnt' if different) and filesystems have been "
+#  echo -n "marked for encryption (e.g. tune2fs -O encrypt /dev/... for ext4). "
+#  echo -n "This script will try to do this setup, if not detected, for an ext4 filesystem"
+#  echo "but if that fails, then do it manually first and then proceed."
+#  echo
+#  echo -n "The PAM configuration for auto-unlocking directories using your login "
+#  echo "password should be copied during the sync from the backup."
+#  echo
+#  echo -en "${fg_orange}Encrypt the above directories (y/N)? $fg_reset"
+#  if read resp && [ "$resp" = y -o "$resp" = Y ]; then
+#    # check if fscrypt needs to be setup for root and possibly home mount
+#    if ! sudo $chroot_arg which fscrypt >/dev/null; then
+#      sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge libpam-fscrypt
+#    fi
+#    if ! sudo $chroot_arg fscrypt status / --quiet 2>/dev/null; then
+#      # set encrypt flag for ext4
+#      if [ $(findmnt -n -o FSTYPE --target $sync_root_fs) = ext4 ]; then
+#        sudo tune2fs -O encrypt $(findmnt -n -o SOURCE --target $sync_root_fs)
+#      fi
+#      sudo $chroot_arg fscrypt setup --all-users
+#    fi
+#    if [ $sync_root_fs != $home_mnt ]; then
+#      home_mnt=${home_mnt#$sync_root_fs}
+#      if ! sudo $chroot_arg fscrypt status $home_mnt --quiet 2>/dev/null; then
+#        # set encrypt flag for ext4
+#        if [ $(findmnt -n -o FSTYPE --target $sync_root_fs$home_mnt) = ext4 ]; then
+#          sudo tune2fs -O encrypt $(findmnt -n -o SOURCE --target $sync_root_fs$home_mnt)
+#        fi
+#        sudo $chroot_arg fscrypt setup $home_mnt --all-users
+#      fi
+#    fi
+#    $chroot_arg_user /bin/bash -c "export HOME=$home_dir_local && export USER=$sync_user &&
+#      export LOGNAME=$sync_user && cd $home_dir_local && ./enc-init.sh --tty && ./enc-finish.sh"
+#    sudo rm -f $home_dir/enc-init.sh $home_dir/enc-finish.sh $home_dir/enc.dirs.orig
+#  fi
+#fi
 
 # Sync data from backup (including system /etc, /usr/local etc).
 
