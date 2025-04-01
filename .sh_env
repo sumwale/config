@@ -42,7 +42,7 @@ fi
 YDOTOOL_SOCKET=/tmp/ydotool-1000/.ydotool_socket
 
 # required for conda environments
-TERMINFO_DIRS=/usr/share/terminfo
+TERMINFO_DIRS=/usr/share/terminfo:$HOME/.local/kitty.app/lib/kitty/terminfo
 PATH="$PATH:$JAVA8_HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.krew/bin"
 
 export GCMDIR JAVA8_HOME BROWSER DOCKER_BUILDKIT DOCKER_TEAM_STUDIO_REPO CHORUS_SERVICE_TYPE ALPINE_HADOOP_VERSION PYSPARK_DRIVER_PYTHON YDOTOOL_SOCKET TERMINFO_DIRS PATH

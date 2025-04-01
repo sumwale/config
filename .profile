@@ -24,6 +24,3 @@ fi
 #  # set the kvantum theme
 #  perl -pi -e 's/theme=.*/theme=Sweet#/' "$HOME/.config/Kvantum/kvantum.kvconfig"
 #fi
-
-# Generated for envman. Do not edit.
-[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"

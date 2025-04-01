@@ -41,7 +41,6 @@ else
   TBIRD=$HOMEDIR/.thunderbird
 fi
 
-GPG_ID=sumwale@gmail.com
 # firefox can have multiple configuration directories, so expand each of them
 for ffox_dir in $FFOX; do
   FFOX_TBIRD_INC="$FFOX_TBIRD_INC $(cd / && /bin/ls $ffox_dir/*/key4.db $ffox_dir/*/logins*.json $ffox_dir/*/places* $ffox_dir/*/recovery* $ffox_dir/*/webappsstore* 2>/dev/null || true)"
@@ -49,7 +48,7 @@ done
 FFOX_TBIRD_INC="$FFOX_TBIRD_INC $(cd / && /bin/ls $TBIRD/*/key4.db $TBIRD/*/logins*.json $TBIRD/*/places* $TBIRD/*/recovery* $TBIRD/*/webappsstore* 2>/dev/null || true)"
 
 ( cd / && \
-  tar $EXCLUDES -cpSf - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $HOMEDIR/.local/share/kwalletd $FFOX_TBIRD_INC $HOMEDIR/.ssh etc/grub.d | \
+  tar $EXCLUDES -cpSf - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $HOMEDIR/.local/share/kwalletd $FFOX_TBIRD_INC $HOMEDIR/.ssh | \
   zstd -10 -T8 -c - | \
   gpg --batch --no-tty --encrypt -r $GPG_ID -o $HOMEDIR/Documents/others.key.gpg - 2>/dev/null && \
   tar chpSJf $HOMEDIR/Documents/rest.key $HOMEDIR/.gnupg 2>/dev/null && \

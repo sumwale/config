@@ -234,6 +234,8 @@ sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root
   $remote_root/etc/apt/ $sync_etc/apt/
 sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/usr/share/keyrings/ $sync_root/usr/share/keyrings/
+sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
+  $remote_root/var/opt/ $sync_root/var/opt/
 # check for ubuntu pro repositories and if they are accessible, else remove them
 if compgen -G "$sync_etc/apt/sources.list.d/ubuntu-esm-*" >/dev/null; then
   pro_status=$(sudo $chroot_arg pro status --format=yaml | $AWK '/attached:/ { print $2 }')
@@ -245,6 +247,7 @@ fi
 # enable 32-bit packages and update package lists after the changes to apt configuration
 sudo $chroot_arg dpkg --add-architecture i386
 sudo $chroot_arg apt-get update || true
+sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge tpm2-tools || true
 
 if [ $unpack_gpg_key -eq 1 ]; then
   find $HOME/.gnupg -type f -print0 | xargs -0 shred -u
@@ -265,6 +268,44 @@ if [ $unpack_gpg_key -eq 1 ]; then
 fi
 gpg --decrypt $HOME/others.key.gpg > $sync_enc_data
 shred -u $HOME/others.key.gpg
+
+# Re-create the KeePassXC databases registered with keepassxc-unlock if possible
+if sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
+  echo
+  echo -e "${fg_green}Restoring keepassxc-unlock database registrations.$fg_reset"
+  echo
+  sudo systemd-creds setup
+  kp_base=/etc/keepassxc-unlock
+  sudo mkdir -p $kp_base && sudo chmod 0700 $kp_base
+  borg_backup_base=/var/opt/borg/backups
+  # temporarily allow for read permissions which will be switched back at the end
+  sudo chmod -R go+rx $borg_backup_base
+  kp_backup_base=$borg_backup_base/keepassxc-unlock
+  for kp_backup_dir in $kp_backup_base/*; do
+    kp_dir=$kp_base/$(basename $kp_backup_dir)
+    sudo mkdir -p $kp_dir && sudo chmod 0700 $kp_dir
+    for kp_conf_gpg in $kp_backup_dir/*.gpg; do
+      kp_conf_name=$(basename $kp_conf_gpg .gpg)
+      kp_conf=$kp_dir/$kp_conf_name.conf
+      sudo rm -f $kp_conf
+      gpg --decrypt $kp_conf_gpg | tee >(head -3 -) >(tail -n+4 - | \
+        sudo systemd-creds --name=$kp_conf_name --with-key=host+tpm2 encrypt - -) >/dev/null | \
+        sudo tee $kp_conf >/dev/null
+      chmod 0400 $kp_conf
+    done
+    if [ -f $kp_backup_dir/keepassxc.sha512 ]; then
+      cp -af $kp_backup_dir/keepassxc.sha512 $kp_dir/keepassxc.sha512
+      chmod 0400 $kp_dir/keepassxc.sha512
+    fi
+  done
+  sudo chmod -R go-rx $borg_backup_base
+else
+  echo
+  echo -e "${fg_orange}WARNING: skipping keepassxc-unlock registrations due to missing TPM2."
+  echo -e "Perform this manually after booting into the machine post full sync.$fg_reset"
+  echo
+fi
+
 
 # Apply diversions recorded in the backup.
 
@@ -425,6 +466,9 @@ fi
 rm -f $HOME/passwd $HOME/group
 
 # Encrypt any new directories listed in backup
+# Edit: Disabled since now full disk LUKS2 encryption (with some unencrypted directories
+#         listed in unenc.dirs) is being used. This has to be setup manually on the
+#       target machine before hand from a live USB/... environment.
 
 #[ ! -e $home_dir/enc.dirs ] && $chroot_arg_user touch $home_dir_local/enc.dirs
 #$chroot_arg_user mv -f $home_dir_local/enc.dirs $home_dir_local/enc.dirs.orig
@@ -497,8 +541,7 @@ sudo $chroot_arg update-grub
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg-reconfigure libdvd-pkg || true
 
 echo -e "${fg_green}Disabling automatic borgmatic backup timer.$fg_reset"
-sudo sed -i 's/systemctl --user start borgmatic-backup/systemctl --user stop borgmatic-backup/' \
-  $home_dir/.local/bin/user-services.sh || true
+sudo systemctl stop borgmatic-backup.timer
 
 # Check for fprintd that may not be present on the target, then update PAM configuration.
 
@@ -523,20 +566,22 @@ echo "   server keys and provide the password used for the mentioned ssh-keygen 
 echo "   will get stored in keyring and will allow the automatic backup service to succeed."
 echo "2. Borg backup timer service has been stopped to disable automatic backups due to"
 echo "   above reason and possible other required changes. Once the sync destination has"
-echo "   been verified, you can enable the daily backup timer by changing the 'stop' to"
-echo "   'start' in the line 'systemctl --user stop borgmatic-backup.timer' in"
-echo "   $home_dir_local/.local/bin/user-services.sh"
+echo "   been verified, you can enable the daily backup timer by running"
+echo "     sudo systemctl enable --now borgmatic-backup.timer"
 echo "3. User container images and data were restored from the backup, but some containers may"
 echo "   fail to start due to the changes in the new environment and may need to be recreated."
 echo "   Note that if these were for ybox containers, then you should review and update"
 echo "   the profiles in $home_dir_local/.config/ybox/profiles for the new setup as"
 echo "   required before recreating those containers."
-echo "4. Ubuntu Pro subscription, if configured in the backup, was removed in the sync destination"
+echo "4. If the restoration of keepassxc-unlock registrations was skipped due to missing"
+echo "   TPM2, then you will need to register the KeePassXC databases again by running"
+echo "   keepassxc-unlock-setup for auto-unlock of KeePassXC databases to work."
+echo "5. Ubuntu Pro subscription, if configured in the backup, was removed in the sync destination"
 echo "   and you will need to go to the site (https://ubuntu.com/login) to set it up again."
-echo "5. The backup does not include conky configuration directly which is machine-specific"
+echo "6. The backup does not include conky configuration directly which is machine-specific"
 echo "   ($home_dir_local/.config/conky/conky.conf). Review the couple of configurations"
 echo "   present in $home_dir_local/config/.config/conky and adapt to the new setup."
-echo "6. If there are any normal users other than the user data that was restored from backup,"
+echo "7. If there are any normal users other than the user data that was restored from backup,"
 echo "   then they will need to be created manually and their data restored by other means."
 echo -e $fg_green
 echo "ALL DONE. If you skipped any of the options asked before (package installation,"

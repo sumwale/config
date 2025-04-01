@@ -23,7 +23,7 @@ set clipboard+=unnamedplus
 set nobackup
 set nowritebackup
 
-set pastetoggle=<F10>
+"set pastetoggle=<F10>
 nnoremap <F5> :buffers<CR>:buffer<Space>
 nnoremap gn :bn<CR>
 nnoremap gN :bp<CR>
