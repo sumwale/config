@@ -7,7 +7,7 @@ umask 027
 
 [[ $- != *i* ]] && return
 
-[ -z "$SHENV_READ" -a -f "$HOME/.sh_env" ] && . "$HOME/.sh_env"
+[ -z "$SHENV_READ" -a -f "$HOME/.sh_env" ] && source "$HOME/.sh_env"
 
 if [[ $- == *m* && "$INTERACTIVE_SHELL_IS_FISH" == "true" ]]; then
   export INTERACTIVE_SHELL_IS_FISH=false
@@ -260,12 +260,6 @@ if type kubectl 2>/dev/null >/dev/null; then
   fi
 fi
 
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-
 # starship prompt and autojump
 if type starship 2>/dev/null >/dev/null; then
   eval "$(starship init bash)"
@@ -275,12 +269,6 @@ if [ -f "/usr/share/autojump/autojump.bash" ]; then
 elif [ -f "/usr/share/autojump/autojump.sh" ]; then
   source /usr/share/autojump/autojump.sh
 fi
-
-
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
 
 # BEGIN_KITTY_SHELL_INTEGRATION
 if test -n "$KITTY_INSTALLATION_DIR" -a -e "$KITTY_INSTALLATION_DIR/shell-integration/bash/kitty.bash"; then source "$KITTY_INSTALLATION_DIR/shell-integration/bash/kitty.bash"; fi

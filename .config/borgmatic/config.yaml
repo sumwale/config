@@ -208,6 +208,7 @@ patterns:
   - '! /etc/ppp/*secrets*'
   - '! /etc/resolv.conf'
   - '! /etc/samba/private'
+  - '! /etc/secureboot'
   - '! /etc/security/opasswd'
   - '! /etc/ssh/*key*'
   - '! /etc/ssl/private'

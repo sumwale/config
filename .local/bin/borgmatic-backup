@@ -48,7 +48,7 @@ fi
 echo -e '\033[32mRunning pre-backup actions\033[00m'
 $do_sudo borgmatic-setup
 
-echo -e '\033[32mCreating backup of KeePassXC and network configurations\033[00m'
+echo -e '\033[32mCreating backup of KeePassXC, network and LUKS configurations\033[00m'
 borg_local_backups=/var/opt/borg/backups
 mkdir -p $borg_local_backups && chmod 0700 $borg_local_backups
 kp_backup_base=$borg_local_backups/keepassxc-unlock
@@ -69,11 +69,11 @@ for kp_dir in /etc/keepassxc-unlock/*; do
     cp -af $kp_dir/keepassxc.sha512 $kp_backup_dir/keepassxc.sha512
   fi
 done
-net_backup=$borg_local_backups/networks-backup.gpg
-rm -f $net_backup
+keys_backup=$borg_local_backups/keys-backup.gpg
+rm -f $keys_backup
 pushd / >/dev/null
-tar -cpSf - etc/netplan etc/NetworkManager/system-connections | zstd -10 -T8 -c - | \
-  $do_sudo gpg -r $GPG_ID -o - --encrypt - > $net_backup && chmod 0400 $net_backup
+tar -cpSf - etc/netplan etc/NetworkManager/system-connections etc/luks | zstd -10 -T8 -c - | \
+  $do_sudo gpg -r $GPG_ID -o - --encrypt - > $keys_backup && chmod 0400 $keys_backup
 popd >/dev/null
 
 start=$(date +'%s.%N')
