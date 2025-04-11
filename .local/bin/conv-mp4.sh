@@ -13,4 +13,4 @@ shift
 #avconv -threads 4 -i "${FNAME}" -vcodec libx264 -b 1250k -maxrate 1500k -bufsize 4M -bt 256k -acodec mp3 "$@"
 #ffmpeg -threads 8 -i "${FNAME}" -vcodec libx264 -b 1250k -maxrate 1500k -bufsize 4M -bt 256k -acodec mp3 "$@"
 #ffmpeg -threads 12 -i "${FNAME}" -vcodec libx264 -b:v 2M -maxrate 2M -bufsize 4M -acodec mp3 "$@"
-ffmpeg -i "${FNAME}" -c:a aac -c:v libx264 -crf 25 "$@"
+ffmpeg -i "${FNAME}" -c:a libvorbis -c:v libx264 -crf 25 "$@"

@@ -159,6 +159,7 @@ patterns:
   - '- ${HOME}/.zsh/cache'
   - '- ${HOME}/borg-backups'
   - '- ${HOME}/dwhelper'
+  - '- ${HOME}/go'
   - '- ${HOME}/Downloads'
   - '- ${HOME}/mnt'
   - '- ${HOME}/vmware/*/autoinst.*'
