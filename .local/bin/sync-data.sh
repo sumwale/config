@@ -284,8 +284,9 @@ if sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
   for kp_backup_dir in $kp_backup_base/*; do
     kp_dir=$kp_base/$(basename $kp_backup_dir)
     sudo mkdir -p $kp_dir && sudo chmod 0700 $kp_dir
-    for kp_conf_gpg in $kp_backup_dir/*.gpg; do
+    for kp_conf_gpg in $kp_backup_dir/kdbx-*.gpg; do
       kp_conf_name=$(basename $kp_conf_gpg .gpg)
+      kp_conf_name=${kp_conf_name#kdbx-}
       kp_conf=$kp_dir/$kp_conf_name.conf
       sudo rm -f $kp_conf
       gpg --decrypt $kp_conf_gpg | tee >(head -3 -) >(tail -n+4 - | \

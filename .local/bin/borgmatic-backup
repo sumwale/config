@@ -57,9 +57,10 @@ for kp_dir in /etc/keepassxc-unlock/*; do
   kp_backup_dir=$kp_backup_base/$(basename $kp_dir)
   mkdir -p $kp_backup_dir && chmod 0700 $kp_backup_dir
   rm -f $kp_backup_dir/*
-  for kp_conf in $kp_dir/*.conf; do
+  for kp_conf in $kp_dir/kdbx-*.conf; do
     kp_conf_name=$(basename $kp_conf .conf)
-    kp_conf_gpg=$kp_backup_dir/$kp_conf_name.gpg
+    kp_conf_name=${kp_conf_name#kdbx-}
+    kp_conf_gpg=$kp_backup_dir/kdbx-$kp_conf_name.gpg
     rm -f $kp_conf_gpg
     { head -3 $kp_conf; tail -n+4 $kp_conf | systemd-creds --name=$kp_conf_name decrypt - -; } | \
       $do_sudo gpg -r $GPG_ID -o - --encrypt - > $kp_conf_gpg
