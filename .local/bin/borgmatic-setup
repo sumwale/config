@@ -16,6 +16,8 @@ function strip_lead_slash() {
   echo "$1" | sed 's,^/,,'
 }
 
+[ -z "$GPG_ID" ] && GPG_ID=sumwale@gmail.com
+
 HOMEDIR=$(strip_lead_slash $HOME)
 
 rm -f $HOME/Documents/others.key.gpg $HOME/Documents/rest.key $HOME/Documents/rest.key.gpg $HOME/Documents/dconf-dump.gpg $HOME/pkgs/deb-diversions
@@ -47,13 +49,21 @@ for ffox_dir in $FFOX; do
 done
 FFOX_TBIRD_INC="$FFOX_TBIRD_INC $(cd / && /bin/ls $TBIRD/*/key4.db $TBIRD/*/logins*.json $TBIRD/*/places* $TBIRD/*/recovery* $TBIRD/*/webappsstore* 2>/dev/null || true)"
 
-( cd / && \
-  tar $EXCLUDES -cpSf - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.kube $HOMEDIR/.local/share/keyrings $HOMEDIR/.local/share/kwalletd $FFOX_TBIRD_INC $HOMEDIR/.ssh | \
-  zstd -10 -T8 -c - | \
-  gpg --batch --no-tty --encrypt -r $GPG_ID -o $HOMEDIR/Documents/others.key.gpg - 2>/dev/null && \
-  tar chpSJf $HOMEDIR/Documents/rest.key $HOMEDIR/.gnupg $HOMEDIR/.gnupg-local 2>/dev/null && \
-  secret-tool lookup borg-repository borgbase-laptop | \
-  gpg --batch --no-tty --pinentry-mode loopback --symmetric --cipher-algo AES256 --no-symkey-cache --passphrase-fd 0 -o $HOMEDIR/Documents/rest.key.gpg $HOMEDIR/Documents/rest.key 2>/dev/null )
+old_pwd=$(pwd)
+trap "cd $old_pwd" 0 1 2 15
+
+borg_pass=$(secret-tool lookup borg-repository borgbase-laptop)
+cd /
+tar $EXCLUDES -cpSf - $HOMEDIR/.aws $HOMEDIR/.cert $HOMEDIR/.config $HOMEDIR/.kube \
+  $HOMEDIR/.local/share/keyrings $HOMEDIR/.local/share/kwalletd $FFOX_TBIRD_INC \
+  $HOMEDIR/.ssh | zstd -10 -T8 -c - | \
+  gpg --quiet --batch --no-tty --encrypt -r $GPG_ID -o $HOMEDIR/Documents/others.key.gpg -
+
+tar chpSJf $HOMEDIR/Documents/rest.key $HOMEDIR/.gnupg $HOMEDIR/.gnupg-local 2>/dev/null
+echo -n "$borg_pass" | \
+  gpg --quiet --batch --no-tty --pinentry-mode loopback --symmetric --cipher-algo AES256 \
+    --no-symkey-cache --passphrase-fd 0 -o $HOMEDIR/Documents/rest.key.gpg \
+    $HOMEDIR/Documents/rest.key
 
 shred -u $HOME/Documents/rest.key
 
@@ -82,5 +92,7 @@ fi
 
 # dump the full dconf configuration
 if type -p dconf >/dev/null; then
-  dconf dump / | gpg --batch --no-tty --encrypt -r $GPG_ID -o $HOME/Documents/dconf-dump.gpg -
+  dconf dump / | gpg --quiet --batch --no-tty --encrypt -r $GPG_ID -o $HOME/Documents/dconf-dump.gpg -
 fi
+
+echo -n "$borg_pass"

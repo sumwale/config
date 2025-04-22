@@ -29,12 +29,12 @@ if [ "$1" = "--user" ]; then
 fi
 
 xdg_rt_dir=/run/user/$(id -u $USER)
-for ssh_sock in gcr/ssh keyring/ssh; do
-  if [ -w "$xdg_rt_dir/$ssh_sock" ]; then
-    export SSH_AUTH_SOCK="$xdg_rt_dir/$ssh_sock"
-    break
-  fi
-done
+#for ssh_sock in gcr/ssh keyring/ssh; do
+#  if [ -w "$xdg_rt_dir/$ssh_sock" ]; then
+#    export SSH_AUTH_SOCK="$xdg_rt_dir/$ssh_sock"
+#    break
+#  fi
+#done
 export DBUS_SESSION_BUS_ADDRESS=unix:path=$xdg_rt_dir/bus
 export PATH="$PATH:$HOME/.local/bin"
 export GPG_ID=sumwale@gmail.com
@@ -46,7 +46,8 @@ if ! ping -q -c 1 8.8.8.8 >/dev/null && ! ping -q -c 1 8.8.4.4 >/dev/null; then
 fi
 
 echo -e '\033[32mRunning pre-backup actions\033[00m'
-$do_sudo borgmatic-setup
+borg_login_pass=$($do_sudo secret-tool lookup borg-repository borgbase-store)
+borg_pass=$($do_sudo borgmatic-setup)
 
 echo -e '\033[32mCreating backup of KeePassXC, network and LUKS configurations\033[00m'
 borg_local_backups=/var/opt/borg/backups
@@ -76,6 +77,32 @@ pushd / >/dev/null
 tar -cpSf - etc/netplan etc/NetworkManager/system-connections etc/luks | zstd -10 -T8 -c - | \
   $do_sudo gpg -r $GPG_ID -o - --encrypt - > $keys_backup && chmod 0400 $keys_backup
 popd >/dev/null
+
+# generate a temporary gpg key and encrypt the passwords using it
+export BORG_GPG_HOME=$(mktemp -d)
+export BORG_LOGIN_PASS_GPG=$BORG_GPG_HOME/borg-login-pass.gpg
+export BORG_PASS_GPG=$BORG_GPG_HOME/borg-pass.gpg
+export BORG_GPG_ID=root@localhost
+
+chmod 0700 $BORG_GPG_HOME
+echo disable-scdaemon > $BORG_GPG_HOME/gpg-agent.conf
+gpg --homedir $BORG_GPG_HOME --quiet --batch --quick-gen-key --passphrase '' $BORG_GPG_ID
+gpg_agent_pid=$(ps -x -o pid=,cmd= | grep "[0-9] gpg-agent --homedir $BORG_GPG_HOME" | awk '{ print $1 }')
+
+trap "[ -n "$gpg_agent_pid" ] && kill $gpg_agent_pid; sleep 1; rm -rf $BORG_GPG_HOME" 0 1 2 15
+
+echo -n "$borg_login_pass" | gpg --homedir $BORG_GPG_HOME --quiet --batch --encrypt --recipient $BORG_GPG_ID --output $BORG_LOGIN_PASS_GPG -
+echo -n "$borg_pass" | gpg --homedir $BORG_GPG_HOME --quiet --batch --encrypt --recipient $BORG_GPG_ID --output $BORG_PASS_GPG -
+
+# create script to use as SSH_ASKPASS
+export SSH_ASKPASS=$BORG_GPG_HOME/ssh-pass
+export SSH_ASKPASS_REQUIRE=force
+cat > $SSH_ASKPASS << EOF
+#!/bin/sh
+set -e
+gpg --homedir $BORG_GPG_HOME --quiet --batch --decrypt $BORG_LOGIN_PASS_GPG
+EOF
+chmod 0755 $SSH_ASKPASS
 
 start=$(date +'%s.%N')
 $do_sudo notify-send -i document-save -u normal -t 10000 "Backup started" "Started on $(date +'%b %d %H:%M:%S'). Status can be seen with '$stat_cmd borgmatic-backup.service'"
