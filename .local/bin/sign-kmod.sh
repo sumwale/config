@@ -11,10 +11,10 @@ fi
 
 mok_cert1=/var/lib/shim-signed/mok/MOK.der
 mok_cert2=/var/lib/dkms/mok.pub
-if [ -e $mok_cert1 ]; then
+if sudo test -e $mok_cert1; then
   mok_cert=$mok_cert1
   mok_key=/var/lib/shim-signed/mok/MOK.priv
-elif [ -e $mok_cert2 ]; then
+elif sudo test -e $mok_cert2; then
   mok_cert=$mok_cert2
   mok_key=/var/lib/dkms/mok.key
 else

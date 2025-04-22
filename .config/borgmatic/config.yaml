@@ -112,6 +112,7 @@ patterns:
   - '+ ${HOME}/.config/libreoffice'
   - '- ${HOME}/.config/*'
   - '- ${HOME}/.gnupg'
+  - '- ${HOME}/.gnupg-local'
   - '+ ${HOME}/.gradle/gradle.properties'
   - '- ${HOME}/**/.gradle/*'
   - '- ${HOME}/**/.ivy2'

@@ -22,7 +22,7 @@
 [commit]
 	gpgsign = true
 [tag]
-	gpgSign = true
+	gpgsign = true
 [status]
 	submoduleSummary = true
 [diff]
