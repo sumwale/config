@@ -1,0 +1,12 @@
+# create /dev/yubikey in any case which is shared with containers
+SUBSYSTEM=="usb", RUN+="/usr/bin/mkdir -p /dev/yubikey"
+
+# check for vendor ID and set ID_MODEL_YUBIKEY which is used in all subsequent rules
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", ENV{ID_MODEL_YUBIKEY}="yes"
+ENV{ID_MODEL_YUBIKEY}!="yes", GOTO="yubikey_end"
+
+ACTION!="remove", TAG=="uaccess", ENV{ID_MODEL_FROM_DATABASE}!="", ENV{ID_PATH_TAG}!="", OPTIONS="string_escape=replace", ENV{ID_MODEL_DB_ENC}="$env{ID_MODEL_FROM_DATABASE}", SYMLINK+="yubikey/$env{ID_MODEL_DB_ENC}__$env{ID_PATH_TAG}"
+ACTION!="remove", ENV{ID_MODEL_YUBIKEY}=="yes", RUN+="/usr/local/sbin/yubikey-dev-setup.sh add $env{DEVNAME} /dev/yubikey"
+ACTION=="remove", ENV{ID_MODEL_YUBIKEY}=="yes", RUN+="/usr/local/sbin/yubikey-dev-setup.sh remove $env{DEVNAME} /dev/yubikey"
+
+LABEL="yubikey_end"
