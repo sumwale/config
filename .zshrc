@@ -59,7 +59,7 @@ gitdiffall() {
 
 # colors for ls
 if type -p vivid >/dev/null; then
-  export LS_COLORS="$(vivid generate catppuccin-mocha)"
+  export LS_COLORS="$(vivid generate catppuccin-frappe)"
 elif test -r ~/.dir_colors; then
   eval $(dircolors -b ~/.dir_colors)
 elif test -r /etc/DIR_COLORS; then

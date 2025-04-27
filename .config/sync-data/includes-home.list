@@ -1,7 +1,0 @@
-/.config/Code
-/.config/JetBrains
-/.config/chromium
-/.config/libreoffice
-/.gradle/gradle.properties
-/.local/share/nvim/plugged
-/**/.sbt/repositories

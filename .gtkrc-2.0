@@ -1,9 +1,10 @@
+gtk-sound-theme-name="ocean"
 gtk-enable-animations=1
-gtk-primary-button-warps-slider=0
-gtk-cursor-theme-name="Catppuccin-Mocha-Flamingo-Cursors"
-gtk-theme-name="Breeze"
-gtk-icon-theme-name="Catppuccin-Mocha"
-gtk-font-name="Cantarell,  11"
+gtk-primary-button-warps-slider=1
+gtk-cursor-theme-name="Catppuccin-Frappe-Flamingo-Cursors"
+gtk-theme-name="Breeze-Dark"
+gtk-icon-theme-name="Catppuccin-Frappe"
+gtk-font-name="Ubuntu Sans,  10"
 gtk-cursor-theme-size=24
 gtk-toolbar-style=3
 gtk-toolbar-icon-size=GTK_ICON_SIZE_LARGE_TOOLBAR

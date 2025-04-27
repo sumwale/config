@@ -89,7 +89,7 @@ set background=dark
 "colorscheme vim-monokai-tasty
 "let g:airline_theme = 'monokai_tasty'
 
-colorscheme catppuccin-mocha " catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha
+colorscheme catppuccin-frappe " catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha
 let g:airline_theme = 'catppuccin'
 
 

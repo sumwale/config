@@ -20,8 +20,10 @@
 
 set -e
 
-# ensure that system path is always searched first for all the utilities
-export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/sbin:/usr/local/bin:$PATH"
+# ensure that only system paths are searched for all the utilities
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/sbin:/usr/local/bin"
+# set umask to default so that root operations create readable entities
+umask 022
 
 # Before anything, copy this script to /tmp if not there and run from there to
 # avoid overwrite by rsync later which can cause all kinds of trouble
@@ -35,7 +37,6 @@ pkgs_err=/tmp/sync-data-pkgs.err
 
 if [ "$SCRIPT_DIR" != "/tmp" ]; then
   cp -f "$SCRIPT_DIR/$SCRIPT" /tmp/
-  cp -f "$SCRIPT_DIR/enc-init.sh" "$SCRIPT_DIR/enc-finish.sh" /tmp/
   cp -rfL "$SCRIPT_DIR/../../.config/sync-data" $sync_data_conf
   /bin/bash /tmp/$SCRIPT "$@" > >(tee $log_file) 2> >(tee $err_file)
   exit $?
@@ -44,7 +45,7 @@ fi
 sync_root=
 sync_user=
 home_dir=$HOME
-def_remote_root=$USER@$BORG_BACKUP_SERVER:backup.sync
+def_remote_root=root@$BORG_BACKUP_SERVER:/home/$USER/backup.sync
 fg_red='\033[31m'
 fg_green='\033[32m'
 fg_orange='\033[33m'
@@ -72,16 +73,12 @@ function usage() {
 
 function cleanup() {
   echo -e "${fg_red}Cleaning up...$fg_reset"
-  rm -rf /tmp/$SCRIPT /tmp/enc-init.sh /tmp/enc-finish.sh $sync_data_conf /tmp/sync.py $pkgs_err
+  rm -rf /tmp/$SCRIPT $sync_data_conf /tmp/sync.py $pkgs_err
   rm -rf $HOME/passwd $HOME/group
   if [ $home_dir != $HOME ]; then
     rm -rf $HOME/pkgs
   fi
   [ -e $sync_enc_data ] && shred -u $sync_enc_data
-  if [ -f $home_dir/enc.dirs.orig ]; then
-    sudo rm -f $home_dir/enc.dirs
-    sudo mv $home_dir/enc.dirs.orig $home_dir/enc.dirs
-  fi
   if [ $ssh_key_created -eq 1 -a -n "$keyfile" ]; then
     remote_server=${remote_root%:*}
     ssh $remote_server mv -f .ssh/$auth_keys_orig .ssh/authorized_keys || true
@@ -183,13 +180,13 @@ else
   remote_server=${remote_root%:*}
   echo -en "${fg_orange}No ssh private key found for use on ssh server. "
   echo "Without public key auth, every rsync process will ask for password."
-  echo -en "Should one be generated and added to '$remote_server' (y/N)? $fg_reset"
-  if read resp && [ "$resp" = y -o "$resp" = Y ]; then
+  echo -en "Should one be generated and added to '$remote_server' (Y/n)? $fg_reset"
+  if read resp && [ "$resp" != n -a "$resp" != N ]; then
     keyfile=$HOME/.ssh/id_ed25519
     ssh-keygen -o -a 100 -t ed25519 -f $keyfile
     cat $keyfile.pub | ssh -o PubkeyAuthentication=no $remote_server \
       "mv -f .ssh/authorized_keys .ssh/$auth_keys_orig &&
-       cat .ssh/$auth_keys_orig - > .ssh/authorized_keys && chmod 400 .ssh/authorized_keys"
+       cat .ssh/$auth_keys_orig - > .ssh/authorized_keys && chmod 0400 .ssh/authorized_keys"
     ssh_key_created=1
   fi
 fi
@@ -229,7 +226,7 @@ fi
 # of the backup user whose data is being synced; '-E' option is to enable using
 # current user's ssh key for remote server public key authentication
 rsync $rsync_common_options --delete $remote_root/etc/group $remote_root/etc/passwd \
-  $remote_home/pkgs $enc_bundles $HOME/
+  $remote_home/pkgs $remote_home/deb-local $enc_bundles $HOME/
 sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/etc/apt/ $sync_etc/apt/
 sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
@@ -247,12 +244,13 @@ fi
 # enable 32-bit packages and update package lists after the changes to apt configuration
 sudo $chroot_arg dpkg --add-architecture i386
 sudo $chroot_arg apt-get update || true
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge tpm2-tools || true
+# gpg needs scdaemon and pcscd for yubikey access
+sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge tpm2-tools scdaemon pcscd || true
 
 if [ $unpack_gpg_key -eq 1 ]; then
   find $HOME/.gnupg -type f -print0 | xargs -0 shred -u
   rm -rf $HOME/.gnupg/*
-  gpg --decrypt $HOME/rest.key.gpg | tar --strip-components=2 -C $HOME -xpSJf -
+  gpg --decrypt $HOME/rest.key.gpg | tar --strip-components=2 -C $HOME -xpSf -
   shred -u $HOME/rest.key.gpg
   # copy over gnupg keys from host setup if required and link gpg.conf to the one in config repo
   if [ $home_dir != $HOME ]; then
@@ -270,7 +268,12 @@ gpg --decrypt $HOME/others.key.gpg > $sync_enc_data
 shred -u $HOME/others.key.gpg
 
 # Re-create the KeePassXC databases registered with keepassxc-unlock if possible
-if sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
+if [ -n "$sync_root" ]; then
+  echo
+  echo -e "${fg_orange}Skipping keepassxc registrations due to '/' not being sync root."
+  echo -e "Perform this manually after booting into the machine post full sync.$fg_reset"
+  echo
+elif sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
   echo
   echo -e "${fg_green}Restoring keepassxc-unlock database registrations.$fg_reset"
   echo
@@ -278,8 +281,6 @@ if sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
   kp_base=/etc/keepassxc-unlock
   sudo mkdir -p $kp_base && sudo chmod 0700 $kp_base
   borg_backup_base=/var/opt/borg/backups
-  # temporarily allow for read permissions which will be switched back at the end
-  sudo chmod -R go+rx $borg_backup_base
   kp_backup_base=$borg_backup_base/keepassxc-unlock
   for kp_backup_dir in $kp_backup_base/*; do
     kp_dir=$kp_base/$(basename $kp_backup_dir)
@@ -287,22 +288,21 @@ if sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
     for kp_conf_gpg in $kp_backup_dir/kdbx-*.gpg; do
       kp_conf_name=$(basename $kp_conf_gpg .gpg)
       kp_conf_name=${kp_conf_name#kdbx-}
-      kp_conf=$kp_dir/$kp_conf_name.conf
+      kp_conf=$kp_dir/kdbx-$kp_conf_name.conf
       sudo rm -f $kp_conf
       gpg --decrypt $kp_conf_gpg | tee >(head -3 -) >(tail -n+4 - | \
         sudo systemd-creds --name=$kp_conf_name --with-key=host+tpm2 encrypt - -) >/dev/null | \
         sudo tee $kp_conf >/dev/null
-      chmod 0400 $kp_conf
+      sudo chmod 0400 $kp_conf
     done
     if [ -f $kp_backup_dir/keepassxc.sha512 ]; then
-      cp -af $kp_backup_dir/keepassxc.sha512 $kp_dir/keepassxc.sha512
-      chmod 0400 $kp_dir/keepassxc.sha512
+      sudo cp -af $kp_backup_dir/keepassxc.sha512 $kp_dir/keepassxc.sha512
+      sudo chmod 0400 $kp_dir/keepassxc.sha512
     fi
   done
-  sudo chmod -R go-rx $borg_backup_base
 else
   echo
-  echo -e "${fg_orange}WARNING: skipping keepassxc-unlock registrations due to missing TPM2."
+  echo -e "${fg_orange}WARNING: skipping keepassxc registrations due to missing TPM2."
   echo -e "Perform this manually after booting into the machine post full sync.$fg_reset"
   echo
 fi
@@ -335,6 +335,11 @@ $AWK -v root=$sync_root -v root_arg="$divert_root_arg" '{
 # first fix any broken stuff
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg --configure -a
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -f --purge
+
+echo -e "${fg_green}Installing default locally built packages with dependencies.$fg_reset"
+sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge $HOME/deb-local/default/*.deb
+
+echo
 echo -e "${fg_green}Comparing packages on this host with the backup.$fg_reset"
 # "apt-mark showinstall" does not include arch in package names, so better to use
 # "dpkg -l" rather than curating their outputs for arch
@@ -423,8 +428,8 @@ new_sys_groups=$(comm -13 <($AWK -F: "$gid_awk_cmd" $sync_etc/group | sort) \
 if [ -n "$new_sys_groups" ]; then
   echo
   echo -e "Following new system groups have been found in backup /etc/group:" $new_sys_groups
-  echo -en "${fg_orange}Add these system groups to the sync desination (Y/n)? $fg_reset"
-  if read resp && [ "$resp" != n -a "$resp" != N ]; then
+  echo -en "${fg_orange}Add these system groups to the sync desination (y/N)? $fg_reset"
+  if read resp && [ "$resp" = y -o "$resp" = Y ]; then
     for s_group in $new_sys_groups; do
       sudo $chroot_arg groupadd -r "$s_group"
     done
@@ -437,8 +442,8 @@ new_sys_users=$(comm -13 <($AWK -F: "$uid_awk_cmd" $sync_etc/passwd | sort) \
 if [ -n "$new_sys_users" ]; then
   echo
   echo -e "Following new system users have been found in backup /etc/passwd:" $new_sys_users
-  echo -en "${fg_orange}Add these system users to the sync destination (Y/n)? $fg_reset"
-  if read resp && [ "$resp" != n -a "$resp" != N ]; then
+  echo -en "${fg_orange}Add these system users to the sync destination (y/N)? $fg_reset"
+  if read resp && [ "$resp" = y -o "$resp" = Y ]; then
     for s_user in $new_sys_users; do
       readarray -t -d : user_details < <($AWK -F: \
         "{ if (\$1 == \"$s_user\") printf \"%s:%s:%s:%s\",\$4,\$5,\$6,\$7 }" $HOME/passwd)
@@ -459,65 +464,12 @@ new_groups=$(comm -13 <(user_groups $sync_user "$sync_gid" $sync_etc/group | tr 
 if [ -n "$new_groups" ]; then
   echo
   echo "Synced user '$sync_user' is present in these additional groups in the backup:" $new_groups
-  echo -en "${fg_orange}Add user '$sync_user' to these groups (Y/n)? $fg_reset"
-  if read resp && [ "$resp" != n -a "$resp" != N ]; then
+  echo -en "${fg_orange}Add user '$sync_user' to these groups (y/N)? $fg_reset"
+  if read resp && [ "$resp" = y -o "$resp" = Y ]; then
     sudo $chroot_arg usermod -aG "$(echo -n "$new_groups" | tr '\n' ',')" $sync_user
   fi
 fi
 rm -f $HOME/passwd $HOME/group
-
-# Encrypt any new directories listed in backup
-# Edit: Disabled since now full disk LUKS2 encryption (with some unencrypted directories
-#         listed in unenc.dirs) is being used. This has to be setup manually on the
-#       target machine before hand from a live USB/... environment.
-
-#[ ! -e $home_dir/enc.dirs ] && $chroot_arg_user touch $home_dir_local/enc.dirs
-#$chroot_arg_user mv -f $home_dir_local/enc.dirs $home_dir_local/enc.dirs.orig
-#sudo -E rsync $rsync_common_options $remote_home/enc.dirs $home_dir/
-#sudo cp -f $SCRIPT_DIR/enc-init.sh $SCRIPT_DIR/enc-finish.sh $home_dir/
-#sudo chmod 0755 $home_dir/enc-*.sh
-#if ! sudo cmp $home_dir/enc.dirs.orig $home_dir/enc.dirs >/dev/null 2>/dev/null; then
-#  echo -e "${fg_green}Following new directories require encryption:$fg_reset"
-#  comm -13 <(sudo sort $home_dir/enc.dirs.orig) <(sudo sort $home_dir/enc.dirs)
-#  home_mnt=$(findmnt -n -o TARGET --target $home_dir)
-#  echo
-#  echo -n "Encryption will work only if '$sync_root_fs' has already been setup by "
-#  echo -n "fscrypt (as well as '$home_mnt' if different) and filesystems have been "
-#  echo -n "marked for encryption (e.g. tune2fs -O encrypt /dev/... for ext4). "
-#  echo -n "This script will try to do this setup, if not detected, for an ext4 filesystem"
-#  echo "but if that fails, then do it manually first and then proceed."
-#  echo
-#  echo -n "The PAM configuration for auto-unlocking directories using your login "
-#  echo "password should be copied during the sync from the backup."
-#  echo
-#  echo -en "${fg_orange}Encrypt the above directories (y/N)? $fg_reset"
-#  if read resp && [ "$resp" = y -o "$resp" = Y ]; then
-#    # check if fscrypt needs to be setup for root and possibly home mount
-#    if ! sudo $chroot_arg which fscrypt >/dev/null; then
-#      sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge libpam-fscrypt
-#    fi
-#    if ! sudo $chroot_arg fscrypt status / --quiet 2>/dev/null; then
-#      # set encrypt flag for ext4
-#      if [ $(findmnt -n -o FSTYPE --target $sync_root_fs) = ext4 ]; then
-#        sudo tune2fs -O encrypt $(findmnt -n -o SOURCE --target $sync_root_fs)
-#      fi
-#      sudo $chroot_arg fscrypt setup --all-users
-#    fi
-#    if [ $sync_root_fs != $home_mnt ]; then
-#      home_mnt=${home_mnt#$sync_root_fs}
-#      if ! sudo $chroot_arg fscrypt status $home_mnt --quiet 2>/dev/null; then
-#        # set encrypt flag for ext4
-#        if [ $(findmnt -n -o FSTYPE --target $sync_root_fs$home_mnt) = ext4 ]; then
-#          sudo tune2fs -O encrypt $(findmnt -n -o SOURCE --target $sync_root_fs$home_mnt)
-#        fi
-#        sudo $chroot_arg fscrypt setup $home_mnt --all-users
-#      fi
-#    fi
-#    $chroot_arg_user /bin/bash -c "export HOME=$home_dir_local && export USER=$sync_user &&
-#      export LOGNAME=$sync_user && cd $home_dir_local && ./enc-init.sh --tty && ./enc-finish.sh"
-#    sudo rm -f $home_dir/enc-init.sh $home_dir/enc-finish.sh $home_dir/enc.dirs.orig
-#  fi
-#fi
 
 # Sync data from backup (including system /etc, /usr/local etc).
 
@@ -526,20 +478,27 @@ curl -fsSL -o /tmp/sync.py "https://github.com/sumwale/mprsync/blob/main/mprsync
 # sudo is used here since there are some directories in HOME marked with "t" and owned by subuid
 # that cannot be modified/deleted despite write ACLs (e.g. /tmp inside ybox shared ROOTS)
 sudo -E python3 /tmp/sync.py $rsync_common_options -A -e "$rsync_ssh_opt" --delete \
-  --exclude-from=$sync_data_conf/excludes-home.list \
-  --include-from=$sync_data_conf/includes-home.list --jobs=10 --full-rsync $remote_home/ $home_dir/
+  --jobs=10 --full-rsync $remote_home/ $home_dir/
 
-# non-HOME changes are small, so use the plain rsync
+# TODO: mprsync is failing here, check and switch since this is also few hundred MBs
 echo -e "${fg_green}Running rsync to synchronize system configs from remote...$fg_reset"
-sudo -E rsync $rsync_common_options -e "$rsync_ssh_opt" \
+sudo -E rsync $rsync_common_options -A -e "$rsync_ssh_opt" \
   --exclude-from=$sync_data_conf/excludes-root.list \
-  $remote_root/boot $remote_root/etc $remote_root/usr $sync_root/
+  $remote_root/boot $remote_root/etc $remote_root/opt $remote_root/usr $sync_root/
 
 echo -e "${fg_green}Unpacking and writing encrypted data.$fg_reset"
-sudo tar -C $sync_root/ --overwrite -xpSJf $sync_enc_data
+sudo tar -C $sync_root/ --overwrite -xpSf $sync_enc_data
 shred -u $sync_enc_data
 sudo $chroot_arg update-grub
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg-reconfigure libdvd-pkg || true
+
+if type -p pamu2fcfg >/dev/null && [ ! -f /etc/yubikey/u2f_keys ]; then
+  echo
+  echo -e "${fg_green}Registering YubiKey for login credentials.$fg_reset"
+  echo
+  pamu2fcfg --pin-verification | sudo tee /etc/yubikey/u2f_keys >/dev/null
+  sudo chmod 0644 /etc/yubikey/u2f_keys
+fi
 
 echo -e "${fg_green}Disabling automatic borgmatic backup timer.$fg_reset"
 sudo systemctl stop borgmatic-backup.timer
@@ -565,25 +524,29 @@ echo "     ssh-keygen -o -a 100 -t ed25519"
 echo "   After this, ssh to the backup server(s) manually at least once to accept the"
 echo "   server keys and provide the password used for the mentioned ssh-keygen which"
 echo "   will get stored in keyring and will allow the automatic backup service to succeed."
-echo "2. Borg backup timer service has been stopped to disable automatic backups due to"
-echo "   above reason and possible other required changes. Once the sync destination has"
+echo "2. Passwords for borg backup itself need to be registered in /etc/borgmatic/secrets"
+echo "   using 'echo $$<type>_pass | sudo systemd-creds --with-key=host+tpm2 --name=borg-<type> \\"
+echo "     encrypt - - | sudo tee /etc/borgmatic/secrets/<type>.key' where <type> is 'login' "
+echo "   and 'store' for the login password and storage password. Change mode using 'chmod 0400'."
+echo "3. Borg backup timer service has been stopped to disable automatic backups due to"
+echo "   above reasons and possible other required changes. Once the sync destination has"
 echo "   been verified, you can enable the daily backup timer by running"
 echo "     sudo systemctl enable --now borgmatic-backup.timer"
-echo "3. User container images and data were restored from the backup, but some containers may"
+echo "4. User container images and data were restored from the backup, but some containers may"
 echo "   fail to start due to the changes in the new environment and may need to be recreated."
 echo "   Note that if these were for ybox containers, then you should review and update"
 echo "   the profiles in $home_dir_local/.config/ybox/profiles for the new setup as"
 echo "   required before recreating those containers."
-echo "4. If the restoration of keepassxc-unlock registrations was skipped due to missing"
-echo "   TPM2, then you will need to register the KeePassXC databases again by running"
-echo "   keepassxc-unlock-setup for auto-unlock of KeePassXC databases to work."
-echo "5. Passwords for borg backup itself need to be registered in /etc/borgmatic/secrets"
-echo "   using 'echo $$<type>_pass | sudo systemd-creds --with-key=host+tpm2 --name=borg-<type> encrypt - - | sudo tee /etc/borgmatic/secrets/<type>.key'"
-echo "   where <type> is 'login' and 'store' for the login password and storage password."
-echo "   Change mode of these files to read-only using 'chmod 0400'."
+echo "5. If the restoration of keepassxc-unlock registrations was skipped due to missing"
+echo "   TPM2 or when running in a chroot, then you will need to register the KeePassXC databases"
+echo "   again by running keepassxc-unlock-setup for auto-unlock of KeePassXC databases to work."
 echo "6. Ubuntu Pro subscription, if configured in the backup, was removed in the sync destination"
 echo "   and you will need to go to the site (https://ubuntu.com/login) to set it up again."
-echo "7. The backup does not include conky configuration directly which is machine-specific"
+echo "7. You will need to manually install keys for SecureBoot and Unified Kernel Image if desired."
+echo "   Run efibootmgr to register the UKIs in /boot/efi/EFI/Linux/ubuntu.efi*."
+echo "   To turn off UKI, restore /etc/kernel/*/dracut to the originals and comment out uefi"
+echo "   settings in /etc/dracut.conf.d/zzz-local.conf."
+echo "8. The backup does not include conky configuration directly which is machine-specific"
 echo "   ($home_dir_local/.config/conky/conky.conf). Review the couple of configurations"
 echo "   present in $home_dir_local/config/.config/conky and adapt to the new setup."
 echo -e $fg_green
