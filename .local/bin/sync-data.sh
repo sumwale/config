@@ -267,6 +267,10 @@ fi
 gpg --decrypt $HOME/others.key.gpg > $sync_enc_data
 shred -u $HOME/others.key.gpg
 
+# Unpack encrypted key data
+echo -e "${fg_green}Restoring encrypted LVM key and wifi connection configurations.$fg_reset"
+gpg --decrypt $sync_root/var/opt/borg/backups/keys-backup.gpg | sudo tar -C $sync_root/ --overwrite --zstd -xpSf -
+
 # Re-create the KeePassXC databases registered with keepassxc-unlock if possible
 if [ -n "$sync_root" ]; then
   echo
@@ -280,7 +284,7 @@ elif sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
   sudo systemd-creds setup
   kp_base=/etc/keepassxc-unlock
   sudo mkdir -p $kp_base && sudo chmod 0700 $kp_base
-  borg_backup_base=/var/opt/borg/backups
+  borg_backup_base=$sync_root/var/opt/borg/backups
   kp_backup_base=$borg_backup_base/keepassxc-unlock
   for kp_backup_dir in $kp_backup_base/*; do
     kp_dir=$kp_base/$(basename $kp_backup_dir)
@@ -486,7 +490,7 @@ sudo -E rsync $rsync_common_options -A -e "$rsync_ssh_opt" \
   --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/boot $remote_root/etc $remote_root/opt $remote_root/usr $sync_root/
 
-echo -e "${fg_green}Unpacking and writing encrypted data.$fg_reset"
+echo -e "${fg_green}Unpacking encrypted data and writing it.$fg_reset"
 sudo tar -C $sync_root/ --overwrite -xpSf $sync_enc_data
 shred -u $sync_enc_data
 sudo $chroot_arg update-grub
