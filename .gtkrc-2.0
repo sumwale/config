@@ -1,9 +1,9 @@
 gtk-sound-theme-name="ocean"
 gtk-enable-animations=1
 gtk-primary-button-warps-slider=1
-gtk-cursor-theme-name="Catppuccin-Frappe-Flamingo-Cursors"
+gtk-cursor-theme-name="Catppuccin-Macchiato-Flamingo-Cursors"
 gtk-theme-name="Breeze-Dark"
-gtk-icon-theme-name="Catppuccin-Frappe"
+gtk-icon-theme-name="Catppuccin-Latte"
 gtk-font-name="Ubuntu Sans,  10"
 gtk-cursor-theme-size=24
 gtk-toolbar-style=3

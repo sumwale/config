@@ -67,7 +67,7 @@ end
 
 # colors for ls
 if type -p vivid >/dev/null
-  set -gx LS_COLORS $(vivid generate catppuccin-frappe)
+  set -gx LS_COLORS $(vivid generate catppuccin-macchiato)
 else if test -r ~/.dir_colors
   eval (dircolors -c ~/.dir_colors)
 else if test -r /etc/DIR_COLORS
