@@ -251,7 +251,7 @@ sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge tpm
 if [ $unpack_gpg_key -eq 1 ]; then
   find $HOME/.gnupg -type f -print0 | xargs -0 shred -u
   rm -rf $HOME/.gnupg/*
-  gpg --decrypt $HOME/rest.key.gpg | tar --strip-components=2 -C $HOME -xpSf -
+  gpg --decrypt $HOME/rest.key.gpg | tar --strip-components=2 -C $HOME -xpSJf -
   shred -u $HOME/rest.key.gpg
   # copy over gnupg keys from host setup if required and link gpg.conf to the one in config repo
   if [ $home_dir != $HOME ]; then
@@ -395,8 +395,9 @@ if [ -n "$pkg_diffs" ]; then
     fi
     # mark the ones in deb-explicit.list as manually installed while the rest as auto
     sudo $chroot_arg apt-mark auto $new_pkgs || true
+    sudo $chroot_arg apt-mark auto plasma-integration plasma-workspace python3-proton-keyring-linux || true
     sudo $chroot_arg apt-mark manual $(cat $HOME/pkgs/deb-explicit.list) || true
-    sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get autopurge || true
+    #sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get autopurge || true
   fi
 fi
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST dist-upgrade --purge || true
@@ -508,6 +509,7 @@ fi
 
 echo -e "${fg_green}Disabling automatic borgmatic backup timer.$fg_reset"
 sudo systemctl stop borgmatic-backup.timer
+sudo systemctl disable borgmatic-backup.timer
 
 # Check for fprintd that may not be present on the target, then update PAM configuration.
 
@@ -523,7 +525,7 @@ sudo $chroot_arg pam-auth-update --package --force
 echo -e $fg_orange
 echo "Note the following steps that may need to be taken manually:"
 echo
-echo "1. You may need to generate ssh key for the synced setup and register it in the"
+echo "1. You may need to generate ssh key for the sync setup and register it in the"
 echo "   authorized_keys of the backup server, if not done already. For example, a good"
 echo "   command to generate the public-private keypair is:"
 echo "     ssh-keygen -o -a 100 -t ed25519"
