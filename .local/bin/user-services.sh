@@ -9,8 +9,6 @@ if [ "$DESKTOP_SESSION" = "awesome" ]; then
   if type ibus 2>/dev/null >/dev/null; then
     ibus exit 2>/dev/null
   fi
-else
-  systemctl --user stop nm-applet.service
 fi
 
 # override pulseaudio settings with those of alsa that unmute both internal

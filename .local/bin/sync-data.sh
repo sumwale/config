@@ -217,6 +217,7 @@ echo -e "${fg_green}Updating package lists, sync packages and fetch encrypted da
 
 # If gpg secret key is not present, then fetch the .gnupg encrypted tar
 
+export GPG_TTY=$(tty)
 enc_bundles=$remote_home/Documents/others.key.gpg
 if ! gpg --quiet --list-secret-key sumwale@gmail.com >/dev/null 2>/dev/null; then
   enc_bundles="$enc_bundles $remote_home/Documents/rest.key.gpg"
@@ -482,7 +483,8 @@ curl -fsSL -o /tmp/sync.py "https://github.com/sumwale/mprsync/blob/main/mprsync
 # sudo is used here since there are some directories in HOME marked with "t" and owned by subuid
 # that cannot be modified/deleted despite write ACLs (e.g. /tmp inside ybox shared ROOTS)
 sudo -E python3 /tmp/sync.py $rsync_common_options -A -e "$rsync_ssh_opt" --delete \
-  --jobs=10 --full-rsync $remote_home/ $home_dir/
+  --exclude-from=$sync_data_conf/excludes-home.list \
+  --include-from=$sync_data_conf/includes-home.list --jobs=10 --full-rsync $remote_home/ $home_dir/
 
 # TODO: mprsync is failing here, check and switch since this is also few hundred MBs
 echo -e "${fg_green}Running rsync to synchronize system configs from remote...$fg_reset"
