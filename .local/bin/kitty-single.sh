@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exec kitty --session "$HOME/.config/kitty/single.session"
+exec kitty --session "$HOME/.config/kitty/single.session" "$@"
