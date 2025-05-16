@@ -8,6 +8,7 @@ umask 027
 [[ $- != *i* ]] && return
 
 [ -z "$SHENV_READ" -a -f "$HOME/.sh_env" ] && source "$HOME/.sh_env"
+export GPG_TTY=$(tty)
 
 if [[ $- == *m* && "$INTERACTIVE_SHELL_IS_FISH" == "true" ]]; then
   export INTERACTIVE_SHELL_IS_FISH=false

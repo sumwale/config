@@ -19,6 +19,13 @@ ALPINE_HADOOP_VERSION=cdh54
 PYSPARK_DRIVER_PYTHON=ipython3
 #CLUTTER_VBLANK=none
 
+# WAYLAND_DISPLAY may not be set yet, so check session type
+session_type="`loginctl --property=Type --value show-session auto`"
+if [ "$session_type" = "wayland" ]; then
+  QT_QPA_PLATFORM=wayland
+  export QT_QPA_PLATFORM
+fi
+
 if [ -z "$SSH_AUTH_SOCK" ]; then
   xdg_rt_dir="${XDG_RUNTIME_DIR:-/run/user/`id -u`}"
   for ssh_sock in gcr/ssh keyring/ssh; do
@@ -30,12 +37,18 @@ if [ -z "$SSH_AUTH_SOCK" ]; then
   done
 fi
 
-if [ -x /usr/lib/seahorse/ssh-askpass ]; then
-  SSH_ASKPASS=/usr/lib/seahorse/ssh-askpass
-  export SSH_ASKPASS
-elif [ -x /usr/libexec/seahorse/ssh-askpass ]; then
-  SSH_ASKPASS=/usr/libexec/seahorse/ssh-askpass
-  export SSH_ASKPASS
+if [ "$session_type" = "wayland" -o "$session_type" = "x11" ]; then
+  if [ -x /usr/lib/seahorse/ssh-askpass ]; then
+    SSH_ASKPASS=/usr/lib/seahorse/ssh-askpass
+  elif [ -x /usr/libexec/seahorse/ssh-askpass ]; then
+    SSH_ASKPASS=/usr/libexec/seahorse/ssh-askpass
+  elif [ -x /usr/bin/ssh-askpass ]; then
+    SSH_ASKPASS=/usr/bin/ssh-askpass
+  fi
+  if [ -n "$SSH_ASKPASS" ]; then
+    SSH_ASKPASS_REQUIRE=prefer
+    export SSH_ASKPASS SSH_ASKPASS_REQUIRE
+  fi
 fi
 
 # ydotool socket path used by /etc/systemd/system/ydotoold.service
