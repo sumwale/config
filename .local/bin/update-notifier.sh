@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# search for executables only in the system paths
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/sbin:/usr/local/bin"
+
 INTERVAL=28800
 STAMP_FILE_NAME=.update-notifier.sh.stamp
 STAMP_FILE="$HOME/$STAMP_FILE_NAME"
@@ -7,20 +10,20 @@ APT_SYSTEM=
 
 if [ -x /usr/lib/update-notifier/apt-check ]; then
   APT_SYSTEM=1
-  if ! type update-manager 2>/dev/null >/dev/null; then
-    echo "update-manager not available"
+  if ! type -p plasma-discover >/dev/null && ! type -p update-manager >/dev/null; then
+    echo "neither plasma-discover nor update-manager is installed"
     exit 1
   fi
-  if ! type notify-send 2>/dev/null >/dev/null; then
+  if ! type -p notify-send >/dev/null; then
     echo "notify-send not available"
     exit 1
   fi
 else
-  if ! type pamac 2>/dev/null >/dev/null; then
+  if ! type -p pamac >/dev/null; then
     echo "pamac not available"
     exit 1
   fi
-  if ! type dunstify 2>/dev/null >/dev/null; then
+  if ! type -p dunstify >/dev/null; then
     echo "dunstify not available"
     exit 1
   fi
@@ -44,17 +47,17 @@ show_help() {
 for arg in "$@"; do
   case "$arg" in
     --interval=*)
-      INTERVAL="$(echo $arg | sed 's/--interval=//')"
+      INTERVAL="${arg#--interval=}"
       ;;
     --session=*)
-      session="$(echo $arg | sed 's/--session=//')"
+      session="${arg#--session=}"
       if [ "$DESKTOP_SESSION" != "$session" ]; then
         echo "Skipping updates for DESKTOP_SESSION=$DESKTOP_SESSION"
         exit 0
       fi
       ;;
     --no-session=*)
-      session="$(echo $arg | sed 's/--no-session=//')"
+      session="${arg#--no-session=}"
       if [ "$DESKTOP_SESSION" = "$session" ]; then
         echo "Skipping updates for DESKTOP_SESSION=$DESKTOP_SESSION"
         exit 0
@@ -88,18 +91,19 @@ fi
 
 if [ -n "$APT_SYSTEM" ]; then
   avail_updates="$(/usr/lib/update-notifier/apt-check 2>&1)"
-  num_updates="$(echo $avail_updates | sed 's/;.*//')"
-  security_updates="$(echo $avail_updates | sed 's/.*;//')"
+  num_updates="${avail_updates%;*}"
+  security_updates="${avail_updates#*;}"
   if [ "$num_updates" != 0 ]; then
     msg="There are $num_updates updates available"
     if [ "$security_updates" != 0 ]; then
-      notify-send -u critical -t 10000 "$msg with $security_updates security updates."
+      notify-send -i package -u critical -t 10000 "$msg with $security_updates security updates."
       sleep 5
-      update-manager
+      plasma-discover || update-manager
     else
-      notify-send -u normal -t 1200000 "$msg. Update with apt/aptitude/update-manager."
+      notify-send -i package -u normal -t 600000 "$msg. Update with apt/plasma-discover/update-manager/..."
     fi
   fi
+  echo $current_time > "$STAMP_FILE"
 elif ping -q -c 1 8.8.8.8 >/dev/null 2>&1 || ping -q -c 1 8.8.4.4 >/dev/null 2>&1; then
   num_updates=$(pamac checkupdates --aur --quiet 2>/dev/null | wc -l | awk '{ print $1 }')
   if [ $num_updates -gt 0 ]; then
