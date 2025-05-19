@@ -20,8 +20,8 @@ PYSPARK_DRIVER_PYTHON=ipython3
 #CLUTTER_VBLANK=none
 
 # WAYLAND_DISPLAY may not be set yet, so check session type
-session_type="`loginctl --property=Type --value show-session auto`"
-if [ "$session_type" = "wayland" ]; then
+session_type="`loginctl --property=Type --value show-session auto 2>/dev/null`"
+if [ "$session_type" = "wayland" -o -n "$WAYLAND_DISPLAY" ]; then
   QT_QPA_PLATFORM=wayland
   export QT_QPA_PLATFORM
 fi
