@@ -12,8 +12,9 @@ if [ "$DESKTOP_SESSION" = "awesome" ]; then
 fi
 
 # update environment for D-Bus and user systemd services
-dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS XAUTHORITY DISPLAY WAYLAND_DISPLAY
+dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS XAUTHORITY DISPLAY WAYLAND_DISPLAY SSH_ASKPASS SSH_ASKPASS_REQUIRE
 #systemctl --user restart gcr-ssh-agent.service
+systemctl --user restart ssh-agent.service
 
 # override pulseaudio settings with those of alsa that unmute both internal
 # speaker and headphone allowing one to switch between the two seemlessly
