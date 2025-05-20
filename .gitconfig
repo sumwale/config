@@ -18,7 +18,7 @@
 [user]
 	email = sumwale@gmail.com
 	name = Sumedh Wale
-	signingkey = F6F955142B0ED1AC
+	signingkey = 3FD1139880CD9DB7
 [commit]
 	gpgsign = true
 [tag]
