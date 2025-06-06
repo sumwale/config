@@ -17,7 +17,7 @@ if type piper-tts 2>/dev/null >/dev/null; then
 else
   PIPER=piper
 fi
-echo "$DATA" | $PIPER --model "$VOICE_PATH/$VOICE.onnx"  --output-raw | \
+echo "$DATA" | $PIPER --model "$VOICE_PATH/$VOICE.onnx" --output-raw | \
   aplay -q -r "$ADJ_RATE" -f S16_LE -t raw -
 
 wait

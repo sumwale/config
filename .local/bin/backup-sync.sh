@@ -1,3 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
 
-sudo rsync -aHSA --info=progress2 --delete --zc=zstd --zl=6 $HOME/mnt/ $HOME/backup.sync/
+set -e
+
+sudo rsync -aHSA --info=progress2 --delete --zc=zstd --zl=6 "$1" "$2"
