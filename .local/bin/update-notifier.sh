@@ -98,7 +98,7 @@ if [ -n "$APT_SYSTEM" ]; then
     if [ "$security_updates" != 0 ]; then
       notify-send -i package -u critical -t 10000 "$msg with $security_updates security updates."
       sleep 5
-      plasma-discover || update-manager
+      plasma-discover --mode update || update-manager
     else
       notify-send -i package -u normal -t 600000 "$msg. Update with apt/plasma-discover/update-manager/..."
     fi
