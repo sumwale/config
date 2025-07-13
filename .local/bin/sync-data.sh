@@ -220,7 +220,7 @@ echo -e "${fg_green}Updating package lists, sync packages and fetch encrypted da
 export GPG_TTY=$(tty)
 enc_bundles=$remote_home/Documents/others.key.gpg
 if ! gpg --quiet --list-secret-key sumwale@gmail.com >/dev/null 2>/dev/null; then
-  enc_bundles="$enc_bundles $remote_home/Documents/rest.key.gpg"
+  enc_bundles="$enc_bundles $remote_home/Documents/rest.key.gpg $remote_home/Documents/gpg-backup.pgp.gpg"
   unpack_gpg_key=1
 fi
 # most rsync calls will use sudo since the current user's UID may be different from that
@@ -251,8 +251,9 @@ sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge tpm
 if [ $unpack_gpg_key -eq 1 ]; then
   find $HOME/.gnupg -type f -print0 | xargs -0 shred -u
   rm -rf $HOME/.gnupg/*
-  gpg --decrypt $HOME/rest.key.gpg | tar --strip-components=2 -C $HOME -xpSJf -
-  shred -u $HOME/rest.key.gpg
+  gpg --decrypt $HOME/gpg-backup.pgp.gpg > $HOME/gpg-backup.pgp
+  gpg --import $HOME/gpg-backup.pgp
+  shred -u $HOME/gpg-backup.pgp.gpg $HOME/gpg-backup.pgp
   # copy over gnupg keys from host setup if required and link gpg.conf to the one in config repo
   if [ $home_dir != $HOME ]; then
     $chroot_arg_user mkdir -p $home_dir_local/.gnupg
@@ -310,6 +311,19 @@ else
   echo -e "${fg_orange}WARNING: skipping keepassxc registrations due to missing TPM2."
   echo -e "Perform this manually after booting into the machine post full sync.$fg_reset"
   echo
+fi
+
+
+# Overwrite ~/.gnupg with the original backup having references to yubikey
+
+if [ $unpack_gpg_key -eq 1 ]; then
+  sudo find $home_dir/.gnupg -type f -print0 | sudo xargs -0 shred -u
+  sudo rm -rf $home_dir/.gnupg/*
+  gpg --decrypt $HOME/rest.key.gpg | sudo tar --strip-components=2 -C $home_dir -xpSJf -
+  shred -u $HOME/rest.key.gpg
+  if [ $home_dir != $HOME ]; then
+    sudo $chroot_arg chown -R $sync_user:$sync_user_group $home_dir_local/.gnupg
+  fi
 fi
 
 
