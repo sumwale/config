@@ -155,8 +155,9 @@ echo
 
 # Install or update packages used by the script
 
+sudo dpkg --add-architecture i386
 sudo apt-get update
-sudo apt-get install -y rsync gpg openssh-client coreutils util-linux mawk sed tar curl sudo
+sudo apt-get install -y rsync gpg openssh-client coreutils util-linux mawk tar curl sudo
 sudo apt-get install -y apt dpkg
 
 # Start ssh-agent if it does not exist and set it up
@@ -234,6 +235,17 @@ sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root
   $remote_root/usr/share/keyrings/ $sync_root/usr/share/keyrings/
 sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/var/opt/ $sync_root/var/opt/
+# switch to the standard India server for packages since others may not be functional at this time
+plucky_src=$sync_etc/apt/sources.list.d/ubuntu-plucky.sources
+ub_src=$sync_etc/apt/sources.list.d/ubuntu.sources
+if [ -f $ub_src ]; then
+  if [ -f $plucky_src ]; then
+    ub_src="$ub_src $plucky_src"
+    # disable plucky for now and enable towards the end
+    sudo sed -i 's|Enabled:.*|Enabled: no|' $plucky_src
+  fi
+  sudo sed -i 's|URIs:.*|URIs: https://in.archive.ubuntu.com/ubuntu/|' $ub_src
+fi
 # check for ubuntu pro repositories and if they are accessible, else remove them
 if compgen -G "$sync_etc/apt/sources.list.d/ubuntu-esm-*" >/dev/null; then
   pro_status=$(sudo $chroot_arg pro status --format=yaml | $AWK '/attached:/ { print $2 }')
@@ -414,7 +426,11 @@ if [ -n "$pkg_diffs" ]; then
     #sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get autopurge || true
   fi
 fi
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST dist-upgrade --purge || true
+# enable plucky before the upgrade
+if [ -f $plucky_src ]; then
+  sudo sed -i 's|Enabled:.*|Enabled: yes|' $plucky_src
+fi
+sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST full-upgrade --purge || true
 sudo $chroot_arg $APT_FAST clean
 if [ $home_dir != $HOME ]; then
   rm -rf $HOME/pkgs
