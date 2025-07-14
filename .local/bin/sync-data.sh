@@ -89,7 +89,7 @@ function cleanup() {
     kill $SSH_AGENT_PID
   fi
   if [ $unpack_gpg_key -eq 1 -a $home_dir != $HOME ]; then
-    find $HOME/.gnupg -type f -print0 | xargs -0 shred -u
+    find $HOME/.gnupg -type f -print0 | xargs -0 -r shred -u
     rm -rf $HOME/.gnupg
   fi
 }
@@ -156,7 +156,7 @@ echo
 # Install or update packages used by the script
 
 sudo dpkg --add-architecture i386
-sudo apt-get update
+sudo apt-get update || true
 sudo apt-get install -y rsync gpg openssh-client coreutils util-linux mawk tar curl sudo
 sudo apt-get install -y apt dpkg
 
@@ -208,6 +208,7 @@ if sudo $chroot_arg which apt-fast >/dev/null; then
   APT_FAST=apt-fast
 elif sudo $chroot_arg which add-apt-repository >/dev/null; then
   echo -e "${fg_green}Installing apt-fast for faster downloads.$fg_reset"
+  sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -y software-properties-common
   sudo $chroot_arg add-apt-repository ppa:apt-fast/stable
   sudo $chroot_arg apt-get update || true
   sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -y apt-fast
@@ -228,7 +229,8 @@ fi
 # of the backup user whose data is being synced; '-E' option is to enable using
 # current user's ssh key for remote server public key authentication
 rsync $rsync_common_options --delete $remote_root/etc/group $remote_root/etc/passwd \
-  $remote_home/pkgs $remote_home/deb-local $enc_bundles $HOME/
+  $remote_home/pkgs $enc_bundles $HOME/
+sudo -E rsync $rsync_common_options --delete $remote_home/deb-local $home_dir/
 sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/etc/apt/ $sync_etc/apt/
 sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
@@ -261,7 +263,7 @@ sudo $chroot_arg apt-get update || true
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge tpm2-tools scdaemon pcscd || true
 
 if [ $unpack_gpg_key -eq 1 ]; then
-  find $HOME/.gnupg -type f -print0 | xargs -0 shred -u
+  find $HOME/.gnupg -type f -print0 | xargs -0 -r shred -u
   rm -rf $HOME/.gnupg/*
   gpg --decrypt $HOME/gpg-backup.pgp.gpg > $HOME/gpg-backup.pgp
   gpg --import $HOME/gpg-backup.pgp
@@ -270,7 +272,7 @@ if [ $unpack_gpg_key -eq 1 ]; then
   if [ $home_dir != $HOME ]; then
     $chroot_arg_user mkdir -p $home_dir_local/.gnupg
     $chroot_arg_user chmod 0700 $home_dir_local/.gnupg
-    sudo find $home_dir/.gnupg -type f -print0 | sudo xargs -0 shred -u
+    sudo find $home_dir/.gnupg -type f -print0 | sudo xargs -0 -r shred -u
     sudo rm -rf $home_dir/.gnupg/*
     sudo cp -a $HOME/.gnupg/* $home_dir/.gnupg/.
     sudo rm -f $home_dir/.gnupg/gpg.conf
@@ -329,7 +331,7 @@ fi
 # Overwrite ~/.gnupg with the original backup having references to yubikey
 
 if [ $unpack_gpg_key -eq 1 ]; then
-  sudo find $home_dir/.gnupg -type f -print0 | sudo xargs -0 shred -u
+  sudo find $home_dir/.gnupg -type f -print0 | sudo xargs -0 -r shred -u
   sudo rm -rf $home_dir/.gnupg/*
   gpg --decrypt $HOME/rest.key.gpg | sudo tar --strip-components=2 -C $home_dir -xpSJf -
   shred -u $HOME/rest.key.gpg
@@ -368,7 +370,7 @@ sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg --configure -a
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -f --purge
 
 echo -e "${fg_green}Installing default locally built packages with dependencies.$fg_reset"
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge $HOME/deb-local/default/*.deb
+sudo DEBIAN_FRONTEND=noninteractive $chroot_arg /bin/sh -c "$APT_FAST install -y --purge $home_dir_local/deb-local/default/*.deb"
 
 echo
 echo -e "${fg_green}Comparing packages on this host with the backup.$fg_reset"
@@ -538,8 +540,8 @@ if type -p pamu2fcfg >/dev/null && [ ! -f /etc/yubikey/u2f_keys ]; then
 fi
 
 echo -e "${fg_green}Disabling automatic borgmatic backup timer.$fg_reset"
-sudo systemctl stop borgmatic-backup.timer
-sudo systemctl disable borgmatic-backup.timer
+sudo $chroot_arg systemctl stop borgmatic-backup.timer
+sudo $chroot_arg systemctl disable borgmatic-backup.timer
 
 # Check for fprintd that may not be present on the target, then update PAM configuration.
 
