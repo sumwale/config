@@ -57,6 +57,7 @@ ssh_key_created=0
 auth_keys_orig=authorized_keys.sync-bak
 ssh_agent_started=0
 unpack_gpg_key=0
+gpg_key_id=C9C718FF0C9D3AA4B54E18D93FD1139880CD9DB7
 
 function usage() {
   echo
@@ -221,7 +222,7 @@ echo -e "${fg_green}Updating package lists, sync packages and fetch encrypted da
 
 export GPG_TTY=$(tty)
 enc_bundles=$remote_home/Documents/others.key.gpg
-if ! gpg --quiet --list-secret-key sumwale@gmail.com >/dev/null 2>/dev/null; then
+if ! gpg --quiet --list-secret-key $gpg_key_id >/dev/null 2>/dev/null; then
   enc_bundles="$enc_bundles $remote_home/Documents/rest.key.gpg $remote_home/Documents/gpg-backup.pgp.gpg"
   unpack_gpg_key=1
 fi
