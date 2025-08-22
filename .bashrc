@@ -10,6 +10,10 @@ umask 027
 [ -z "$SHENV_READ" -a -f "$HOME/.sh_env" ] && source "$HOME/.sh_env"
 export GPG_TTY=$(tty)
 
+if type -p fortune >/dev/null; then
+  fortune
+fi
+
 if [[ $- == *m* && "$INTERACTIVE_SHELL_IS_FISH" == "true" ]]; then
   export INTERACTIVE_SHELL_IS_FISH=false
   if [ -x /bin/fish ]; then
