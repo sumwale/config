@@ -16,6 +16,18 @@ dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS XAUTHORITY
 #systemctl --user restart gcr-ssh-agent.service
 systemctl --user restart ssh-agent.service
 
+# brighter colors using nvibrant if NVIDIA card is the active one
+if glxinfo | grep -iq "OpenGL renderer string.*NVIDIA"; then
+  nvibrant_cmd="nvibrant 64 64"
+  # set on both the own monitor and the external one, if attached
+  if [ -x /usr/bin/nvibrant ]; then
+    /usr/bin/$nvibrant_cmd
+  elif [ -x $HOME/.local/bin/nvibrant -a -x /usr/bin/podman ]; then
+    # need to wait for podman container to be available
+    nohup /bin/sh -c "while [ \"\`podman inspect --type=container --format='{{ .State.Status }}' archbox-apps 2>/dev/null\`\" != running ]; do sleep 5; done; sleep 5 && $HOME/.local/bin/$nvibrant_cmd" 2>/dev/null >/dev/null &
+  fi
+fi
+
 # override pulseaudio settings with those of alsa that unmute both internal
 # speaker and headphone allowing one to switch between the two seemlessly
 
