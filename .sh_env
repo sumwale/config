@@ -28,7 +28,7 @@ fi
 
 if [ -z "$SSH_AUTH_SOCK" ]; then
   xdg_rt_dir="${XDG_RUNTIME_DIR:-/run/user/`id -u`}"
-  for ssh_sock in gcr/ssh keyring/ssh; do
+  for ssh_sock in gcr/ssh keyring/ssh openssh_agent; do
     if [ -w "$xdg_rt_dir/$ssh_sock" ]; then
       SSH_AUTH_SOCK="$xdg_rt_dir/$ssh_sock"
       export SSH_AUTH_SOCK
