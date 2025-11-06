@@ -187,8 +187,8 @@ else
     keyfile=$HOME/.ssh/id_ed25519
     ssh-keygen -o -a 100 -t ed25519 -f $keyfile
     cat $keyfile.pub | ssh -o PubkeyAuthentication=no $remote_server \
-      "mv -f .ssh/authorized_keys .ssh/$auth_keys_orig &&
-       cat .ssh/$auth_keys_orig - > .ssh/authorized_keys && chmod 0400 .ssh/authorized_keys"
+      "[ -e .ssh/authorized_keys ] && mv -f .ssh/authorized_keys .ssh/$auth_keys_orig; \
+       cat - > .ssh/authorized_keys && chmod 0400 .ssh/authorized_keys"
     ssh_key_created=1
   fi
 fi
@@ -371,7 +371,7 @@ sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg --configure -a
 sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -f --purge
 
 echo -e "${fg_green}Installing default locally built packages with dependencies.$fg_reset"
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg /bin/sh -c "$APT_FAST install -y --purge $home_dir_local/deb-local/default/*.deb"
+sudo $chroot_arg /bin/sh -c "/usr/bin/env DEBIAN_FRONTEND=noninteractive $APT_FAST install -y --purge $home_dir_local/deb-local/default/*.deb"
 
 echo
 echo -e "${fg_green}Comparing packages on this host with the backup.$fg_reset"
@@ -505,7 +505,10 @@ if [ -n "$new_groups" ]; then
   echo "Synced user '$sync_user' is present in these additional groups in the backup:" $new_groups
   echo -en "${fg_orange}Add user '$sync_user' to these groups (y/N)? $fg_reset"
   if read resp && [ "$resp" = y -o "$resp" = Y ]; then
-    sudo $chroot_arg usermod -aG "$(echo -n "$new_groups" | tr '\n' ',')" $sync_user
+    # the new group may not exist, so try one by one and ignore errors
+    for ng in $new_groups; do
+      sudo $chroot_arg usermod -aG $ng $sync_user || true
+    done
   fi
 fi
 rm -f $HOME/passwd $HOME/group
@@ -518,7 +521,11 @@ curl -fsSL -o /tmp/sync.py "https://github.com/sumwale/mprsync/blob/main/mprsync
 # that cannot be modified/deleted despite write ACLs (e.g. /tmp inside ybox shared ROOTS)
 sudo -E python3 /tmp/sync.py $rsync_common_options -A -e "$rsync_ssh_opt" --delete \
   --exclude-from=$sync_data_conf/excludes-home.list \
-  --include-from=$sync_data_conf/includes-home.list --jobs=10 --full-rsync $remote_home/ $home_dir/
+  --include-from=$sync_data_conf/includes-home.list --jobs=10 $remote_home/ $home_dir/
+# run a plain rsync at the end to fix any discrepencies
+sudo -E rsync $rsync_common_options -A -e "$rsync_ssh_opt" --delete \
+  --exclude-from=$sync_data_conf/excludes-home.list \
+  --include-from=$sync_data_conf/includes-home.list $remote_home/ $home_dir/
 
 # TODO: mprsync is failing here, check and switch since this is also few hundred MBs
 echo -e "${fg_green}Running rsync to synchronize system configs from remote...$fg_reset"
@@ -572,6 +579,10 @@ echo "1. Passwords for borg backup itself need to be registered in /etc/borgmati
 echo "   using 'echo $$<type>_pass | sudo systemd-creds --with-key=host+tpm2 --name=borg-<type> \\"
 echo "     encrypt - - | sudo tee /etc/borgmatic/secrets/<type>.key' where <type> is 'login' "
 echo "   and 'store' for the login password and storage password. Change mode using 'chmod 0400'."
+echo "   Likewise PIN for LUKS decryption using TPM2 needs to be registered in /etc/luks/tpm2.pin"
+echo "   using 'echo <password> | sudo systemd-creds --with-key=host+tpm2 --name=tpm2-pin \\"
+echo "     encrypt - - | sudo tee /etc/luks/tpm2.pin && sudo chmod 0400 /etc/luks/tpm2.pin'."
+echo "   Take care to disable shell history so that the passwords are not stored in plain-text."
 echo "2. Borg backup timer service has been stopped to disable automatic backups due to"
 echo "   above reasons and possible other required changes. Once the sync destination has"
 echo "   been verified, you can enable the daily backup timer by running"
@@ -586,11 +597,7 @@ echo "   TPM2 or when running in a chroot, then you will need to register the Ke
 echo "   again by running keepassxc-unlock-setup for auto-unlock of KeePassXC databases to work."
 echo "5. Ubuntu Pro subscription, if configured in the backup, was removed in the sync destination"
 echo "   and you will need to go to the site (https://ubuntu.com/login) to set it up again."
-echo "6. You will need to manually install keys for SecureBoot and Unified Kernel Image if desired."
-echo "   Run efibootmgr to register the UKIs in /boot/efi/EFI/Linux/ubuntu.efi*."
-echo "   To turn off UKI, restore /etc/kernel/*/dracut to the originals and comment out uefi"
-echo "   settings in /etc/dracut.conf.d/zzz-local.conf."
-echo "7. The backup does not include conky configuration directly which is machine-specific"
+echo "6. The backup does not include conky configuration directly which is machine-specific"
 echo "   ($home_dir_local/.config/conky/conky.conf). Review the couple of configurations"
 echo "   present in $home_dir_local/config/.config/conky and adapt to the new setup."
 echo -e $fg_green
