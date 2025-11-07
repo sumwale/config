@@ -48,8 +48,6 @@ endif
 
 if has('termguicolors')
   set termguicolors
-else
-  set t_Co=256
 endif
 
 set updatetime=2000
@@ -86,10 +84,12 @@ set background=dark
 
 "colorscheme gruvbox
 
+"let g:vim_monokai_tasty_machine_tint = 1              " use `machine` color variant
+"let g:vim_monokai_tasty_highlight_active_window = 1   " make the active window stand out
 "colorscheme vim-monokai-tasty
 "let g:airline_theme = 'monokai_tasty'
 
-colorscheme catppuccin-macchiato " catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha
+colorscheme catppuccin-mocha " catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha
 let g:airline_theme = 'catppuccin'
 
 
