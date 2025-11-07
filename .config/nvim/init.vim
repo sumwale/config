@@ -38,7 +38,7 @@ nnoremap n nzzzv
 nnoremap N Nzzzv
 
 " write as root using sudo
-let $SUDO_ASKPASS = '/usr/libexec/seahorse/ssh-askpass'
+let $SUDO_ASKPASS = '/usr/bin/ssh-askpass'
 cmap w!! w !sudo -A tee 2>/dev/null >/dev/null %
 
 if !has('nvim')
@@ -66,7 +66,7 @@ Plug 'vim-airline/vim-airline'
 
 " Themes
 "Plug 'morhetz/gruvbox'
-Plug 'patstockwell/vim-monokai-tasty'
+"Plug 'patstockwell/vim-monokai-tasty'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 "Plug 'drewtempelmeyer/palenight.vim'
 "Plug 'ayu-theme/ayu-vim'
