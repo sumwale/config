@@ -13,7 +13,7 @@
 # The installation can be an existing one being used or an entirely fresh one.
 # The script makes no assumption of any existing data on the system apart from
 # a minimal Ubuntu based one having dpkg/apt (optionally apt-fast) and basic
-# utilities rsync, ssh, ssh-agent with ssh-add, gpg, git, curl (and basic ones
+# utilities rsync, ssh, ssh-agent, gpg, git, curl (and basic ones
 #   like sudo/awk/sed/comm that are present in all usable installations).
 # It makes use of mrpsync.sh script to launch parallel rsync processes which is
 # downloaded, if not present, from its github repository.
@@ -51,9 +51,11 @@ fg_green='\033[32m'
 fg_orange='\033[33m'
 fg_reset='\033[00m'
 rsync_common_options='-aHSOJ --info=progress2 --zc=zstd --zl=1'
-rsync_ssh_opt='ssh -o Compression=no -c aes256-gcm@openssh.com'
+tmp_keyfile=$HOME/.ssh/id_ed25519_synctmp
+tmp_enc_pass=/tmp/login.pass
+tmp_askpass=/tmp/login.askpass
+rsync_ssh_opt="ssh -o Compression=no -c aes256-gcm@openssh.com -i $tmp_keyfile"
 sync_enc_data=/tmp/others.txz
-ssh_key_created=0
 auth_keys_orig=authorized_keys.sync-bak
 ssh_agent_started=0
 unpack_gpg_key=0
@@ -80,12 +82,14 @@ function cleanup() {
     rm -rf $HOME/pkgs
   fi
   [ -e $sync_enc_data ] && shred -u $sync_enc_data
-  if [ $ssh_key_created -eq 1 -a -n "$keyfile" ]; then
+
+  rm -f $tmp_askpass
+  if [ -e "$tmp_keyfile" ]; then
     remote_server=${remote_root%:*}
-    ssh $remote_server mv -f .ssh/$auth_keys_orig .ssh/authorized_keys || true
-    ssh-add -d $keyfile
-    rm -f $keyfile*
+    ssh -i $tmp_keyfile $remote_server "rm -f .ssh/authorized_keys; mv .ssh/$auth_keys_orig .ssh/authorized_keys" || true
+    rm -f $tmp_keyfile*
   fi
+
   if [ $ssh_agent_started -eq 1 ]; then
     kill $SSH_AGENT_PID
   fi
@@ -173,31 +177,33 @@ if [ -z "$SSH_AUTH_SOCK" -o ! -e "$SSH_AUTH_SOCK" ]; then
 fi
 AWK=awk
 type -p mawk >/dev/null && AWK=mawk
-# check and add keys if not added (only RSA and ED25519 keys are checked)
-if [ -r $HOME/.ssh/id_rsa ]; then
-  keyfile=$HOME/.ssh/id_rsa
-elif [ -r $HOME/.ssh/id_ed25519 ]; then
-  keyfile=$HOME/.ssh/id_ed25519
-else
-  remote_server=${remote_root%:*}
-  echo -en "${fg_orange}No ssh private key found for use on ssh server. "
-  echo "Without public key auth, every rsync process will ask for password."
-  echo -en "Should one be generated and added to '$remote_server' (Y/n)? $fg_reset"
-  if read resp && [ "$resp" != n -a "$resp" != N ]; then
-    keyfile=$HOME/.ssh/id_ed25519
-    ssh-keygen -o -a 100 -t ed25519 -f $keyfile
-    cat $keyfile.pub | ssh -o PubkeyAuthentication=no $remote_server \
-      "[ -e .ssh/authorized_keys ] && mv -f .ssh/authorized_keys .ssh/$auth_keys_orig; \
-       cat - > .ssh/authorized_keys && chmod 0400 .ssh/authorized_keys"
-    ssh_key_created=1
-  fi
-fi
-if [ -n "$keyfile" ]; then
-  fp=$(ssh-keygen -l -f $keyfile | $AWK '{ print $2 }')
-  if [ -z "$fp" ] || ! ssh-add -l | grep -qwF "$fp"; then
-    ssh-add $keyfile
-  fi
-fi
+
+# add temporary key-pair for public key authentication without password
+rm -f $tmp_keyfile* $tmp_askpass
+remote_server=${remote_root%:*}
+sudo rm -f $tmp_enc_pass
+sudo systemd-creds setup
+echo -en "${fg_orange}Will use public key auth without password using a temporary key-pair. "
+echo -en "Without public key auth, every rsync process will ask for password. "
+echo -e "Generating a temporary key-pair and adding to '$remote_server'.$fg_reset"
+ssh-keygen -t ed25519 -N "" -f $tmp_keyfile
+remote_pass_login=${remote_server/root@/$USER@}
+# get the password for remote login and sudo, and store encrypted in a temporary file
+systemd-ask-password 'Remote password: ' | \
+  sudo systemd-creds --name=remote-pass encrypt - $tmp_enc_pass
+dec_cmd="sudo /usr/bin/systemd-creds --name=remote-pass decrypt $tmp_enc_pass"
+export SSH_ASKPASS=$tmp_askpass
+export SSH_ASKPASS_REQUIRE=force
+cat > $SSH_ASKPASS << EOF
+#!/bin/sh
+$dec_cmd
+EOF
+chmod 0755 $SSH_ASKPASS
+{ $dec_cmd; cat $tmp_keyfile.pub; } | ssh -o PubkeyAuthentication=no $remote_pass_login \
+  "sudo -S -p '' /bin/bash -c 'mv -f ~/.ssh/authorized_keys ~/.ssh/$auth_keys_orig 2>/dev/null; \
+   cat - > ~/.ssh/authorized_keys && chmod 0400 ~/.ssh/authorized_keys'"
+unset SSH_ASKPASS SSH_ASKPASS_REQUIRE
+sudo rm -f $tmp_enc_pass
 
 # Sync package lists and apt configuration.
 # Also fetch and extract the gnupg encrypted data so that the password, if required,
