@@ -179,31 +179,46 @@ AWK=awk
 type -p mawk >/dev/null && AWK=mawk
 
 # add temporary key-pair for public key authentication without password
-rm -f $tmp_keyfile* $tmp_askpass
+rm -f $tmp_keyfile*
 remote_server=${remote_root%:*}
-sudo rm -f $tmp_enc_pass
 sudo systemd-creds setup
 echo -en "${fg_orange}Will use public key auth without password using a temporary key-pair. "
 echo -en "Without public key auth, every rsync process will ask for password. "
 echo -e "Generating a temporary key-pair and adding to '$remote_server'.$fg_reset"
 ssh-keygen -t ed25519 -N "" -f $tmp_keyfile
-remote_pass_login=${remote_server/root@/$USER@}
+remote_pass_login=${remote_server/root@/$sync_user@}
+
 # get the password for remote login and sudo, and store encrypted in a temporary file
-systemd-ask-password 'Remote password: ' | \
-  sudo systemd-creds --name=remote-pass encrypt - $tmp_enc_pass
-dec_cmd="sudo /usr/bin/systemd-creds --name=remote-pass decrypt $tmp_enc_pass"
-export SSH_ASKPASS=$tmp_askpass
-export SSH_ASKPASS_REQUIRE=force
-cat > $SSH_ASKPASS << EOF
+pass_tries=1
+while true; do
+  sudo rm -f $tmp_enc_pass $tmp_askpass
+  systemd-ask-password 'Remote password:' | \
+    sudo systemd-creds --name=remote-pass encrypt - $tmp_enc_pass
+  dec_cmd="sudo /usr/bin/systemd-creds --name=remote-pass decrypt $tmp_enc_pass"
+  cat > $tmp_askpass << EOF
 #!/bin/sh
 $dec_cmd
 EOF
-chmod 0755 $SSH_ASKPASS
+  chmod 0755 $tmp_askpass
+  export SSH_ASKPASS=$tmp_askpass
+  export SSH_ASKPASS_REQUIRE=force
+  # test if the password works
+  if ssh -o PubkeyAuthentication=no $remote_pass_login whoami | grep -Fwq $sync_user; then
+    break
+  fi
+  ((pass_tries++))
+  if [ $pass_tries -gt 3 ]; then
+    echo -e "${fg_red}Too many password failures!$fg_reset"
+    exit 1
+  fi
+  echo -e "${fg_red}Incorrect password, try again.$fg_reset"
+done
+
 { $dec_cmd; cat $tmp_keyfile.pub; } | ssh -o PubkeyAuthentication=no $remote_pass_login \
   "sudo -S -p '' /bin/bash -c 'mv -f ~/.ssh/authorized_keys ~/.ssh/$auth_keys_orig 2>/dev/null; \
    cat - > ~/.ssh/authorized_keys && chmod 0400 ~/.ssh/authorized_keys'"
 unset SSH_ASKPASS SSH_ASKPASS_REQUIRE
-sudo rm -f $tmp_enc_pass
+sudo rm -f $tmp_enc_pass $tmp_askpass
 
 # Sync package lists and apt configuration.
 # Also fetch and extract the gnupg encrypted data so that the password, if required,
@@ -211,6 +226,7 @@ sudo rm -f $tmp_enc_pass
 # (else gnupg password popup can timeout so user will need to keep an eye on sync being finished)
 
 APT_FAST=apt-get
+APT_COMMON_OPTS="-y --purge -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
 if sudo $chroot_arg which apt-fast >/dev/null; then
   APT_FAST=apt-fast
 elif sudo $chroot_arg which add-apt-repository >/dev/null; then
@@ -235,14 +251,17 @@ fi
 # most rsync calls will use sudo since the current user's UID may be different from that
 # of the backup user whose data is being synced; '-E' option is to enable using
 # current user's ssh key for remote server public key authentication
-rsync $rsync_common_options --delete $remote_root/etc/group $remote_root/etc/passwd \
-  $remote_home/pkgs $enc_bundles $HOME/
-sudo -E rsync $rsync_common_options --delete $remote_home/deb-local $home_dir/
-sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
-  $remote_root/etc/apt/ $sync_etc/apt/
-sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
+rsync $rsync_common_options -e "$rsync_ssh_opt" --delete $remote_root/etc/group \
+  $remote_root/etc/passwd $remote_home/pkgs $enc_bundles $HOME/
+sudo -E rsync $rsync_common_options -e "$rsync_ssh_opt" --delete $remote_home/deb-local \
+  $home_dir/
+sudo -E rsync $rsync_common_options -e "$rsync_ssh_opt" \
+  --exclude-from=$sync_data_conf/excludes-root.list $remote_root/etc/apt/ $sync_etc/apt/
+sudo -E rsync $rsync_common_options -e "$rsync_ssh_opt" \
+  --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/usr/share/keyrings/ $sync_root/usr/share/keyrings/
-sudo -E rsync $rsync_common_options --exclude-from=$sync_data_conf/excludes-root.list \
+sudo -E rsync $rsync_common_options -e "$rsync_ssh_opt" \
+  --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/var/opt/ $sync_root/var/opt/
 # switch to the standard India server for packages since others may not be functional at this time
 plucky_src=$sync_etc/apt/sources.list.d/ubuntu-plucky.sources
@@ -267,7 +286,8 @@ fi
 sudo $chroot_arg dpkg --add-architecture i386
 sudo $chroot_arg apt-get update || true
 # gpg needs scdaemon and pcscd for yubikey access
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge tpm2-tools scdaemon pcscd || true
+sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install $APT_COMMON_OPTS \
+  tpm2-tools scdaemon pcscd || true
 
 if [ $unpack_gpg_key -eq 1 ]; then
   find $HOME/.gnupg -type f -print0 | xargs -0 -r shred -u
@@ -373,11 +393,12 @@ $AWK -v root=$sync_root -v root_arg="$divert_root_arg" '{
 # Compare host machine packages with the backup and offer to apply any changes.
 
 # first fix any broken stuff
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg --configure -a
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -f --purge
+sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg --configure -a --force-confdef --force-confold
+sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -f $APT_COMMON_OPTS
 
 echo -e "${fg_green}Installing default locally built packages with dependencies.$fg_reset"
-sudo $chroot_arg /bin/sh -c "/usr/bin/env DEBIAN_FRONTEND=noninteractive $APT_FAST install -y --purge $home_dir_local/deb-local/default/*.deb"
+sudo $chroot_arg /bin/sh -c "/usr/bin/env DEBIAN_FRONTEND=noninteractive $APT_FAST install \
+  $APT_COMMON_OPTS $home_dir_local/deb-local/default/*.deb"
 
 echo
 echo -e "${fg_green}Comparing packages on this host with the backup.$fg_reset"
@@ -403,7 +424,7 @@ if [ -n "$pkg_diffs" ]; then
     if [ -n "$install_pkgs" ]; then
       # unfortunately apt provides no way to skip unavailable packages (e.g. separately downloaded
       #   in deb-local and elsewhere), so need to check for the available ones
-      selected_pkgs=$(sudo $chroot_arg apt-cache -q=0 show $install_pkgs 2> $pkgs_err |
+      selected_inst_pkgs=$(sudo $chroot_arg apt-cache -q=0 show $install_pkgs 2> $pkgs_err | \
         $AWK '/^Package: / {
           pkg = $2
           arch = ""
@@ -421,12 +442,15 @@ if [ -n "$pkg_diffs" ]; then
           "s/.* package '\([^']*\)'.*/\1/p;s/.*Unable to locate.* \(\S\+\)$/\1/p" $pkgs_err)
         echo -e "${fg_red}Skipping the following unavailable packages: "$skipped_pkgs$fg_reset
       fi
-      if [ -n "$selected_pkgs" ]; then
-        sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install -y --purge $selected_pkgs
-      fi
     fi
-    if [ -n "$purge_pkgs" ]; then
-      sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get purge -y $purge_pkgs
+    if [ -n "$selected_inst_pkgs" -o -n "$purge_pkgs" ]; then
+      if [ -z "$selected_inst_pkgs" ]; then
+        sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get purge -y $purge_pkgs
+      else
+        purge_pkgs_minus=$(echo "$purge_pkgs" | sed -E 's/[[:space:]]+|$/-\0/g')
+        sudo DEBIAN_FRONTEND=noninteractive $chroot_arg \
+          $APT_FAST install --allow-downgrades $APT_COMMON_OPTS $selected_inst_pkgs $purge_pkgs_minus
+      fi
     fi
     # mark the ones in deb-explicit.list as manually installed while the rest as auto
     sudo $chroot_arg apt-mark auto $new_pkgs || true
@@ -439,7 +463,7 @@ fi
 if [ -f $plucky_src ]; then
   sudo sed -i 's|Enabled:.*|Enabled: yes|' $plucky_src
 fi
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST full-upgrade --purge || true
+sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST full-upgrade $APT_COMMON_OPTS || true
 sudo $chroot_arg $APT_FAST clean
 if [ $home_dir != $HOME ]; then
   rm -rf $HOME/pkgs
