@@ -19,6 +19,7 @@
 # downloaded, if not present, from its github repository.
 
 set -e
+set -x
 
 # ensure that only system paths are searched for all the utilities
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/sbin:/usr/local/bin"
@@ -84,7 +85,7 @@ function cleanup() {
     rm -rf $HOME/pkgs
   fi
 
-  rm -f $tmp_askpass
+  rm -f $tmp_askpass 2>/dev/null
   if [ -e "$tmp_keyfile" ]; then
     remote_server=${remote_root%:*}
     ssh -i $tmp_keyfile $remote_server "rm -f .ssh/authorized_keys; mv .ssh/$auth_keys_orig .ssh/authorized_keys" || true
@@ -173,6 +174,7 @@ echo -en "${fg_orange}Will use public key auth without password using a temporar
 echo -en "Without public key auth, every rsync process will ask for password. "
 echo -e "Generating a temporary key-pair and adding to '$remote_server'.$fg_reset"
 ssh-keygen -t ed25519 -N "" -f $tmp_keyfile
+remote_server_addr=${remote_server#*@}
 remote_pass_login=${remote_server/root@/$sync_user@}
 
 # get the password for remote login and sudo, and store encrypted in a temporary file
@@ -189,6 +191,10 @@ EOF
   chmod 0755 $tmp_askpass
   export SSH_ASKPASS=$tmp_askpass
   export SSH_ASKPASS_REQUIRE=force
+  mkdir -p ~/.ssh
+  if ! grep -q "^$remote_server_addr " ~/.ssh/known_hosts 2>/dev/null; then
+    ssh-keyscan $remote_server_addr 2>/dev/null >> ~/.ssh/known_hosts
+  fi
   # test if the password works
   if ssh -o PubkeyAuthentication=no $remote_pass_login whoami | grep -Fwq $sync_user; then
     break
@@ -335,6 +341,8 @@ elif sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
     gpg --decrypt $borg_key | sudo systemd-creds --name=borg-$kname $sys_creds_enc_opts - $out_file
     sudo chmod 0400 $out_file
   done
+  sudo mkdir -p /etc/luks
+  sudo chmod 0700 /etc/luks
   sudo rm -f $luks_tpm2_pin_file
   gpg --decrypt $borg_backup_base/luks-tpm2.pin.gpg | \
     sudo systemd-creds --name=tpm2-pin $sys_creds_enc_opts - $luks_tpm2_pin_file
@@ -427,8 +435,8 @@ if [ -n "$pkg_diffs" ]; then
         sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get purge -y $purge_pkgs
       else
         purge_pkgs_minus=$(echo "$purge_pkgs" | sed -E 's/[[:space:]]+|$/-\0/g')
-        sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive \
-          $APT_FAST install --allow-downgrades $APT_COMMON_OPTS $selected_inst_pkgs $purge_pkgs_minus
+        sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive $APT_FAST install \
+          --allow-downgrades $APT_COMMON_OPTS $selected_inst_pkgs $purge_pkgs_minus || true
       fi
     fi
     # mark the ones in deb-explicit.list as manually installed while the rest as auto

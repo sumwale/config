@@ -9,4 +9,4 @@ output_dir=$2
 
 # top-level directories are created with default root ownership and need to have read
 # and execute access to the users
-sudo /bin/sh -c "borgmatic extract --repository local --archive latest --progress --path $source_dir --destination $output_dir && chown sumedh:sumedh home/sumedh/.config/* && chmod 755 * etc boot boot/grub home home/sumedh opt usr/share usr/share/* usr/share/libdvd-pkg/debian var var/opt 2>/dev/null"
+sudo /bin/sh -c "borgmatic extract --repository local --archive latest --progress --path $source_dir --destination $output_dir && chmod 755 * etc boot boot/grub home home/sumedh opt usr/share usr/share/* usr/share/libdvd-pkg/debian var var/opt 2>/dev/null"
