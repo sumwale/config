@@ -1,0 +1,15 @@
+# about
+set realname = 'Sumedh Wale'
+set from = 'sumwale@yahoo.com'
+set use_from = yes
+
+# credentials
+set smtp_url = 'smtp://...@smtp-relay.brevo.com:587'
+set smtp_pass = '...'
+set ssl_force_tls = yes
+
+# folders
+set mbox = '~/Mail/inbox'
+set record = '~/Mail/sent'
+set postponed = '~/Mail/drafts'
+set copy = yes
