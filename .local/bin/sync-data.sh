@@ -13,8 +13,8 @@
 # The installation can be an existing one being used or an entirely fresh one.
 # The script makes no assumption of any existing data on the system apart from
 # a minimal Ubuntu based one having dpkg/apt (optionally apt-fast) and basic
-# utilities rsync, ssh, ssh-agent, gpg, git, curl (and basic ones
-#   like sudo/awk/sed/comm that are present in all usable installations).
+# utilities rsync, ssh, git, curl (and basic ones like sudo/awk/sed/comm that are
+#   present in all usable installations).
 # It makes use of mrpsync.sh script to launch parallel rsync processes which is
 # downloaded, if not present, from its github repository.
 
@@ -55,11 +55,13 @@ tmp_keyfile=$HOME/.ssh/id_ed25519_synctmp
 tmp_enc_pass=/tmp/login.pass
 tmp_askpass=/tmp/login.askpass
 rsync_ssh_opt="ssh -o Compression=no -c aes256-gcm@openssh.com -i $tmp_keyfile"
-sync_enc_data=/tmp/others.txz
 auth_keys_orig=authorized_keys.sync-bak
-ssh_agent_started=0
 unpack_gpg_key=0
 gpg_key_id=C9C718FF0C9D3AA4B54E18D93FD1139880CD9DB7
+gpg_key_user=sumwale@gmail.com
+borg_secrets_dir=/etc/borgmatic/secrets
+luks_tpm2_pin_file=/etc/luks/tpm2.pin
+sys_creds_enc_opts="--with-key=host+tpm2 encrypt"
 
 function usage() {
   echo
@@ -81,7 +83,6 @@ function cleanup() {
   if [ $home_dir != $HOME ]; then
     rm -rf $HOME/pkgs
   fi
-  [ -e $sync_enc_data ] && shred -u $sync_enc_data
 
   rm -f $tmp_askpass
   if [ -e "$tmp_keyfile" ]; then
@@ -90,9 +91,6 @@ function cleanup() {
     rm -f $tmp_keyfile*
   fi
 
-  if [ $ssh_agent_started -eq 1 ]; then
-    kill $SSH_AGENT_PID
-  fi
   if [ $unpack_gpg_key -eq 1 -a $home_dir != $HOME ]; then
     find $HOME/.gnupg -type f -print0 | xargs -0 -r shred -u
     rm -rf $HOME/.gnupg
@@ -125,7 +123,6 @@ else
   remote_root=$def_remote_root
 fi
 [ $# -eq 2 -a "$2" != "/" ] && sync_root=$2
-sync_root_fs=${sync_root:-/}
 sync_etc=$sync_root/etc
 
 if [ -n "$sync_root" ]; then
@@ -165,16 +162,6 @@ sudo apt-get update || true
 sudo apt-get install -y rsync gpg openssh-client coreutils util-linux mawk tar curl sudo
 sudo apt-get install -y apt dpkg
 
-# Start ssh-agent if it does not exist and set it up
-
-if [ -z "$SSH_AUTH_SOCK" -o ! -e "$SSH_AUTH_SOCK" ]; then
-  echo -e "${fg_orange}No usable ssh-agent found. It is hightly recommended to start one.$fg_reset"
-  echo -en "${fg_orange}Should one be started and configured (Y/n)? $fg_reset"
-  if read resp && [ "$resp" != n -a "$resp" != N ]; then
-    eval $(ssh-agent -s)
-    ssh_agent_started=1
-  fi
-fi
 AWK=awk
 type -p mawk >/dev/null && AWK=mawk
 
@@ -226,15 +213,15 @@ sudo rm -f $tmp_enc_pass $tmp_askpass
 # (else gnupg password popup can timeout so user will need to keep an eye on sync being finished)
 
 APT_FAST=apt-get
-APT_COMMON_OPTS="-y --purge -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
+APT_COMMON_OPTS="-y --purge -o Dpkg::Options::=--force-confold"
 if sudo $chroot_arg which apt-fast >/dev/null; then
   APT_FAST=apt-fast
 elif sudo $chroot_arg which add-apt-repository >/dev/null; then
   echo -e "${fg_green}Installing apt-fast for faster downloads.$fg_reset"
-  sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -y software-properties-common
+  sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common
   sudo $chroot_arg add-apt-repository ppa:apt-fast/stable
   sudo $chroot_arg apt-get update || true
-  sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -y apt-fast
+  sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get install -y apt-fast
   APT_FAST=apt-fast
 fi
 
@@ -243,9 +230,8 @@ echo -e "${fg_green}Updating package lists, sync packages and fetch encrypted da
 # If gpg secret key is not present, then fetch the .gnupg encrypted tar
 
 export GPG_TTY=$(tty)
-enc_bundles=$remote_home/Documents/others.key.gpg
 if ! gpg --quiet --list-secret-key $gpg_key_id >/dev/null 2>/dev/null; then
-  enc_bundles="$enc_bundles $remote_home/Documents/rest.key.gpg $remote_home/Documents/gpg-backup.pgp.gpg"
+  enc_bundles="$remote_home/Documents/gpg-backup.pgp"
   unpack_gpg_key=1
 fi
 # most rsync calls will use sudo since the current user's UID may be different from that
@@ -286,15 +272,14 @@ fi
 sudo $chroot_arg dpkg --add-architecture i386
 sudo $chroot_arg apt-get update || true
 # gpg needs scdaemon and pcscd for yubikey access
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST install $APT_COMMON_OPTS \
+sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive $APT_FAST install $APT_COMMON_OPTS \
   tpm2-tools scdaemon pcscd || true
 
 if [ $unpack_gpg_key -eq 1 ]; then
   find $HOME/.gnupg -type f -print0 | xargs -0 -r shred -u
   rm -rf $HOME/.gnupg/*
-  gpg --decrypt $HOME/gpg-backup.pgp.gpg > $HOME/gpg-backup.pgp
   gpg --import $HOME/gpg-backup.pgp
-  shred -u $HOME/gpg-backup.pgp.gpg $HOME/gpg-backup.pgp
+  shred -u $HOME/gpg-backup.pgp
   # copy over gnupg keys from host setup if required and link gpg.conf to the one in config repo
   if [ $home_dir != $HOME ]; then
     $chroot_arg_user mkdir -p $home_dir_local/.gnupg
@@ -307,17 +292,11 @@ if [ $unpack_gpg_key -eq 1 ]; then
     sudo $chroot_arg chown -R $sync_user:$sync_user_group $home_dir_local/.gnupg
   fi
 fi
-gpg --decrypt $HOME/others.key.gpg > $sync_enc_data
-shred -u $HOME/others.key.gpg
-
-# Unpack encrypted key data
-echo -e "${fg_green}Restoring encrypted LVM key and wifi connection configurations.$fg_reset"
-gpg --decrypt $sync_root/var/opt/borg/backups/keys-backup.gpg | sudo tar -C $sync_root/ --overwrite --zstd -xpSf -
 
 # Re-create the KeePassXC databases registered with keepassxc-unlock if possible
 if [ -n "$sync_root" ]; then
   echo
-  echo -e "${fg_orange}Skipping keepassxc registrations due to '/' not being sync root."
+  echo -e "${fg_orange}Skipping keepassxc and other TPM2 encrypted keys due to '/' not being sync root."
   echo -e "Perform this manually after booting into the machine post full sync.$fg_reset"
   echo
 elif sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
@@ -338,7 +317,7 @@ elif sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
       kp_conf=$kp_dir/kdbx-$kp_conf_name.conf
       sudo rm -f $kp_conf
       gpg --decrypt $kp_conf_gpg | tee >(head -3 -) >(tail -n+4 - | \
-        sudo systemd-creds --name=$kp_conf_name --with-key=host+tpm2 encrypt - -) >/dev/null | \
+        sudo systemd-creds --name=$kp_conf_name $sys_creds_enc_opts - -) >/dev/null | \
         sudo tee $kp_conf >/dev/null
       sudo chmod 0400 $kp_conf
     done
@@ -347,24 +326,24 @@ elif sudo systemd-creds has-tpm2 2>/dev/null >/dev/null; then
       sudo chmod 0400 $kp_dir/keepassxc.sha512
     fi
   done
+  sudo mkdir -p $borg_secrets_dir
+  sudo chmod 0700 $borg_secrets_dir
+  for borg_key in $borg_backup_base/borg-*.key.gpg; do
+    kname=$(echo $borg_key | sed 's/^.*\/borg-//;s/.key.gpg$//')
+    out_file=$borg_secrets_dir/$kname.key
+    sudo rm -f $out_file
+    gpg --decrypt $borg_key | sudo systemd-creds --name=borg-$kname $sys_creds_enc_opts - $out_file
+    sudo chmod 0400 $out_file
+  done
+  sudo rm -f $luks_tpm2_pin_file
+  gpg --decrypt $borg_backup_base/luks-tpm2.pin.gpg | \
+    sudo systemd-creds --name=tpm2-pin $sys_creds_enc_opts - $luks_tpm2_pin_file
+  sudo chmod 0400 $luks_tpm2_pin_file
 else
   echo
   echo -e "${fg_orange}WARNING: skipping keepassxc registrations due to missing TPM2."
   echo -e "Perform this manually after booting into the machine post full sync.$fg_reset"
   echo
-fi
-
-
-# Overwrite ~/.gnupg with the original backup having references to yubikey
-
-if [ $unpack_gpg_key -eq 1 ]; then
-  sudo find $home_dir/.gnupg -type f -print0 | sudo xargs -0 -r shred -u
-  sudo rm -rf $home_dir/.gnupg/*
-  gpg --decrypt $HOME/rest.key.gpg | sudo tar --strip-components=2 -C $home_dir -xpSJf -
-  shred -u $HOME/rest.key.gpg
-  if [ $home_dir != $HOME ]; then
-    sudo $chroot_arg chown -R $sync_user:$sync_user_group $home_dir_local/.gnupg
-  fi
 fi
 
 
@@ -393,8 +372,8 @@ $AWK -v root=$sync_root -v root_arg="$divert_root_arg" '{
 # Compare host machine packages with the backup and offer to apply any changes.
 
 # first fix any broken stuff
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg --configure -a --force-confdef --force-confold
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get install -f $APT_COMMON_OPTS
+sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive dpkg --configure -a --force-confold
+sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get install -f $APT_COMMON_OPTS
 
 echo -e "${fg_green}Installing default locally built packages with dependencies.$fg_reset"
 sudo $chroot_arg /bin/sh -c "/usr/bin/env DEBIAN_FRONTEND=noninteractive $APT_FAST install \
@@ -407,7 +386,7 @@ echo -e "${fg_green}Comparing packages on this host with the backup.$fg_reset"
 new_pkgs=$(sed -n 's/^ii\s\+\(\S\+\).*$/\1/p' $HOME/pkgs/deb.list | sort)
 pkg_diffs=$(comm -3 <(echo "$new_pkgs") \
                     <(dpkg -l $dpkg_root_arg | sed -n 's/^ii\s\+\(\S\+\).*$/\1/p' | sort) |
-  grep -vwE 'fprintd|libfprint|command-configure|srvadmin' |
+  grep -vwE 'command-configure|srvadmin' |
   sed 's/^\</INSTALL: /;s/^\s\+/PURGE: /')
 if [ -n "$pkg_diffs" ]; then
   echo -e "${fg_orange}Changes detected, see the following package modifications.$fg_reset"
@@ -445,10 +424,10 @@ if [ -n "$pkg_diffs" ]; then
     fi
     if [ -n "$selected_inst_pkgs" -o -n "$purge_pkgs" ]; then
       if [ -z "$selected_inst_pkgs" ]; then
-        sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get purge -y $purge_pkgs
+        sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get purge -y $purge_pkgs
       else
         purge_pkgs_minus=$(echo "$purge_pkgs" | sed -E 's/[[:space:]]+|$/-\0/g')
-        sudo DEBIAN_FRONTEND=noninteractive $chroot_arg \
+        sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive \
           $APT_FAST install --allow-downgrades $APT_COMMON_OPTS $selected_inst_pkgs $purge_pkgs_minus
       fi
     fi
@@ -456,14 +435,15 @@ if [ -n "$pkg_diffs" ]; then
     sudo $chroot_arg apt-mark auto $new_pkgs || true
     sudo $chroot_arg apt-mark auto plasma-integration plasma-workspace python3-proton-keyring-linux || true
     sudo $chroot_arg apt-mark manual $(cat $HOME/pkgs/deb-explicit.list) || true
-    #sudo DEBIAN_FRONTEND=noninteractive $chroot_arg apt-get autopurge || true
+    #sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get autopurge || true
   fi
 fi
 # enable plucky before the upgrade
 if [ -f $plucky_src ]; then
   sudo sed -i 's|Enabled:.*|Enabled: yes|' $plucky_src
 fi
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg $APT_FAST full-upgrade $APT_COMMON_OPTS || true
+sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive $APT_FAST full-upgrade \
+  --allow-downgrades $APT_COMMON_OPTS || true
 sudo $chroot_arg $APT_FAST clean
 if [ $home_dir != $HOME ]; then
   rm -rf $HOME/pkgs
@@ -562,40 +542,31 @@ echo -e "${fg_green}Running rsync to synchronize system configs from remote...$f
 sudo -E rsync $rsync_common_options -A -e "$rsync_ssh_opt" \
   --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/boot $remote_root/etc $remote_root/opt $remote_root/usr $sync_root/
-
-echo -e "${fg_green}Unpacking encrypted data and writing it.$fg_reset"
-sudo tar -C $sync_root/ --overwrite -xpSf $sync_enc_data
-shred -u $sync_enc_data
 sudo $chroot_arg update-grub
-sudo DEBIAN_FRONTEND=noninteractive $chroot_arg dpkg-reconfigure libdvd-pkg || true
+sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive dpkg-reconfigure libdvd-pkg || true
 
-if type -p pamu2fcfg >/dev/null && [ ! -f /etc/yubikey/u2f_keys ]; then
+echo -e "${fg_green}Importing public GPG key $gpg_key_id of $gpg_key_user and marking"
+echo "as trusted for encryption in backup scripts.$fg_reset"
+sudo $chroot_arg gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys $gpg_key_id
+echo -e '5\ny\n' | sudo $chroot_arg gpg --command-fd 0 --expert --edit-key $gpg_key_id trust
+
+if [ -x $sync_root/usr/bin/pamu2fcfg -a ! -f $sync_root/etc/yubikey/u2f_keys ]; then
   echo
   echo -e "${fg_green}Registering YubiKey for login credentials.$fg_reset"
   echo
-  pamu2fcfg --pin-verification | sudo tee /etc/yubikey/u2f_keys >/dev/null
-  sudo chmod 0644 /etc/yubikey/u2f_keys
+  $chroot_arg_user pamu2fcfg --resident --type=eddsa --pin-verification | \
+    sudo tee $sync_root/etc/yubikey/u2f_keys >/dev/null
+  sudo chmod 0644 $sync_root/etc/yubikey/u2f_keys
 fi
 
 echo -e "${fg_green}Disabling automatic borgmatic backup timer.$fg_reset"
 sudo $chroot_arg systemctl stop borgmatic-backup.timer
 sudo $chroot_arg systemctl disable borgmatic-backup.timer
 
-# Check for fprintd that may not be present on the target, then update PAM configuration.
-
-if [ ! -f $sync_root/usr/share/pam-configs/fprintd ] ||
-  ! dpkg -s $dpkg_root_arg libpam-fprintd 2>/dev/null >/dev/null; then
-  echo -e "${fg_orange}Removing changes related to fingerprint authentication.$fg_reset"
-  sudo mv -f $sync_root/usr/share/pam-configs/fprintd \
-    $sync_root/usr/local/share/pam-configs/fprintd.bak 2>/dev/null || true
-fi
-echo -e "${fg_green}Updating PAM configuration.$fg_reset"
-sudo $chroot_arg pam-auth-update --package --force
-
 echo -e $fg_orange
 echo "Note the following steps that may need to be taken manually:"
 echo
-if [ ! -f $home_dir/.ssh/id_ed25519_sk -a ! -f $home_dir/.ssh/id_ed25519 ]; then
+if [ ! -f $home_dir/.ssh/id_ed25519_sk ]; then
   echo "0. You may need to generate ssh key and register it in the authorized_keys of "
   echo "   the backup server and github, if not done already. For example, a good command "
   echo "   to generate the public-private keypair is:"
@@ -603,16 +574,23 @@ if [ ! -f $home_dir/.ssh/id_ed25519_sk -a ! -f $home_dir/.ssh/id_ed25519 ]; then
   echo "   Or to store the key in a FIDO2 security key like yubikey:"
   echo "     ssh-keygen -a 100 -t ed25519-sk -O resident -O verify-required -O \\"
   echo "         application=ssh:<email> -C ssh:<email> -f ~/.ssh/id_ed25519_sk"
+  echo "   Use the same password as that of the existing ed25519-sk key in KeePassXC "
+  echo "   under SSH group so that it gets auto-loaded in ssh-agent."
   echo "   Add this to authorized_keys of the backup server and in github settings."
 fi
-echo "1. Passwords for borg backup itself need to be registered in /etc/borgmatic/secrets"
-echo "   using 'echo $$<type>_pass | sudo systemd-creds --with-key=host+tpm2 --name=borg-<type> \\"
-echo "     encrypt - - | sudo tee /etc/borgmatic/secrets/<type>.key' where <type> is 'login' "
+echo "1. If the restoration of keepassxc and other TPM2 encrypted keys was skipped due to missing"
+echo "   TPM2 or when running in a chroot, then you will need to register the KeePassXC databases"
+echo "   again by running keepassxc-unlock-setup for auto-unlock of KeePassXC databases to work."
+echo "   In addition passwords for borg backup need to be registered in $borg_secrets_dir"
+echo "   using 'echo $$<type>_pass | sudo systemd-creds --name=borg-<type> $sys_creds_enc_opts\\"
+echo "     - - | sudo tee $borg_secrets_dir/<type>.key' where <type> is 'login' "
 echo "   and 'store' for the login password and storage password. Change mode using 'chmod 0400'."
-echo "   Likewise PIN for LUKS decryption using TPM2 needs to be registered in /etc/luks/tpm2.pin"
-echo "   using 'echo <password> | sudo systemd-creds --with-key=host+tpm2 --name=tpm2-pin \\"
-echo "     encrypt - - | sudo tee /etc/luks/tpm2.pin && sudo chmod 0400 /etc/luks/tpm2.pin'."
+echo "   Likewise PIN for LUKS decryption using TPM2 needs to be registered in $luks_tpm2_pin_file"
+echo "   using 'echo <password> | sudo systemd-creds --name=tpm2-pin $sys_creds_enc_opts\\"
+echo "     - - | sudo tee $luks_tpm2_pin_file && sudo chmod 0400 $luks_tpm2_pin_file'."
 echo "   Take care to disable shell history so that the passwords are not stored in plain-text."
+echo "   Alternatively run ~/.local/bin/tpm2-update-all.sh that will recreate all of the above"
+echo "   and also re-enroll TPM2 with PIN for LUKS encrypted root."
 echo "2. Borg backup timer service has been stopped to disable automatic backups due to"
 echo "   above reasons and possible other required changes. Once the sync destination has"
 echo "   been verified, you can enable the daily backup timer by running"
@@ -622,14 +600,17 @@ echo "   fail to start due to the changes in the new environment and may need to
 echo "   Note that if these were for ybox containers, then you should review and update"
 echo "   the profiles in $home_dir_local/.config/ybox/profiles for the new setup as"
 echo "   required before recreating those containers."
-echo "4. If the restoration of keepassxc-unlock registrations was skipped due to missing"
-echo "   TPM2 or when running in a chroot, then you will need to register the KeePassXC databases"
-echo "   again by running keepassxc-unlock-setup for auto-unlock of KeePassXC databases to work."
-echo "5. Ubuntu Pro subscription, if configured in the backup, was removed in the sync destination"
+echo "4. Ubuntu Pro subscription, if configured in the backup, was removed in the sync destination"
 echo "   and you will need to go to the site (https://ubuntu.com/login) to set it up again."
-echo "6. The backup does not include conky configuration directly which is machine-specific"
+echo "5. The backup does not include conky configuration directly which is machine-specific"
 echo "   ($home_dir_local/.config/conky/conky.conf). Review the couple of configurations"
 echo "   present in $home_dir_local/config/.config/conky and adapt to the new setup."
+echo "6. It is assumed that the system is using full-disk encryption using LUKS with"
+echo "   TPM2 with PIN unlock in first slot, password in second slot and a key file"
+echo "   for the third slot (which is stored in the encrypted partition itself and only"
+echo "     used for convenience when re-enrolling TPM2), so ensure this is the case."
+echo "   The key file is a random one that can be generated as below:"
+echo "     sudo dd if=/dev/random of=/etc/luks/lvm.key bs=512 count=4"
 echo -e $fg_green
 echo "ALL DONE. If you skipped any of the options asked before (package installation,"
 echo "directory encryption etc), then you may also need to perform those changes manually."
