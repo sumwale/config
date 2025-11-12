@@ -19,7 +19,6 @@
 # downloaded, if not present, from its github repository.
 
 set -e
-set -x
 
 # ensure that only system paths are searched for all the utilities
 export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/sbin:/usr/local/bin"
@@ -191,9 +190,13 @@ EOF
   chmod 0755 $tmp_askpass
   export SSH_ASKPASS=$tmp_askpass
   export SSH_ASKPASS_REQUIRE=force
-  mkdir -p ~/.ssh
+  mkdir -p ~/.ssh && chmod 0700 ~/.ssh
   if ! grep -q "^$remote_server_addr " ~/.ssh/known_hosts 2>/dev/null; then
     ssh-keyscan $remote_server_addr 2>/dev/null >> ~/.ssh/known_hosts
+  fi
+  sudo mkdir -p ~root/.ssh && sudo chmod 0700 ~root/.ssh
+  if ! sudo grep -q "^$remote_server_addr " ~root/.ssh/known_hosts 2>/dev/null; then
+    ssh-keyscan $remote_server_addr 2>/dev/null | sudo tee -a ~root/.ssh/known_hosts
   fi
   # test if the password works
   if ssh -o PubkeyAuthentication=no $remote_pass_login whoami | grep -Fwq $sync_user; then
@@ -222,7 +225,7 @@ APT_FAST=apt-get
 APT_COMMON_OPTS="-y --purge -o Dpkg::Options::=--force-confold"
 if sudo $chroot_arg which apt-fast >/dev/null; then
   APT_FAST=apt-fast
-elif sudo $chroot_arg which add-apt-repository >/dev/null; then
+else
   echo -e "${fg_green}Installing apt-fast for faster downloads.$fg_reset"
   sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common
   sudo $chroot_arg add-apt-repository ppa:apt-fast/stable
@@ -283,7 +286,7 @@ sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive $APT_FAST install $APT_COMMO
 
 if [ $unpack_gpg_key -eq 1 ]; then
   find $HOME/.gnupg -type f -print0 | xargs -0 -r shred -u
-  rm -rf $HOME/.gnupg/*
+  rm -rf $HOME/.gnupg
   gpg --import $HOME/gpg-backup.pgp
   shred -u $HOME/gpg-backup.pgp
   # copy over gnupg keys from host setup if required and link gpg.conf to the one in config repo
@@ -382,6 +385,10 @@ $AWK -v root=$sync_root -v root_arg="$divert_root_arg" '{
 # first fix any broken stuff
 sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive dpkg --configure -a --force-confold
 sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get install -f $APT_COMMON_OPTS
+# perform an upgrade first else subsequent package changes may fail
+echo -e "${fg_green}Performing system upgrade.$fg_reset"
+sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive $APT_FAST upgrade \
+  --allow-downgrades $APT_COMMON_OPTS || true
 
 echo -e "${fg_green}Installing default locally built packages with dependencies.$fg_reset"
 sudo $chroot_arg /bin/sh -c "/usr/bin/env DEBIAN_FRONTEND=noninteractive $APT_FAST install \
@@ -440,15 +447,15 @@ if [ -n "$pkg_diffs" ]; then
       fi
     fi
     # mark the ones in deb-explicit.list as manually installed while the rest as auto
-    sudo $chroot_arg apt-mark auto $new_pkgs || true
-    sudo $chroot_arg apt-mark auto plasma-integration plasma-workspace python3-proton-keyring-linux || true
+    sudo $chroot_arg apt-mark auto $(sudo $chroot_arg apt-mark showmanual) || true
     sudo $chroot_arg apt-mark manual $(cat $HOME/pkgs/deb-explicit.list) || true
     #sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get autopurge || true
   fi
 fi
-# enable plucky before the upgrade
+# enable plucky before the full upgrade
 if [ -f $plucky_src ]; then
   sudo sed -i 's|Enabled:.*|Enabled: yes|' $plucky_src
+  sudo $chroot_arg apt-get update || true
 fi
 sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive $APT_FAST full-upgrade \
   --allow-downgrades $APT_COMMON_OPTS || true
@@ -541,6 +548,7 @@ sudo -E python3 /tmp/sync.py $rsync_common_options -A -e "$rsync_ssh_opt" --dele
   --exclude-from=$sync_data_conf/excludes-home.list \
   --include-from=$sync_data_conf/includes-home.list --jobs=10 $remote_home/ $home_dir/
 # run a plain rsync at the end to fix any discrepencies
+echo -e "${fg_green}Running a final rsync to fix any discrepencies in $home_dir...$fg_reset"
 sudo -E rsync $rsync_common_options -A -e "$rsync_ssh_opt" --delete \
   --exclude-from=$sync_data_conf/excludes-home.list \
   --include-from=$sync_data_conf/includes-home.list $remote_home/ $home_dir/
