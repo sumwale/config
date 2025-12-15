@@ -51,6 +51,13 @@ if [ "$session_type" = "wayland" -o "$session_type" = "x11" ]; then
   fi
 fi
 
+# set the appropriate VK_DRIVER_FILES
+if glxinfo | grep -iq "OpenGL renderer string.*nvidia"; then
+  VK_DRIVER_FILES=/usr/share/vulkan/icd.d/nvidia_icd.json
+else
+  VK_DRIVER_FILES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json
+fi
+
 # ydotool socket path used by /etc/systemd/system/ydotoold.service
 YDOTOOL_SOCKET=/tmp/ydotool-1000/.ydotool_socket
 
@@ -58,7 +65,7 @@ YDOTOOL_SOCKET=/tmp/ydotool-1000/.ydotool_socket
 TERMINFO_DIRS=/usr/share/terminfo
 PATH="$PATH:$JAVA8_HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.krew/bin"
 
-export GCMDIR JAVA8_HOME BROWSER DOCKER_BUILDKIT DOCKER_TEAM_STUDIO_REPO CHORUS_SERVICE_TYPE ALPINE_HADOOP_VERSION PYSPARK_DRIVER_PYTHON YDOTOOL_SOCKET TERMINFO_DIRS PATH
+export GCMDIR JAVA8_HOME BROWSER DOCKER_BUILDKIT DOCKER_TEAM_STUDIO_REPO CHORUS_SERVICE_TYPE ALPINE_HADOOP_VERSION PYSPARK_DRIVER_PYTHON VK_DRIVER_FILES YDOTOOL_SOCKET TERMINFO_DIRS PATH
 
 # gcloud python and new gke plugin
 CLOUDSDK_PYTHON=python3
