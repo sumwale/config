@@ -18,7 +18,8 @@ set incsearch
 set nowrapscan
 set ruler
 " yank to clipboard by default
-set clipboard+=unnamedplus
+"set clipboard+=unnamedplus
+xnoremap y "+y
 
 set nobackup
 set nowritebackup

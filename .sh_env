@@ -52,7 +52,8 @@ if [ "$session_type" = "wayland" -o "$session_type" = "x11" ]; then
 fi
 
 # set the appropriate VK_DRIVER_FILES
-if glxinfo | grep -iq "OpenGL renderer string.*nvidia"; then
+if type vulkaninfo 2>/dev/null >/dev/null && \
+     vulkaninfo --summary | awk '{ if ($1 == "GPU0:") gpu0_s = 1; else if (gpu0_s == 1 && $1 == "driverName") if (tolower($3) == "nvidia") exit 0; else exit 1; }'; then
   VK_DRIVER_FILES=/usr/share/vulkan/icd.d/nvidia_icd.json
 else
   VK_DRIVER_FILES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json

@@ -1,1 +1,175 @@
-garuda-mokka.jsonc
+// Based on exmaple 14.jsonc -> Inspired by Catnap
+// Source: https://github.com/hilbertcube/fastfetch-config
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "padding": {
+            "top": 2,
+            "left": 2
+        },
+        "color": {
+            "1": "\u001b[38;5;208m"  // Orange color for logo
+        },
+        "type": "kitty-direct",
+        "source": "~/.config/fastfetch/garuda-mokka.png",
+        "width": 40,
+        "height": 20
+    },
+    "display": {
+        "separator": "",
+        "constants": [
+            "──────────────" // {$1}, used in Custom module
+        ],
+        "key": {
+            "width": 13
+        }
+    },
+    "modules": [
+        {
+            "type": "custom", // HardwareStart
+            // {#1} is equivalent to `\u001b[1m`. {#} is equivalent to `\u001b[m`
+            "format": "{#37}┌{$1}{$1} {#4}Hardware{#24} {$1}{$1}┐{#}"
+        },
+        {
+            "key": "├╼ Host",
+            "type": "host",
+            "keyColor": "38;2;0;255;255",
+            "format": "{1} {2}"  // Manufacturer and product name
+        },
+                {
+            "key": "├╼ Display",
+            "type": "display",
+            "keyColor": "38;2;0;191;255"  // Bright gold
+        },
+        {
+            "key": "├╼ CPU",
+            "type": "cpu",
+            "showPeCoreCount": true,
+            "keyColor": "31"
+        },
+                {
+            "type": "custom",
+            "key": "├╼ GPUs",
+            "keyColor": "38;2;118;185;0"
+        },
+        {
+            "key": "│  └╼ GPU",  // Discrete GPU (NVIDIA)
+            "type": "gpu",
+            "keyColor": "38;2;118;185;0"  // NVIDIA green
+        },
+        {
+            "type": "custom",
+            "key": "├╼ Disks",
+            "keyColor": "38;2;255;215;0"
+        },
+        {
+            "key": "│  └╼ SSD1",
+            "type": "disk",
+            "folders": "/",
+            "keyColor": "38;2;255;215;0"  // Bright cyan/sky blue
+        },
+        {
+            "key": "│  └╼ SSD2",
+            "type": "disk",
+            "folders": "/media/work",
+            "keyColor": "38;2;255;215;0"  // Bright lime green
+        },
+        {
+            "key": "├╼ RAM",
+            "type": "memory",
+            "keyColor": "38;2;255;20;147"  // Bright hot pink
+        },
+        {
+            "type": "custom", // InformationEnd
+            "format": "{#37}└{$1}{$1}────────────────────────{$1}┘{#}"
+        },
+        {
+            "type": "custom", // SoftwareStart
+            // {#1} is equivalent to `\u001b[1m`. {#} is equivalent to `\u001b[m`
+            "format": "{#37}┌{$1}{$1} {#4}Software{#24} {$1}{$1}┐{#}"
+        },
+        {
+            "key": "├╼ OS",
+            "type": "os",
+            "keyColor": "38;2;255;69;0"  // Bright red-orange
+        },
+        {
+            "key": "├╼ Kernel",
+            "type": "kernel",
+            "format": "{1} {2} {4}",
+            "keyColor": "38;2;255;255;0"  // Bright yellow
+        },
+        {
+            "key": "├╼ Uptime",
+            "type": "uptime",
+            "format": "{1} days {2} hrs {3} mins @ Boot time {6}",
+            "keyColor": "38;2;0;255;255"  // Bright cyan
+        },
+        {
+            "key": "├╼ Wifi",
+            "type": "wifi",
+            "keyColor": "38;2;0;191;255"  // Bright sky blue
+        },
+        {
+            "key": "├╼ Packages",
+            "type": "packages",
+            "keyColor": "38;2;50;205;50"  // Bright lime green
+        },
+        {
+            "key": "├╼ Theme",
+            "type": "theme",
+            "keyColor": "38;2;255;105;180"  // Bright hot pink
+        },
+        {
+            "key": "├╼ DM",
+            "type": "lm",
+            "keyColor": "38;2;255;20;147"  // Bright deep pink
+        },
+        {
+            "key": "├╼ DE",
+            "type": "de",
+            "keyColor": "38;2;138;43;226"  // Bright purple
+        },
+        {
+            "key": "├╼ Terminal",
+            "type": "terminal",
+            "keyColor": "38;2;0;255;127"  // Bright spring green
+        },
+        {
+            "key": "├╼ Shell",
+            "type": "shell",
+            "keyColor": "38;2;255;0;0"  // Bright red
+        },
+        {
+            "type": "custom", // InformationEnd
+            "format": "{#37}└{$1}{$1}────────────────────────{$1}┘{#}"
+        },
+        {
+            "type": "custom", // SoftwareStart
+            // {#1} is equivalent to `\u001b[1m`. {#} is equivalent to `\u001b[m`
+            "format": "{#37}┌{$1}{$1} {#4}Firmware{#24} {$1}{$1}┐{#}"
+        },
+        {
+            "key": "├╼ BIOS",
+            "type": "bios",
+            "keyColor": "38;2;0;191;255"
+        },
+        {
+            "key": "├╼ Bootmgr",
+            "type": "bootmgr",
+            "keyColor": "38;2;255;69;0"
+        },
+        {
+            "type": "custom", // InformationEnd
+            "format": "{#37}└{$1}{$1}────────────────────────{$1}┘{#}"
+        },
+        {
+            "key": "> Palette",
+            "type": "colors",
+            "symbol": "diamond"
+        }
+    ]
+}
+
+// ref: https://github.com/fastfetch-cli/fastfetch/discussions/971
+// ref: https://en.wikipedia.org/wiki/Box-drawing_characters
