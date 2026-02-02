@@ -40,7 +40,6 @@ alias lessR='less -RL'
 alias q='QHOME=~/q rlwrap -r ~/q/l32/q'
 alias rmvmtmp='rm -rf vm_* .attach_pid* spark-warehouse target'
 alias vsd='/usr/local/vsd/bin/vsd'
-[ "$TERM" = "xterm-kitty" ] && alias ssh='TERM=xterm-256color /usr/bin/ssh'
 
 alias k=kubectl
 alias kpods='kubectl get pods'

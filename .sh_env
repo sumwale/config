@@ -19,6 +19,12 @@ ALPINE_HADOOP_VERSION=cdh54
 PYSPARK_DRIVER_PYTHON=ipython3
 #CLUTTER_VBLANK=none
 
+# set TERM to a standard value when running in podman/docker
+if [ "$TERM" = xterm-kitty ] && [ "$container" = podman -o -e /.dockerenv ]; then
+  TERM=xterm-256color
+  export TERM
+fi
+
 # WAYLAND_DISPLAY may not be set yet, so check session type
 session_type="`loginctl --property=Type --value show-session auto 2>/dev/null`"
 if [ "$session_type" = "wayland" -o -n "$WAYLAND_DISPLAY" ]; then
@@ -62,11 +68,9 @@ fi
 # ydotool socket path used by /etc/systemd/system/ydotoold.service
 YDOTOOL_SOCKET=/tmp/ydotool-1000/.ydotool_socket
 
-# required for conda environments
-TERMINFO_DIRS=/usr/share/terminfo
 PATH="$PATH:$JAVA8_HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.krew/bin"
 
-export GCMDIR JAVA8_HOME BROWSER DOCKER_BUILDKIT DOCKER_TEAM_STUDIO_REPO CHORUS_SERVICE_TYPE ALPINE_HADOOP_VERSION PYSPARK_DRIVER_PYTHON VK_DRIVER_FILES YDOTOOL_SOCKET TERMINFO_DIRS PATH
+export GCMDIR JAVA8_HOME BROWSER DOCKER_BUILDKIT DOCKER_TEAM_STUDIO_REPO CHORUS_SERVICE_TYPE ALPINE_HADOOP_VERSION PYSPARK_DRIVER_PYTHON VK_DRIVER_FILES YDOTOOL_SOCKET PATH
 
 # gcloud python and new gke plugin
 CLOUDSDK_PYTHON=python3
