@@ -101,7 +101,7 @@ function cleanup() {
 
 if [ "$1" = "--help" ]; then
   usage
-  exit 1
+  exit 0
 fi
 if [[ "$1" = --user=* ]]; then
   sync_user="${1/*=/}"
@@ -267,7 +267,7 @@ if [ -f $ub_src ]; then
     # disable plucky for now and enable towards the end
     sudo sed -i 's|Enabled:.*|Enabled: no|' $plucky_src
   fi
-  sudo sed -i 's|URIs:.*|URIs: https://in.archive.ubuntu.com/ubuntu/|' $ub_src
+  sudo sed -i 's|URIs:.*|URIs: https://archive.ubuntu.com/ubuntu/|' $ub_src
 fi
 # check for ubuntu pro repositories and if they are accessible, else remove them
 if compgen -G "$sync_etc/apt/sources.list.d/ubuntu-esm-*" >/dev/null; then
