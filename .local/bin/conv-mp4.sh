@@ -7,10 +7,36 @@
 #ffmpeg -threads 2 -i "$1" -f mp4 -vcodec libx264 -flags +loop -cmp +chroma -deblockalpha 0 -deblockbeta 0 -b 1250k -maxrate 1500k -bufsize 4M -bt 256k -refs 1 -bf 3 -coder 1 -subq 7 -keyint_min 25 -level 30 -qmin 10 -qmax 51 -qcomp 0.6 -trellis 2 -sc_threshold 40 -acodec libfaac "$2"
 #ffmpeg -threads 4 -i "$1" -f mp4 -vcodec libx264 -flags +loop -cmp +chroma -deblockalpha 0 -deblockbeta 0 -b 1250k -maxrate 1500k -bufsize 4M -bt 256k -refs 1 -bf 3 -coder 1 -subq 7 -keyint_min 25 -level 30 -qmin 10 -qmax 51 -qcomp 0.6 -trellis 2 -sc_threshold 40 -acodec mp2 "$2"
 
+cv="-c:v libx264 -crf 26"
+if [ "$1" = "-hwaccel" ]; then
+  HWACCEL=1
+  shift
+elif [ "$1" = "-nohwaccel" ]; then
+  HWACCEL=0
+  shift
+fi
+
 FNAME="$1"
 shift
 #avconv -threads 4 -i "${FNAME}" -vcodec libx264 -flags loop -cmp chroma -b 1250k -maxrate 1500k -bufsize 4M -bt 256k -refs 1 -bf 3 -coder 1 -subq 7 -keyint_min 25 -level 30 -qmin 10 -qmax 51 -qcomp 0.6 -trellis 2 -sc_threshold 40 -acodec mp3 "$@"
 #avconv -threads 4 -i "${FNAME}" -vcodec libx264 -b 1250k -maxrate 1500k -bufsize 4M -bt 256k -acodec mp3 "$@"
 #ffmpeg -threads 8 -i "${FNAME}" -vcodec libx264 -b 1250k -maxrate 1500k -bufsize 4M -bt 256k -acodec mp3 "$@"
 #ffmpeg -threads 12 -i "${FNAME}" -vcodec libx264 -b:v 2M -maxrate 2M -bufsize 4M -acodec mp3 "$@"
-ffmpeg -i "${FNAME}" -c:a libvorbis -c:v libx264 -crf 25 "$@"
+
+if [ "$HWACCEL" != 0 ]; then
+  if glxinfo | grep -iq "OpenGL renderer string.*NVIDIA"; then
+    hwaccel="-hwaccel cuda"
+    if [ -n "$HWACCEL" ]; then
+      hwaccel="$hwaccel -hwaccel_output_format cuda"
+      cv="-c:v h264_nvenc"
+    fi
+  else
+    hwaccel="-hwaccel vaapi -hwaccel_device /dev/dri/renderD128"
+    if [ -n "$HWACCEL" ]; then
+      hwaccel="$hwaccel -hwaccel_output_format vaapi"
+      cv="-c:v h264_vaapi"
+    fi
+  fi
+fi
+
+ffmpeg $hwaccel -i "${FNAME}" -c:a libvorbis $cv "$@"
