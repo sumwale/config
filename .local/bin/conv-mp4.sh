@@ -15,6 +15,15 @@ elif [ "$1" = "-nohwaccel" ]; then
   HWACCEL=0
   shift
 fi
+if [ "$1" = "-hevc" ]; then
+  cv="-c:v libx265 -crf 28 -x265-params no-open-gop=1:keyint=300:gop-lookahead=12:bframes=6:weightb=1:hme=1:strong-intra-smoothing=0:rect=0:aq-mode=4"
+  HEVC=1
+  shift
+fi
+if [ "$1" = "-av1" ]; then
+  cv="-c:v libsvtav1 -crf 30 -preset 6 -svtav1-params keyint=10s:tune=0:enable-overlays=1:scd=1:scm=0"
+  shift
+fi
 
 FNAME="$1"
 shift
@@ -28,15 +37,23 @@ if [ "$HWACCEL" != 0 ]; then
     hwaccel="-hwaccel cuda"
     if [ -n "$HWACCEL" ]; then
       hwaccel="$hwaccel -hwaccel_output_format cuda"
-      cv="-c:v h264_nvenc"
+      if [ -n "$HEVC" ]; then
+        cv="-c:v hevc_nvenc"
+      else
+        cv="-c:v h264_nvenc"
+      fi
     fi
   else
     hwaccel="-hwaccel vaapi -hwaccel_device /dev/dri/renderD128"
     if [ -n "$HWACCEL" ]; then
       hwaccel="$hwaccel -hwaccel_output_format vaapi"
-      cv="-c:v h264_vaapi"
+      if [ -n "$HEVC" ]; then
+        cv="-c:v hevc_vaapi"
+      else
+        cv="-c:v h264_vaapi"
+      fi
     fi
   fi
 fi
 
-ffmpeg $hwaccel -i "${FNAME}" -c:a libvorbis $cv "$@"
+ffmpeg $hwaccel -i "${FNAME}" -c:a libopus -b:a 128k $cv "$@"
