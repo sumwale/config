@@ -439,11 +439,11 @@ if [ -n "$pkg_diffs" ]; then
     fi
     if [ -n "$selected_inst_pkgs" -o -n "$purge_pkgs" ]; then
       if [ -z "$selected_inst_pkgs" ]; then
-        sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get purge -y $purge_pkgs
+        sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get purge -y --allow-remove-essential $purge_pkgs
       else
         purge_pkgs_minus=$(echo "$purge_pkgs" | sed -E 's/[[:space:]]+|$/-\0/g')
         sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive $APT_FAST install \
-          --allow-downgrades $APT_COMMON_OPTS $selected_inst_pkgs $purge_pkgs_minus || true
+          --allow-downgrades --allow-remove-essential $APT_COMMON_OPTS $selected_inst_pkgs $purge_pkgs_minus || true
       fi
     fi
     # mark the ones in deb-explicit.list as manually installed while the rest as auto
