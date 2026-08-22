@@ -157,10 +157,12 @@ echo
 
 # Install or update packages used by the script
 
+APT_COMMON_OPTS="-y --purge -o Dpkg::Options::=--force-confold"
+
 sudo dpkg --add-architecture i386
 sudo apt-get update || true
-sudo apt-get install -y rsync gpg openssh-client coreutils util-linux mawk tar curl sudo
-sudo apt-get install -y apt dpkg
+sudo env DEBIAN_FRONTEND=noninteractive apt-get install $APT_COMMON_OPTS rsync gpg openssh-client coreutils util-linux mawk tar curl sudo
+sudo env DEBIAN_FRONTEND=noninteractive apt-get install $APT_COMMON_OPTS apt dpkg
 
 AWK=awk
 type -p mawk >/dev/null && AWK=mawk
@@ -192,11 +194,11 @@ EOF
   export SSH_ASKPASS_REQUIRE=force
   mkdir -p ~/.ssh && chmod 0700 ~/.ssh
   if ! grep -q "^$remote_server_addr " ~/.ssh/known_hosts 2>/dev/null; then
-    ssh-keyscan $remote_server_addr 2>/dev/null >> ~/.ssh/known_hosts
+    ssh-keyscan $remote_server_addr 2>/dev/null >> ~/.ssh/known_hosts || /bin/true
   fi
   sudo mkdir -p ~root/.ssh && sudo chmod 0700 ~root/.ssh
   if ! sudo grep -q "^$remote_server_addr " ~root/.ssh/known_hosts 2>/dev/null; then
-    ssh-keyscan $remote_server_addr 2>/dev/null | sudo tee -a ~root/.ssh/known_hosts
+    ssh-keyscan $remote_server_addr 2>/dev/null | sudo tee -a ~root/.ssh/known_hosts || /bin/true
   fi
   # test if the password works
   if ssh -o PubkeyAuthentication=no $remote_pass_login whoami | grep -Fwq $sync_user; then
@@ -222,15 +224,14 @@ sudo rm -f $tmp_enc_pass $tmp_askpass
 # (else gnupg password popup can timeout so user will need to keep an eye on sync being finished)
 
 APT_FAST=apt-get
-APT_COMMON_OPTS="-y --purge -o Dpkg::Options::=--force-confold"
 if sudo $chroot_arg which apt-fast >/dev/null; then
   APT_FAST=apt-fast
 else
   echo -e "${fg_green}Installing apt-fast for faster downloads.$fg_reset"
-  sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get install -y software-properties-common
+  sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get install $APT_COMMON_OPTS software-properties-common
   sudo $chroot_arg add-apt-repository ppa:apt-fast/stable
   sudo $chroot_arg apt-get update || true
-  sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get install -y apt-fast
+  sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get install $APT_COMMON_OPTS apt-fast
   APT_FAST=apt-fast
 fi
 
@@ -258,15 +259,9 @@ sudo -E rsync $rsync_common_options -e "$rsync_ssh_opt" \
 sudo -E rsync $rsync_common_options -e "$rsync_ssh_opt" \
   --exclude-from=$sync_data_conf/excludes-root.list \
   $remote_root/var/opt/ $sync_root/var/opt/
-# switch to the standard India server for packages since others may not be functional at this time
-plucky_src=$sync_etc/apt/sources.list.d/ubuntu-plucky.sources
+# switch to the standard server for packages since others may not be functional at this time
 ub_src=$sync_etc/apt/sources.list.d/ubuntu.sources
 if [ -f $ub_src ]; then
-  if [ -f $plucky_src ]; then
-    ub_src="$ub_src $plucky_src"
-    # disable plucky for now and enable towards the end
-    sudo sed -i 's|Enabled:.*|Enabled: no|' $plucky_src
-  fi
   sudo sed -i 's|URIs:.*|URIs: https://archive.ubuntu.com/ubuntu/|' $ub_src
 fi
 # check for ubuntu pro repositories and if they are accessible, else remove them
@@ -439,7 +434,7 @@ if [ -n "$pkg_diffs" ]; then
     fi
     if [ -n "$selected_inst_pkgs" -o -n "$purge_pkgs" ]; then
       if [ -z "$selected_inst_pkgs" ]; then
-        sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get purge -y --allow-remove-essential $purge_pkgs
+        sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get purge $APT_COMMON_OPTS --allow-remove-essential $purge_pkgs
       else
         purge_pkgs_minus=$(echo "$purge_pkgs" | sed -E 's/[[:space:]]+|$/-\0/g')
         sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive $APT_FAST install \
@@ -451,11 +446,6 @@ if [ -n "$pkg_diffs" ]; then
     sudo $chroot_arg apt-mark manual $(cat $HOME/pkgs/deb-explicit.list) || true
     #sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive apt-get autopurge || true
   fi
-fi
-# enable plucky before the full upgrade
-if [ -f $plucky_src ]; then
-  sudo sed -i 's|Enabled:.*|Enabled: yes|' $plucky_src
-  sudo $chroot_arg apt-get update || true
 fi
 sudo $chroot_arg env DEBIAN_FRONTEND=noninteractive $APT_FAST full-upgrade \
   --allow-downgrades $APT_COMMON_OPTS || true
@@ -487,8 +477,8 @@ function user_groups() {
 }
 
 gid_awk_cmd="{ if (\$3 <= $last_sys_gid) print \$1 }"
-new_sys_groups=$(comm -13 <($AWK -F: "$gid_awk_cmd" $sync_etc/group | sort) \
-                          <($AWK -F: "$gid_awk_cmd" $HOME/group | sort))
+new_sys_groups=$(comm -13 <($AWK -F: "$gid_awk_cmd" $sync_etc/group | sort -g) \
+                          <($AWK -F: "$gid_awk_cmd" $HOME/group | sort -g))
 if [ -n "$new_sys_groups" ]; then
   echo
   echo -e "Following new system groups have been found in backup /etc/group:" $new_sys_groups
@@ -501,8 +491,8 @@ if [ -n "$new_sys_groups" ]; then
 fi
 
 uid_awk_cmd="{ if (\$3 <= $last_sys_uid) print \$1 }"
-new_sys_users=$(comm -13 <($AWK -F: "$uid_awk_cmd" $sync_etc/passwd | sort) \
-                         <($AWK -F: "$uid_awk_cmd" $HOME/passwd | sort))
+new_sys_users=$(comm -13 <($AWK -F: "$uid_awk_cmd" $sync_etc/passwd | sort -g) \
+                         <($AWK -F: "$uid_awk_cmd" $HOME/passwd | sort -g))
 if [ -n "$new_sys_users" ]; then
   echo
   echo -e "Following new system users have been found in backup /etc/passwd:" $new_sys_users
@@ -523,8 +513,8 @@ fi
 
 sync_gid=$(user_gid $sync_user $sync_etc/passwd)
 sync_new_gid=$(user_gid $sync_user $HOME/passwd) # can this be empty?
-new_groups=$(comm -13 <(user_groups $sync_user "$sync_gid" $sync_etc/group | tr ',' '\n' | sort) \
-                      <(user_groups $sync_user "$sync_new_gid" $HOME/group | tr ',' '\n' | sort))
+new_groups=$(comm -13 <(user_groups $sync_user "$sync_gid" $sync_etc/group | tr ',' '\n' | sort -g) \
+                      <(user_groups $sync_user "$sync_new_gid" $HOME/group | tr ',' '\n' | sort -g))
 if [ -n "$new_groups" ]; then
   echo
   echo "Synced user '$sync_user' is present in these additional groups in the backup:" $new_groups
