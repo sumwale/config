@@ -60,8 +60,11 @@ call plug#begin('~/.local/share/nvim/plugged')
 
 " Declare the list of plugins.
 
-Plug 'vim-airline/vim-airline'
+"Plug 'vim-airline/vim-airline'
 "Plug 'vim-airline/vim-airline-themes'
+Plug 'nvim-lualine/lualine.nvim'
+" If you want to have icons in your statusline choose one of these
+Plug 'nvim-tree/nvim-web-devicons'
 
 " Themes
 "Plug 'morhetz/gruvbox'
@@ -75,8 +78,8 @@ Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 " List ends here. Plugins become visible to Vim after this call.
 call plug#end()
 
-let g:airline#extensions#tabline#enabled = 1
-let g:airline_powerline_fonts = 1
+"let g:airline#extensions#tabline#enabled = 1
+"let g:airline_powerline_fonts = 1
 
 set background=dark
 
@@ -91,7 +94,16 @@ set background=dark
 "let g:airline_theme = 'monokai_tasty'
 
 colorscheme catppuccin-mocha " catppuccin-latte, catppuccin-frappe, catppuccin-macchiato, catppuccin-mocha
-let g:airline_theme = 'catppuccin'
+"let g:airline_theme = 'catppuccin'
+" 2. Configure lualine using a Lua block
+lua << EOF
+require('lualine').setup {
+  options = {
+    theme = 'catppuccin-mocha',
+    component_separators = ''
+  }
+}
+EOF
 
 
 " Protect large files from sourcing and other overhead.
