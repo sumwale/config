@@ -23,7 +23,7 @@ component_crx_cache
 /.local/share/gnome-boxes/images
 /.local/share/libvirt/images
 /.local/share/nvim
-/.local/share/ybox/archbox-games
+/.local/share/ybox/cachy-games
 /.local/share/ybox/nvidia
 **/.local/share/Steam
 **/Games/Heroic
