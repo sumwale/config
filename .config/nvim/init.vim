@@ -100,8 +100,39 @@ lua << EOF
 require('lualine').setup {
   options = {
     theme = 'catppuccin-mocha',
-    component_separators = ''
-  }
+    component_separators = '',
+    refresh = {
+      statusline = 1000,
+      tabline = 1000,
+    }
+  },
+  tabline = {
+    lualine_a = {
+      {
+        'buffers',
+        show_filename_only = false,  -- Shows shortened relative path when set to false
+        show_modified_status = true, -- Shows indicator when the buffer is modified
+        mode = 0,                    -- 0: Shows buffer name
+                                     -- 1: Shows buffer index
+                                     -- 2: Shows buffer name + buffer index
+                                     -- 3: Shows buffer number
+                                     -- 4: Shows buffer name + buffer number
+        -- Automatically updates active buffer color to match color of other components
+        use_mode_colors = true,
+        max_length = vim.o.columns,  -- Take up the full width of the screen
+        symbols = {
+          modified = ' ●',           -- Text to show when the buffer is modified
+          alternate_file = '#',      -- Text to show to identify the alternate file
+          directory = '',           -- Text to show when the buffer is a directory
+        },
+      }
+    },
+    lualine_b = {},
+    lualine_c = {},
+    lualine_x = {},
+    lualine_y = {},
+    lualine_z = {}
+  },
 }
 EOF
 
