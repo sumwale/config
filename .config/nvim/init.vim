@@ -97,6 +97,16 @@ colorscheme catppuccin-mocha " catppuccin-latte, catppuccin-frappe, catppuccin-m
 "let g:airline_theme = 'catppuccin'
 " 2. Configure lualine using a Lua block
 lua << EOF
+
+local function unmodifiable_color()
+  -- Custom colors if the current buffer is readonly or non-modifiable
+  if vim.bo.readonly or not vim.bo.modifiable then
+    return { fg = '#ffffff', bg = '#e06c75', gui = 'bold' }
+  end
+  -- Use default theme colors for other cases
+  return nil
+end
+
 require('lualine').setup {
   options = {
     theme = 'catppuccin-mocha',
@@ -106,19 +116,36 @@ require('lualine').setup {
       tabline = 1000,
     }
   },
+  sections = {
+    lualine_a = {
+      {
+        'mode',
+        color = unmodifiable_color
+      },
+    },
+    lualine_c = {
+      {
+        'filename',
+        path = 1
+      }
+    }
+  },
   tabline = {
     lualine_a = {
       {
         'buffers',
-        show_filename_only = false,  -- Shows shortened relative path when set to false
+        --show_filename_only = false,  -- Shows shortened relative path when set to false
         show_modified_status = true, -- Shows indicator when the buffer is modified
-        mode = 0,                    -- 0: Shows buffer name
+        mode = 2,                    -- 0: Shows buffer name
                                      -- 1: Shows buffer index
                                      -- 2: Shows buffer name + buffer index
                                      -- 3: Shows buffer number
                                      -- 4: Shows buffer name + buffer number
         -- Automatically updates active buffer color to match color of other components
         use_mode_colors = true,
+        buffers_color = {
+          active = unmodifiable_color
+        },
         max_length = vim.o.columns,  -- Take up the full width of the screen
         symbols = {
           modified = ' ●',           -- Text to show when the buffer is modified
