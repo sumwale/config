@@ -37,3 +37,7 @@ end
 function kswitchNS --description 'change current namespace for kubectl'
   kubectl config set-context --current "--namespace=$argv[1]"
 end
+
+function lg --description 'start lazygit with GH_TOKEN'
+  /usr/bin/env GH_TOKEN=(secret-tool lookup service gh:github.com) lazygit
+end

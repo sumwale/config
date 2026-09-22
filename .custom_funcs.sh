@@ -41,3 +41,7 @@ function kstartAll() {
 function kswitchNS() {
   kubectl config set-context --current --namespace=$1
 }
+
+function lg() {
+  /usr/bin/env GH_TOKEN=`secret-tool lookup service gh:github.com` lazygit
+}
