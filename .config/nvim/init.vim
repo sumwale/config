@@ -128,6 +128,12 @@ require('lualine').setup {
         'filename',
         path = 1
       }
+    },
+    lualine_z = {
+      {
+        'location',
+        color = unmodifiable_color
+      }
     }
   },
   tabline = {
