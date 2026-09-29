@@ -35,7 +35,7 @@ command-line flags in your installed borgmatic! Try this to upgrade:
             end
 
             set --local action_parser_condition "not __fish_seen_subcommand_from repo-create rcreate init -I transfer prune -p compact create -C check -k delete extract -x config export-tar mount -m umount -u repo-delete rdelete restore -r repo-list rlist list -l repo-info rinfo info -i break-lock key recreate diff browse borg"
-            set --local exact_option_condition "not __borgmatic_current_arg --source-repository -a --match-archives --glob-archives --sort-by --first --last -a --match-archives --glob-archives -a --match-archives --glob-archives --threshold -a --match-archives --glob-archives --only -a --match-archives --glob-archives --only --checkpoint-interval -a --match-archives --glob-archives --sort-by --first --last --archive --path --restore-path --destination --strip-components --archive --path --restore-path --destination --strip-components  --archive --path --destination --strip-components --mount-point --path --first --last --mount-point --path --first --last --mount-point --mount-point --archive --original-port --archive --original-port -a --match-archives --glob-archives --sort-by --first --last -a --match-archives --glob-archives --sort-by --first --last --path --find -a --match-archives --glob-archives --sort-by --first --last -e --exclude --exclude-from --patterns-from --path --find -a --match-archives --glob-archives --sort-by --first --last -e --exclude --exclude-from --patterns-from -a --match-archives --glob-archives --sort-by --first --last -a --match-archives --glob-archives --sort-by --first --last  -a --match-archives --glob-archives --archive --second-archive -- -c --config --after-actions[0] --after-actions --after-backup[0] --after-backup --after-check[0] --after-check --after-compact[0] --after-compact --after-everything[0] --after-everything --after-extract[0] --after-extract --after-prune[0] --after-prune --apprise.fail.body --apprise.fail.title --apprise.finish.body --apprise.finish.title --apprise.log.body --apprise.log.title --apprise.logs-size-limit --apprise.services[0].label --apprise.services[0].url --apprise.services --apprise.start.body --apprise.start.title --apprise.states[0] --apprise.states --archive-hostname --archive-name-format --archive-username --before-actions[0] --before-actions --before-backup[0] --before-backup --before-check[0] --before-check --before-compact[0] --before-compact --before-everything[0] --before-everything --before-extract[0] --before-extract --before-prune[0] --before-prune --borg-base-directory --borg-cache-directory --borg-config-directory --borg-exit-codes[0].code --borg-exit-codes[0].treat-as --borg-exit-codes --borg-files-cache-ttl --borg-key-file --borg-keys-directory --borg-security-directory --borgmatic-source-directory --btrfs.btrfs-command --btrfs.findmnt-command --check-last --check-repositories[0] --check-repositories --checkpoint-interval --checkpoint-volume --checks[0].frequency --checks[0].count-tolerance-percentage --checks[0].name --checks[0].max-duration --checks[0].data-sample-percentage --checks[0].only-run-on[0] --checks[0].only-run-on --checks[0].data-tolerance-percentage --checks[0].xxh64sum-command --checks --chunker-params --commands[0].before --commands[0].after --commands[0].run[0] --commands[0].run --commands[0].when[0] --commands[0].when --commands[0].states[0] --commands[0].states --commands --compact-threshold --compression --constants --container.secrets-directory --cronitor.ping-url --encryption-passcommand --encryption-passphrase --exclude-from[0] --exclude-from --exclude-if-present[0] --exclude-if-present --exclude-patterns[0] --exclude-patterns --extra-borg-options.break-lock --extra-borg-options.check --extra-borg-options.compact --extra-borg-options.create --extra-borg-options.delete --extra-borg-options.export-tar --extra-borg-options.extract --extra-borg-options.info --extra-borg-options.init --extra-borg-options.key-change-passphrase --extra-borg-options.key-export --extra-borg-options.key-import --extra-borg-options.list --extra-borg-options.mount --extra-borg-options.prune --extra-borg-options.recreate --extra-borg-options.rename --extra-borg-options.repo-create --extra-borg-options.repo-delete --extra-borg-options.repo-info --extra-borg-options.repo-list --extra-borg-options.transfer --extra-borg-options.umount --files-cache --files-changed --healthchecks.ping-body-limit --healthchecks.ping-url --healthchecks.states[0] --healthchecks.states --keep-13weekly --keep-3monthly --keep-daily --keep-hourly --keep-minutely --keep-monthly --keep-secondly --keep-weekly --keep-within --keep-yearly --keepassxc.keepassxc-cli-command --keepassxc.key-file --keepassxc.secret-tool-command --keepassxc.yubikey --local-path --lock-wait --log-file --log-file-format --log-file-verbosity --loki.labels --loki.tls.cert-path --loki.tls.key-path --loki.url --lvm.lsblk-command --lvm.lvcreate-command --lvm.lvremove-command --lvm.lvs-command --lvm.mount-command --lvm.snapshot-size --lvm.umount-command --mariadb-databases[0].container --mariadb-databases[0].format --mariadb-databases[0].hostname --mariadb-databases[0].label --mariadb-databases[0].list-options --mariadb-databases[0].mariadb-command --mariadb-databases[0].mariadb-dump-command --mariadb-databases[0].name --mariadb-databases[0].options --mariadb-databases[0].password --mariadb-databases[0].password-transport --mariadb-databases[0].port --mariadb-databases[0].restore-container --mariadb-databases[0].restore-hostname --mariadb-databases[0].restore-options --mariadb-databases[0].restore-password --mariadb-databases[0].restore-port --mariadb-databases[0].restore-socket-path --mariadb-databases[0].restore-username --mariadb-databases[0].skip-names[0] --mariadb-databases[0].skip-names --mariadb-databases[0].socket-path --mariadb-databases[0].username --mariadb-databases --mongodb-databases[0].authentication-database --mongodb-databases[0].container --mongodb-databases[0].format --mongodb-databases[0].hostname --mongodb-databases[0].label --mongodb-databases[0].mongodump-command --mongodb-databases[0].mongorestore-command --mongodb-databases[0].name --mongodb-databases[0].options --mongodb-databases[0].password --mongodb-databases[0].port --mongodb-databases[0].restore-container --mongodb-databases[0].restore-hostname --mongodb-databases[0].restore-options --mongodb-databases[0].restore-password --mongodb-databases[0].restore-port --mongodb-databases[0].restore-username --mongodb-databases[0].username --mongodb-databases --monitoring-verbosity --mysql-databases[0].container --mysql-databases[0].format --mysql-databases[0].hostname --mysql-databases[0].label --mysql-databases[0].list-options --mysql-databases[0].mysql-command --mysql-databases[0].mysql-dump-command --mysql-databases[0].name --mysql-databases[0].options --mysql-databases[0].password --mysql-databases[0].password-transport --mysql-databases[0].port --mysql-databases[0].restore-container --mysql-databases[0].restore-hostname --mysql-databases[0].restore-options --mysql-databases[0].restore-password --mysql-databases[0].restore-port --mysql-databases[0].restore-socket-path --mysql-databases[0].restore-username --mysql-databases[0].skip-names[0] --mysql-databases[0].skip-names --mysql-databases[0].socket-path --mysql-databases[0].username --mysql-databases --ntfy.access-token --ntfy.fail.message --ntfy.fail.priority --ntfy.fail.tags --ntfy.fail.title --ntfy.finish.message --ntfy.finish.priority --ntfy.finish.tags --ntfy.finish.title --ntfy.password --ntfy.server --ntfy.start.message --ntfy.start.priority --ntfy.start.tags --ntfy.start.title --ntfy.states[0] --ntfy.states --ntfy.topic --ntfy.username --on-error[0] --on-error --pagerduty.integration-key --patterns[0] --patterns --patterns-from[0] --patterns-from --postgresql-databases[0].analyze-options --postgresql-databases[0].compression --postgresql-databases[0].container --postgresql-databases[0].format --postgresql-databases[0].hostname --postgresql-databases[0].label --postgresql-databases[0].list-options --postgresql-databases[0].name --postgresql-databases[0].options --postgresql-databases[0].password --postgresql-databases[0].pg-dump-command --postgresql-databases[0].pg-restore-command --postgresql-databases[0].port --postgresql-databases[0].psql-command --postgresql-databases[0].restore-container --postgresql-databases[0].restore-hostname --postgresql-databases[0].restore-options --postgresql-databases[0].restore-password --postgresql-databases[0].restore-port --postgresql-databases[0].restore-username --postgresql-databases[0].ssl-cert --postgresql-databases[0].ssl-crl --postgresql-databases[0].ssl-key --postgresql-databases[0].ssl-mode --postgresql-databases[0].ssl-root-cert --postgresql-databases[0].username --postgresql-databases --prefix --pushover.fail.device --pushover.fail.expire --pushover.fail.message --pushover.fail.priority --pushover.fail.retry --pushover.fail.sound --pushover.fail.title --pushover.fail.ttl --pushover.fail.url --pushover.fail.url-title --pushover.finish.device --pushover.finish.expire --pushover.finish.message --pushover.finish.priority --pushover.finish.retry --pushover.finish.sound --pushover.finish.title --pushover.finish.ttl --pushover.finish.url --pushover.finish.url-title --pushover.start.device --pushover.start.expire --pushover.start.message --pushover.start.priority --pushover.start.retry --pushover.start.sound --pushover.start.title --pushover.start.ttl --pushover.start.url --pushover.start.url-title --pushover.states[0] --pushover.states --pushover.token --pushover.user --recompress --remote-path --repositories[0].encryption --repositories[0].id-hash --repositories[0].key-location --repositories[0].label --repositories[0].path --repositories[0].storage-quota --repositories --retries --retry-wait --sentry.data-source-name-url --sentry.environment --sentry.monitor-slug --sentry.states[0] --sentry.states --skip-actions[0] --skip-actions --source-directories[0] --source-directories --sqlite-databases[0].label --sqlite-databases[0].name --sqlite-databases[0].path --sqlite-databases[0].restore-path --sqlite-databases[0].sqlite-command --sqlite-databases[0].sqlite-restore-command --sqlite-databases --ssh-command --syslog-verbosity --systemd.encrypted-credentials-directory --systemd.systemd-creds-command --temporary-directory --umask --upload-buffer-size --upload-rate-limit --uptime-kuma.push-url --uptime-kuma.states[0] --uptime-kuma.states --user-runtime-directory --user-state-directory -v --verbosity --watchgoose.ping-body-limit --watchgoose.ping-url --watchgoose.states[0] --watchgoose.states --working-directory --zabbix.api-key --zabbix.fail.value --zabbix.finish.value --zabbix.host --zabbix.itemid --zabbix.key --zabbix.password --zabbix.server --zabbix.start.value --zabbix.states[0] --zabbix.states --zabbix.username --zfs.mount-command --zfs.umount-command --zfs.zfs-command"
+            set --local exact_option_condition "not __borgmatic_current_arg --source-repository -a --match-archives --glob-archives --sort-by --first --last -a --match-archives --glob-archives -a --match-archives --glob-archives --threshold -a --match-archives --glob-archives --only -a --match-archives --glob-archives --only --checkpoint-interval -a --match-archives --glob-archives --sort-by --first --last --archive --path --restore-path --destination --strip-components --archive --path --restore-path --destination --strip-components  --archive --path --destination --strip-components --mount-point --path --first --last --mount-point --path --first --last --mount-point --mount-point --archive --original-port --archive --original-port -a --match-archives --glob-archives --sort-by --first --last -a --match-archives --glob-archives --sort-by --first --last --path --find -a --match-archives --glob-archives --sort-by --first --last -e --exclude --exclude-from --patterns-from --path --find -a --match-archives --glob-archives --sort-by --first --last -e --exclude --exclude-from --patterns-from -a --match-archives --glob-archives --sort-by --first --last -a --match-archives --glob-archives --sort-by --first --last  -a --match-archives --glob-archives --archive --second-archive -- -c --config --after-actions[0] --after-actions --after-backup[0] --after-backup --after-check[0] --after-check --after-compact[0] --after-compact --after-everything[0] --after-everything --after-extract[0] --after-extract --after-prune[0] --after-prune --apprise.fail.body --apprise.fail.title --apprise.finish.body --apprise.finish.title --apprise.log.body --apprise.log.title --apprise.logs-size-limit --apprise.services[0].label --apprise.services[0].url --apprise.services --apprise.start.body --apprise.start.title --apprise.states[0] --apprise.states --archive-hostname --archive-name-format --archive-username --before-actions[0] --before-actions --before-backup[0] --before-backup --before-check[0] --before-check --before-compact[0] --before-compact --before-everything[0] --before-everything --before-extract[0] --before-extract --before-prune[0] --before-prune --borg-base-directory --borg-cache-directory --borg-config-directory --borg-exit-codes[0].code --borg-exit-codes[0].treat-as --borg-exit-codes --borg-files-cache-ttl --borg-key-file --borg-keys-directory --borg-security-directory --borgmatic-source-directory --btrfs.btrfs-command --btrfs.findmnt-command --check-last --check-repositories[0] --check-repositories --checkpoint-interval --checkpoint-volume --checks[0].frequency --checks[0].count-tolerance-percentage --checks[0].name --checks[0].max-duration --checks[0].data-sample-percentage --checks[0].only-run-on[0] --checks[0].only-run-on --checks[0].data-tolerance-percentage --checks[0].xxh64sum-command --checks --chunker-params --commands[0].before --commands[0].after --commands[0].run[0] --commands[0].run --commands[0].when[0] --commands[0].when --commands[0].states[0] --commands[0].states --commands --compact-threshold --compression --constants --container.secrets-directory --cronitor.ping-url --encryption-passcommand --encryption-passphrase --exclude-from[0] --exclude-from --exclude-if-present[0] --exclude-if-present --exclude-patterns[0] --exclude-patterns --extra-borg-options.break-lock --extra-borg-options.check --extra-borg-options.compact --extra-borg-options.create --extra-borg-options.delete --extra-borg-options.export-tar --extra-borg-options.extract --extra-borg-options.info --extra-borg-options.init --extra-borg-options.key-change-passphrase --extra-borg-options.key-export --extra-borg-options.key-import --extra-borg-options.list --extra-borg-options.mount --extra-borg-options.prune --extra-borg-options.recreate --extra-borg-options.rename --extra-borg-options.repo-create --extra-borg-options.repo-delete --extra-borg-options.repo-info --extra-borg-options.repo-list --extra-borg-options.transfer --extra-borg-options.umount --files-cache --files-changed --healthchecks.ping-body-limit --healthchecks.ping-url --healthchecks.states[0] --healthchecks.states --influxdb-databases[0].active-configuration --influxdb-databases[0].bucket-id --influxdb-databases[0].compression --influxdb-databases[0].configurations-path --influxdb-databases[0].hostname --influxdb-databases[0].influx-command --influxdb-databases[0].label --influxdb-databases[0].name --influxdb-databases[0].organization-id --influxdb-databases[0].organization-name --influxdb-databases[0].password --influxdb-databases[0].port --influxdb-databases[0].restore-bucket --influxdb-databases[0].restore-organization --influxdb-databases --keep-13weekly --keep-3monthly --keep-daily --keep-hourly --keep-minutely --keep-monthly --keep-secondly --keep-weekly --keep-within --keep-yearly --keepassxc.keepassxc-cli-command --keepassxc.key-file --keepassxc.secret-tool-command --keepassxc.yubikey --local-path --lock-wait --log-file --log-file-format --log-file-verbosity --loki.labels --loki.tls.cert-path --loki.tls.key-path --loki.url --lvm.lsblk-command --lvm.lvcreate-command --lvm.lvremove-command --lvm.lvs-command --lvm.mount-command --lvm.snapshot-size --lvm.umount-command --mariadb-databases[0].container --mariadb-databases[0].format --mariadb-databases[0].hostname --mariadb-databases[0].label --mariadb-databases[0].list-options --mariadb-databases[0].mariadb-command --mariadb-databases[0].mariadb-dump-command --mariadb-databases[0].name --mariadb-databases[0].options --mariadb-databases[0].password --mariadb-databases[0].password-transport --mariadb-databases[0].port --mariadb-databases[0].restore-container --mariadb-databases[0].restore-hostname --mariadb-databases[0].restore-options --mariadb-databases[0].restore-password --mariadb-databases[0].restore-port --mariadb-databases[0].restore-socket-path --mariadb-databases[0].restore-username --mariadb-databases[0].skip-names[0] --mariadb-databases[0].skip-names --mariadb-databases[0].socket-path --mariadb-databases[0].username --mariadb-databases --mongodb-databases[0].authentication-database --mongodb-databases[0].container --mongodb-databases[0].format --mongodb-databases[0].hostname --mongodb-databases[0].label --mongodb-databases[0].mongodump-command --mongodb-databases[0].mongorestore-command --mongodb-databases[0].name --mongodb-databases[0].options --mongodb-databases[0].password --mongodb-databases[0].password-transport --mongodb-databases[0].port --mongodb-databases[0].restore-container --mongodb-databases[0].restore-hostname --mongodb-databases[0].restore-options --mongodb-databases[0].restore-password --mongodb-databases[0].restore-port --mongodb-databases[0].restore-username --mongodb-databases[0].username --mongodb-databases --monitoring-verbosity --mysql-databases[0].container --mysql-databases[0].format --mysql-databases[0].hostname --mysql-databases[0].label --mysql-databases[0].list-options --mysql-databases[0].mysql-command --mysql-databases[0].mysql-dump-command --mysql-databases[0].name --mysql-databases[0].options --mysql-databases[0].password --mysql-databases[0].password-transport --mysql-databases[0].port --mysql-databases[0].restore-container --mysql-databases[0].restore-hostname --mysql-databases[0].restore-options --mysql-databases[0].restore-password --mysql-databases[0].restore-port --mysql-databases[0].restore-socket-path --mysql-databases[0].restore-username --mysql-databases[0].skip-names[0] --mysql-databases[0].skip-names --mysql-databases[0].socket-path --mysql-databases[0].username --mysql-databases --ntfy.access-token --ntfy.fail.message --ntfy.fail.priority --ntfy.fail.tags --ntfy.fail.title --ntfy.finish.message --ntfy.finish.priority --ntfy.finish.tags --ntfy.finish.title --ntfy.password --ntfy.server --ntfy.start.message --ntfy.start.priority --ntfy.start.tags --ntfy.start.title --ntfy.states[0] --ntfy.states --ntfy.topic --ntfy.username --on-error[0] --on-error --onepassword.op-command --openldap-databases[0].label --openldap-databases[0].name --openldap-databases[0].slapadd-command --openldap-databases[0].slapcat-command --openldap-databases --pagerduty.integration-key --patterns[0] --patterns --patterns-from[0] --patterns-from --postgresql-databases[0].analyze-options --postgresql-databases[0].compression --postgresql-databases[0].container --postgresql-databases[0].format --postgresql-databases[0].hostname --postgresql-databases[0].label --postgresql-databases[0].list-options --postgresql-databases[0].name --postgresql-databases[0].options --postgresql-databases[0].password --postgresql-databases[0].pg-dump-command --postgresql-databases[0].pg-restore-command --postgresql-databases[0].port --postgresql-databases[0].psql-command --postgresql-databases[0].restore-container --postgresql-databases[0].restore-hostname --postgresql-databases[0].restore-options --postgresql-databases[0].restore-password --postgresql-databases[0].restore-port --postgresql-databases[0].restore-username --postgresql-databases[0].ssl-cert --postgresql-databases[0].ssl-crl --postgresql-databases[0].ssl-key --postgresql-databases[0].ssl-mode --postgresql-databases[0].ssl-root-cert --postgresql-databases[0].username --postgresql-databases --prefix --pushover.fail.device --pushover.fail.expire --pushover.fail.message --pushover.fail.priority --pushover.fail.retry --pushover.fail.sound --pushover.fail.title --pushover.fail.ttl --pushover.fail.url --pushover.fail.url-title --pushover.finish.device --pushover.finish.expire --pushover.finish.message --pushover.finish.priority --pushover.finish.retry --pushover.finish.sound --pushover.finish.title --pushover.finish.ttl --pushover.finish.url --pushover.finish.url-title --pushover.start.device --pushover.start.expire --pushover.start.message --pushover.start.priority --pushover.start.retry --pushover.start.sound --pushover.start.title --pushover.start.ttl --pushover.start.url --pushover.start.url-title --pushover.states[0] --pushover.states --pushover.token --pushover.user --recompress --remote-path --repositories[0].encryption --repositories[0].id-hash --repositories[0].key-location --repositories[0].label --repositories[0].path --repositories[0].storage-quota --repositories --retries --retry-wait --sentry.data-source-name-url --sentry.environment --sentry.monitor-slug --sentry.states[0] --sentry.states --skip-actions[0] --skip-actions --source-directories[0] --source-directories --sqlite-databases[0].label --sqlite-databases[0].name --sqlite-databases[0].path --sqlite-databases[0].restore-path --sqlite-databases[0].sqlite-command --sqlite-databases[0].sqlite-restore-command --sqlite-databases --ssh-command --syslog-verbosity --systemd.encrypted-credentials-directory --systemd.systemd-creds-command --temporary-directory --umask --upload-buffer-size --upload-rate-limit --uptime-kuma.push-url --uptime-kuma.states[0] --uptime-kuma.states --user-runtime-directory --user-state-directory -v --verbosity --watchgoose.ping-body-limit --watchgoose.ping-url --watchgoose.states[0] --watchgoose.states --working-directory --zabbix.api-key --zabbix.fail.value --zabbix.finish.value --zabbix.host --zabbix.itemid --zabbix.key --zabbix.password --zabbix.server --zabbix.start.value --zabbix.states[0] --zabbix.states --zabbix.username --zfs.mount-command --zfs.umount-command --zfs.zfs-command"
 
 # action_parser completions
 complete -c borgmatic -f -n "$action_parser_condition" -n "$exact_option_condition" -a 'repo-create' -d 'Create a new, empty Borg repository (also known as "init")'
@@ -637,6 +637,76 @@ complete -c borgmatic -f -n "$exact_option_condition" -a '--healthchecks.verify-
 true.
 '
 complete -c borgmatic -f -n "$exact_option_condition" -a '--healthchecks.no-verify-tls' -d 'Set the --healthchecks.verify-tls value to false.'
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].active-configuration' -d 'Config name to use for command.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].active-configuration"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].bucket-id' -d 'The ID of the bucket to backup. Takes precedence over
+the bucket named by the "name" option.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].bucket-id"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].compression' -d 'Compression to use for local backup files, either
+"none" or "gzip". Defaults to "gzip".
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].compression"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].configurations-path' -d 'Path to the influx CLI configurations.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].configurations-path"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].full-replace' -d 'Fully restore and replace all data on server.
+Defaults to false.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].no-full-replace' -d 'Set the --influxdb-databases[0].full-replace value to false.'
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].hostname' -d 'InfluxDB hostname/IP to connect to.
+Defaults to localhost.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].hostname"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].influx-command' -d 'The InfluxDB executable to use, from InfluxDB 2.x.
+InfluxDB 3 is not supported. Defaults to "influx".
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].influx-command"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].label' -d 'Label to identify the database dump in the backup.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].label"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].name' -d 'Bucket name to dump (required if using this hook). Or
+"all" to dump all buckets on the host. Ignored for
+dumping purposes if "bucket_id" is given, but still
+used to identify the dump in the backup.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].name"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].organization-id' -d 'The ID of the organization.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].organization-id"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].organization-name' -d 'The name of the organization. Ignored if
+"organization_id" is also provided.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].organization-name"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].password' -d 'InfluxDB API token used to authenticate requests. This
+option is named "password" rather than "token" (which
+would better suit InfluxDB terminology) so that
+borgmatic'"'"'s native password handling applies. Omit it
+when the token comes from the influx CLI configuration
+selected by "active_configuration". Supports the
+"{credential ...}" syntax.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].password"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].port' -d 'Port to connect to. Defaults to 8086.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].port"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].restore-bucket' -d 'New name to use for the restored bucket.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].restore-bucket"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].restore-organization' -d 'New name to use for the restored organization.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases[0].restore-organization"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].tls' -d 'Selects if using HTTP (false) or HTTPS (true).
+Defaults to true.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].no-tls' -d 'Set the --influxdb-databases[0].tls value to false.'
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].verify-tls' -d 'Verify the TLS certificate chain and host name of the
+InfluxDB host. Defaults to true.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases[0].no-verify-tls' -d 'Set the --influxdb-databases[0].verify-tls value to false.'
+complete -c borgmatic -f -n "$exact_option_condition" -a '--influxdb-databases' -d ''
+complete -c borgmatic -x -n "__borgmatic_current_arg --influxdb-databases"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--keep-13weekly' -d 'Number of quarterly archives to keep (13 week strategy).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --keep-13weekly"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--keep-3monthly' -d 'Number of quarterly archives to keep (3 month strategy).'
@@ -766,7 +836,7 @@ causing the database to be dropped right before restore.
 Defaults to true.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].no-add-drop-database' -d 'Set the --mariadb-databases[0].add-drop-database value to false.'
-complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].container' -d 'Container name/id to connect to. When specified the
+complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].container' -d 'Container name/id to connect to. When specified, the
 hostname is ignored. Requires docker/podman CLI.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mariadb-databases[0].container"
@@ -776,12 +846,13 @@ permissions to dump events. Defaults to true.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].no-events' -d 'Set the --mariadb-databases[0].events value to false.'
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].format' -d 'Database dump output format. Currently only "sql" is
-supported. Defaults to "sql" for a single database. Or,
-when database name is "all" and format is blank, dumps
-all databases to a single file. But if a format is
-specified with an "all" database name, dumps each
-database to a separate file of that format, allowing
-more convenient restores of individual databases.
+supported. Defaults to "sql" for a single database or
+when using a glob in the database name. Or, when
+database name is "all" and format is blank, dumps all
+databases to a single file. But if a format is specified
+with an "all" database name, dumps each database to a
+separate file of that format, allowing more convenient
+restores of individual databases.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mariadb-databases[0].format"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].hostname' -d 'Database hostname to connect to. Defaults to connecting
@@ -814,10 +885,11 @@ host into the container at the same location. Defaults
 to "mariadb-dump".
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mariadb-databases[0].mariadb-dump-command"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].name' -d 'Database name (required if using this hook). Or "all" to
-dump all databases on the host. Note that using this
-database hook implicitly enables read_special (see
-above) to support dump and restore streaming.
+complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].name' -d 'Database name (required if using this hook). Globs are
+supported. Or "all" to dump all databases on the host.
+Note that using this database hook implicitly enables
+read_special (see above) to support dump and restore
+streaming.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mariadb-databases[0].name"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].options' -d 'Additional mariadb-dump options to pass directly to the
@@ -890,8 +962,8 @@ permissions to dump routines. Defaults to true.
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].no-routines' -d 'Set the --mariadb-databases[0].routines value to false.'
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].skip-names[0]' -d ' To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mariadb-databases[0].skip-names[0]"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].skip-names' -d 'Database names to skip when dumping "all" databases.
-Ignored when the database name is not "all".
+complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].skip-names' -d 'Database names to skip when dumping "all" databases or
+using a glob in the database name. Ignored otherwise.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.). Example value: "[cache]"'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mariadb-databases[0].skip-names"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mariadb-databases[0].socket-path' -d 'Path of a Unix socket to connect to instead of a remote
@@ -927,7 +999,7 @@ database provided in "name" is used. If "name" is "all",
 the "admin" database is used.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mongodb-databases[0].authentication-database"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--mongodb-databases[0].container' -d 'Container name/id to connect to. When specified the
+complete -c borgmatic -f -n "$exact_option_condition" -a '--mongodb-databases[0].container' -d 'Container name/id to connect to. When specified, the
 hostname is ignored. Requires docker/podman CLI.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mongodb-databases[0].container"
@@ -974,6 +1046,22 @@ if no authentication is needed. Supports the
 "{credential ...}" syntax.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mongodb-databases[0].password"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--mongodb-databases[0].password-transport' -d 'How to transmit database passwords from borgmatic to the
+MongoDB client, one of:
+ * "pipe": Securely transmit passwords via anonymous
+   pipe. Only works if the database client is on the
+   same host as borgmatic. (The server can be
+   somewhere else.) This is the default value.
+ * "file": Transmit passwords via a temporary file
+   created in the runtime directory. (See the
+   "user_runtime_directory" option.) Potentially less
+   secure than a pipe, but necessary when the database
+   client is elsewhere, e.g. when "mariadb_dump_command"
+   is configured to "exec" into a container and run a
+   client there. (In that case though, you will need to
+   mount the runtime directory into the container.)
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --mongodb-databases[0].password-transport"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mongodb-databases[0].port' -d 'Port to connect to. Defaults to 27017.  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mongodb-databases[0].port"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mongodb-databases[0].restore-container' -d 'Container name/id to restore to. Defaults to the
@@ -1030,7 +1118,7 @@ causing the database to be dropped right before restore.
 Defaults to true.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].no-add-drop-database' -d 'Set the --mysql-databases[0].add-drop-database value to false.'
-complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].container' -d 'Container name/id to connect to. When specified the
+complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].container' -d 'Container name/id to connect to. When specified, the
 hostname is ignored. Requires docker/podman CLI.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mysql-databases[0].container"
@@ -1078,10 +1166,11 @@ host into the container at the same location. Defaults
 to "mysqldump".
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mysql-databases[0].mysql-dump-command"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].name' -d 'Database name (required if using this hook). Or "all" to
-dump all databases on the host. Note that using this
-database hook implicitly enables read_special (see
-above) to support dump and restore streaming.
+complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].name' -d 'Database name (required if using this hook). Globs are
+supported. Or "all" to dump all databases on the host.
+Note that using this database hook implicitly enables
+read_special (see above) to support dump and restore
+streaming.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mysql-databases[0].name"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].options' -d 'Additional mysqldump options to pass directly to the
@@ -1154,8 +1243,8 @@ permissions to dump routines. Defaults to true.
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].no-routines' -d 'Set the --mysql-databases[0].routines value to false.'
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].skip-names[0]' -d ' To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mysql-databases[0].skip-names[0]"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].skip-names' -d 'Database names to skip when dumping "all" databases.
-Ignored when the database name is not "all".
+complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].skip-names' -d 'Database names to skip when dumping "all" databases or
+using a glob in the database name. Ignored otherwise.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.). Example value: "[cache]"'
 complete -c borgmatic -x -n "__borgmatic_current_arg --mysql-databases[0].skip-names"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--mysql-databases[0].socket-path' -d 'Path of a Unix socket to connect to instead of a remote
@@ -1258,6 +1347,42 @@ complete -c borgmatic -f -n "$exact_option_condition" -a '--one-file-system' -d 
 source directories. Defaults to false.
 '
 complete -c borgmatic -f -n "$exact_option_condition" -a '--no-one-file-system' -d 'Set the --one-file-system value to false.'
+complete -c borgmatic -f -n "$exact_option_condition" -a '--onepassword.op-command' -d 'Command to use instead of "op".
+'
+complete -c borgmatic -x -n "__borgmatic_current_arg --onepassword.op-command"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--openldap-databases[0].label' -d 'Label to identify the database dump in the backup.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --openldap-databases[0].label"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--openldap-databases[0].name' -d 'The suffix (base DN) of the database to dump, given to
+slapcat'"'"'s "-b" flag. Use "cn=config" to dump the slapd
+configuration database. Unlike the other database hooks,
+"all" is not accepted here, as slapcat without a suffix
+dumps only the first configured database rather than
+every one of them. Note that using this database hook
+implicitly enables read_special (see above) to support
+dump and restore streaming.
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --openldap-databases[0].name"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--openldap-databases[0].slapadd-command' -d 'Command to run when restoring a database instead of
+"slapadd". Defaults to "slapadd".
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --openldap-databases[0].slapadd-command"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--openldap-databases[0].slapcat-command' -d 'Command to use instead of "slapcat". This can be used to
+run slapcat from a non-standard path or with additional
+flags. Defaults to "slapcat".
+  To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
+complete -c borgmatic -x -n "__borgmatic_current_arg --openldap-databases[0].slapcat-command"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--openldap-databases' -d 'List of one or more OpenLDAP databases to dump before creating a
+backup, run once per configuration file. The database dumps are
+added to your source directories at runtime and streamed directly to
+Borg. Requires the slapcat and slapadd commands, which read the
+local slapd databases directly instead of connecting over the
+network—so borgmatic must run on the LDAP server itself and with
+sufficient permissions to read those databases. See
+https://www.openldap.org/software/man.cgi?query=slapcat and
+https://www.openldap.org/software/man.cgi?query=slapadd for details.
+ Example value: "[name: '"'"'dc=example,dc=com'"'"']"'
+complete -c borgmatic -x -n "__borgmatic_current_arg --openldap-databases"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--pagerduty.integration-key' -d 'PagerDuty integration key used to notify PagerDuty when a
 backup errors. Supports the "{credential ...}" syntax.
 '
@@ -1300,7 +1425,7 @@ compression as well, so you may not need it in both
 places.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --postgresql-databases[0].compression"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--postgresql-databases[0].container' -d 'Container name/id to connect to. When specified the
+complete -c borgmatic -f -n "$exact_option_condition" -a '--postgresql-databases[0].container' -d 'Container name/id to connect to. When specified, the
 hostname is ignored. Requires docker/podman CLI.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --postgresql-databases[0].container"
@@ -1328,12 +1453,12 @@ performing any validation on them. See psql
 documentation for details.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --postgresql-databases[0].list-options"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--postgresql-databases[0].name' -d 'Database name (required if using this hook). Or "all" to
-dump all databases on the host. (Also set the "format"
-to dump each database to a separate file instead of one
-combined file.) Note that using this database hook
-implicitly enables read_special (see above) to support
-dump and restore streaming.
+complete -c borgmatic -f -n "$exact_option_condition" -a '--postgresql-databases[0].name' -d 'Database name (required if using this hook). Globs are
+supported. Or "all" to dump all databases on the host.
+(Also set the "format" to dump each database to a
+separate file instead of one combined file.) Note that
+using this database hook implicitly enables read_special
+(see above) to support dump and restore streaming.
   To specify a different list element, replace the "[0]" with another array index ("[1]", "[2]", etc.).'
 complete -c borgmatic -x -n "__borgmatic_current_arg --postgresql-databases[0].name"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--postgresql-databases[0].no-owner' -d 'Do not output commands to set ownership of objects to
@@ -1606,13 +1731,6 @@ USER_KEY in Pushover documentation and code examples.
 Supports the "{credential ...}" syntax.
 '
 complete -c borgmatic -x -n "__borgmatic_current_arg --pushover.user"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--quick-statistics' -d 'Display statistics for an archive when running supported actions,
-skipping the repository-wide "All archives" and chunk index
-statistics to save some time. Corresponds to the "--quick-stats"
-flag on those actions. Defaults to false. (This option is supported
-for Borg 1.4.5+ only for the "create" action and for Borg >= 1.4.5
-and < Borg 2 for the "prune" action.)
-'
 complete -c borgmatic -f -n "$exact_option_condition" -a '--no-quick-statistics' -d 'Set the --quick-statistics value to false.'
 complete -c borgmatic -f -n "$exact_option_condition" -a '--read-special' -d 'Use Borg'"'"'s --read-special flag to allow backup of block and other
 special devices. Use with caution, as it will lead to problems if
@@ -1820,19 +1938,20 @@ Can significantly improve performance for large filesystems.
 UNSAFE because, when this option is enabled, Borg may hang on
 special files (named pipes, devices) and data from borgmatic data
 source hooks may be silently excluded if your excluded patterns
-match the runtime directory (see the "user_runtime_directory"
-option).
+match the runtime directory. (See the "user_runtime_directory"
+option.)
 
 Only enable if not using data source hooks and you manually verify
 that your excludes don'"'"'t affect the runtime directory. Defaults
 to false.
 '
 complete -c borgmatic -f -n "$exact_option_condition" -a '--no-unsafe-skip-path-validation-before-create' -d 'Set the --unsafe-skip-path-validation-before-create value to false.'
-complete -c borgmatic -f -n "$exact_option_condition" -a '--upload-buffer-size' -d 'Size of network upload buffer in MiB. Defaults to no buffer.
+complete -c borgmatic -f -n "$exact_option_condition" -a '--upload-buffer-size' -d 'Size of network upload buffer in MiB. Defaults to no buffer. Only
+supported with Borg 1.x.
 '
 complete -c borgmatic -x -n "__borgmatic_current_arg --upload-buffer-size"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--upload-rate-limit' -d 'Remote network upload rate limit in kiBytes/second. Defaults to
-unlimited.
+unlimited. Only supported with Borg 1.x.
 '
 complete -c borgmatic -x -n "__borgmatic_current_arg --upload-rate-limit"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--uptime-kuma.push-url' -d 'Uptime Kuma push URL without query string (do not include the
@@ -2036,10 +2155,7 @@ complete -c borgmatic -x -n "__borgmatic_current_arg -a --match-archives --glob-
 complete -c borgmatic -f -n "$exact_option_condition" -a '--stats' -d 'Display statistics of the pruned archive [Borg 1 only]' -n "__fish_seen_subcommand_from prune"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--quick-stats' -d 'Display statistics of the pruned archive, skipping repository-wide "All archives" and chunk index statistics [Borg >= 1.4.5 and < 2 only]' -n "__fish_seen_subcommand_from prune"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--list' -d 'List archives kept/pruned' -n "__fish_seen_subcommand_from prune"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--oldest' -d 'Prune archives within a specified time range starting from the timestamp of the oldest archive (e.g. 7d or 12m) [Borg 2.x+ only]' -n "__fish_seen_subcommand_from prune"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--newest' -d 'Prune archives within a time range that ends at timestamp of the newest archive and starts a specified time range ago (e.g. 7d or 12m) [Borg 2.x+ only]' -n "__fish_seen_subcommand_from prune"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--older' -d 'Prune archives that are older than the specified time range (e.g. 7d or 12m) from the current time [Borg 2.x+ only]' -n "__fish_seen_subcommand_from prune"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--newer' -d 'Prune archives that are newer than the specified time range (e.g. 7d or 12m) from the current time [Borg 2.x+ only]' -n "__fish_seen_subcommand_from prune"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--from' -d 'Only consider archives that are older than the given timestamp [Borg 2.x+ only]' -n "__fish_seen_subcommand_from prune"
 complete -c borgmatic -f -n "$exact_option_condition" -a '-h --help' -d 'Show this help message and exit' -n "__fish_seen_subcommand_from prune"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--repository' -d 'Path of specific existing repository to prune (must be already specified in a borgmatic configuration file), quoted globs supported' -n "__fish_seen_subcommand_from -p"
 complete -c borgmatic -f -n "$exact_option_condition" -a '-a --match-archives --glob-archives' -d 'When pruning, only consider archives with names, hashes, or series matching this pattern' -n "__fish_seen_subcommand_from -p"
@@ -2047,10 +2163,7 @@ complete -c borgmatic -x -n "__borgmatic_current_arg -a --match-archives --glob-
 complete -c borgmatic -f -n "$exact_option_condition" -a '--stats' -d 'Display statistics of the pruned archive [Borg 1 only]' -n "__fish_seen_subcommand_from -p"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--quick-stats' -d 'Display statistics of the pruned archive, skipping repository-wide "All archives" and chunk index statistics [Borg >= 1.4.5 and < 2 only]' -n "__fish_seen_subcommand_from -p"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--list' -d 'List archives kept/pruned' -n "__fish_seen_subcommand_from -p"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--oldest' -d 'Prune archives within a specified time range starting from the timestamp of the oldest archive (e.g. 7d or 12m) [Borg 2.x+ only]' -n "__fish_seen_subcommand_from -p"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--newest' -d 'Prune archives within a time range that ends at timestamp of the newest archive and starts a specified time range ago (e.g. 7d or 12m) [Borg 2.x+ only]' -n "__fish_seen_subcommand_from -p"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--older' -d 'Prune archives that are older than the specified time range (e.g. 7d or 12m) from the current time [Borg 2.x+ only]' -n "__fish_seen_subcommand_from -p"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--newer' -d 'Prune archives that are newer than the specified time range (e.g. 7d or 12m) from the current time [Borg 2.x+ only]' -n "__fish_seen_subcommand_from -p"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--from' -d 'Only consider archives that are older than the given timestamp [Borg 2.x+ only]' -n "__fish_seen_subcommand_from -p"
 complete -c borgmatic -f -n "$exact_option_condition" -a '-h --help' -d 'Show this help message and exit' -n "__fish_seen_subcommand_from -p"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--repository' -d 'Path of specific existing repository to compact (must be already specified in a borgmatic configuration file), quoted globs supported' -n "__fish_seen_subcommand_from compact"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--progress' -d 'Display progress as each segment is compacted' -n "__fish_seen_subcommand_from compact"
@@ -2209,7 +2322,7 @@ complete -c borgmatic -f -n "$exact_option_condition" -a '-h --help' -d 'Show th
 complete -c borgmatic -f -n "$exact_option_condition" -a '--repository' -d 'Path of repository to restore from, defaults to the configured repository if there is only one, quoted globs supported' -n "__fish_seen_subcommand_from restore"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--archive' -d 'Name or hash of a single archive to restore from (or "latest")' -n "__fish_seen_subcommand_from restore"
 complete -c borgmatic -x -n "__borgmatic_current_arg --archive"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--data-source --database' -d 'Name of data source (e.g. database) to restore from the archive, must be defined in borgmatic'"'"'s configuration, can specify the flag multiple times, defaults to all data sources in the archive' -n "__fish_seen_subcommand_from restore"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--data-source --database' -d 'Name of data source (e.g. database) to restore from the archive, must be defined in borgmatic'"'"'s configuration, globs supported, can specify the flag multiple times, defaults to all data sources in the archive' -n "__fish_seen_subcommand_from restore"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--schema' -d 'Name of schema to restore from the data source, can specify flag multiple times, defaults to all schemas. Schemas are only supported for PostgreSQL and MongoDB databases' -n "__fish_seen_subcommand_from restore"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--hostname' -d 'Database hostname to restore to. Defaults to the "restore_hostname" option in borgmatic'"'"'s configuration' -n "__fish_seen_subcommand_from restore"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--port' -d 'Database port to restore to. Defaults to the "restore_port" option in borgmatic'"'"'s configuration' -n "__fish_seen_subcommand_from restore"
@@ -2227,7 +2340,7 @@ complete -c borgmatic -f -n "$exact_option_condition" -a '-h --help' -d 'Show th
 complete -c borgmatic -f -n "$exact_option_condition" -a '--repository' -d 'Path of repository to restore from, defaults to the configured repository if there is only one, quoted globs supported' -n "__fish_seen_subcommand_from -r"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--archive' -d 'Name or hash of a single archive to restore from (or "latest")' -n "__fish_seen_subcommand_from -r"
 complete -c borgmatic -x -n "__borgmatic_current_arg --archive"
-complete -c borgmatic -f -n "$exact_option_condition" -a '--data-source --database' -d 'Name of data source (e.g. database) to restore from the archive, must be defined in borgmatic'"'"'s configuration, can specify the flag multiple times, defaults to all data sources in the archive' -n "__fish_seen_subcommand_from -r"
+complete -c borgmatic -f -n "$exact_option_condition" -a '--data-source --database' -d 'Name of data source (e.g. database) to restore from the archive, must be defined in borgmatic'"'"'s configuration, globs supported, can specify the flag multiple times, defaults to all data sources in the archive' -n "__fish_seen_subcommand_from -r"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--schema' -d 'Name of schema to restore from the data source, can specify flag multiple times, defaults to all schemas. Schemas are only supported for PostgreSQL and MongoDB databases' -n "__fish_seen_subcommand_from -r"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--hostname' -d 'Database hostname to restore to. Defaults to the "restore_hostname" option in borgmatic'"'"'s configuration' -n "__fish_seen_subcommand_from -r"
 complete -c borgmatic -f -n "$exact_option_condition" -a '--port' -d 'Database port to restore to. Defaults to the "restore_port" option in borgmatic'"'"'s configuration' -n "__fish_seen_subcommand_from -r"
