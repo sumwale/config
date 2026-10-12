@@ -188,10 +188,6 @@ if [ -z "$root_mnt" ]; then
   fi
 fi
 
-# setup systemd-creds encryption if not initialized
-if [ ! -f /var/lib/systemd/credential.secret ]; then
-  systemd-creds setup
-fi
 creds_dir=/etc/credstore.encrypted
 restic_login_pass=$creds_dir/restic-login
 restic_store_pass=$creds_dir/restic-store
@@ -200,16 +196,19 @@ mkdir -p $creds_dir && chmod 0700 $creds_dir
 # ask and test the restic login/store passwords multiple times:
 #   - attempt to decrypt the URL using the provided restic login password
 #   - pull restic-bundle and attempt to decrypt using the provided restic store password
+if systemd-analyze has-tpm2 --quiet; then
+  host_key_arg="--with-key=tpm2"
+fi
 function ask_restic_login_pass() {
   rm -f $restic_login_pass
   systemd-ask-password 'Password for remote login:' | \
-    systemd-creds --quiet --name=restic-login encrypt - $restic_login_pass
+    systemd-creds $host_key_arg --name=restic-login encrypt - $restic_login_pass
   chmod 0400 $restic_login_pass
 }
 function ask_restic_store_pass() {
   rm -f $restic_store_pass
   systemd-ask-password 'Password for the data store:' | \
-    systemd-creds --quiet --name=restic-store encrypt - $restic_store_pass
+    systemd-creds $host_key_arg --name=restic-store encrypt - $restic_store_pass
   chmod 0400 $restic_store_pass
 }
 
@@ -225,7 +224,7 @@ j3GVTEngc69be4Uz
 for i in {1..3}; do
   ask_restic_login_pass
   # test the password for URL decryption
-  restic_bundle_url=$(echo "$restic_bundle_url_enc" | gpg --decrypt $gpg_base_opts 3< <(systemd-creds --quiet --name=restic-login decrypt $restic_login_pass -) -o - -)
+  restic_bundle_url=$(echo "$restic_bundle_url_enc" | gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-login decrypt $restic_login_pass -) -o - -)
   [ -n "$restic_bundle_url" ] && break
   echo "Failed to decrypt gdrive URL using this password. Please try again."
 done
@@ -238,7 +237,7 @@ wget -q --show-progress "$restic_bundle_url" -O - > $restic_bundle_name
 for i in {1..3}; do
   ask_restic_store_pass
   # decrypt and untar the package
-  if gpg --decrypt $gpg_base_opts 3< <(systemd-creds --quiet --name=restic-store decrypt $restic_store_pass -) -o - $restic_bundle_name | tar -C / --zstd -xpf -; then
+  if gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-store decrypt $restic_store_pass -) -o - $restic_bundle_name | tar -C / --zstd -xpf -; then
     export RCLONE_CONFIG=/var/lib/restic/rclone.conf
     rm -f $restic_bundle_name
     break
@@ -285,10 +284,10 @@ if chroot "$root_mnt" systemd-analyze has-tpm2 --quiet; then
   key_arg="--with-key=host+tpm2"
 fi
 rm -f "$root_mnt$restic_login_pass"
-systemd-creds --quiet --name=restic-login decrypt $restic_login_pass - | \
+systemd-creds --name=restic-login decrypt $restic_login_pass - | \
   chroot "$root_mnt" systemd-creds --quiet $key_arg --name=restic-login encrypt - $restic_login_pass
 rm -f "$root_mnt$restic_store_pass"
-systemd-creds --quiet --name=restic-store decrypt $restic_store_pass - | \
+systemd-creds --name=restic-store decrypt $restic_store_pass - | \
   chroot "$root_mnt" systemd-creds --quiet $key_arg --name=restic-store encrypt - $restic_store_pass
 chmod 0400 "$root_mnt$restic_login_pass" "$root_mnt$restic_store_pass"
 rm -f $restic_login_pass $restic_store_pass
@@ -304,8 +303,8 @@ echo -n "3. Ubuntu pro advantage was not enabled on the new system, so if it was
 echo -n "enabled previously, then you may want to enable it using 'pro attach ...' "
 echo "after obtaining the required key from https://ubuntu.com/pro/dashboard."
 echo -n "4. You may also want to re-run 'sudo gen-local-checksums.sh' after login "
-echo -n "since the checksums in /etc, /boot will have changed significantly after "
-echo -e "the restore.\n"
+echo -n "since some of the checksums in /etc, /boot will have changed significantly "
+echo -e "after the restore.\n"
 
 
 cleanup 0

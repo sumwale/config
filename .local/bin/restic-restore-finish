@@ -51,7 +51,7 @@ if systemd-analyze has-tpm2 --quiet; then
         printf '%s' "$kpxc_pass" | systemd-creds --quiet --with-key=host+tpm2 --name="$kpxc_name" encrypt - - >> "$target_file"
         break
       fi
-    done < <(gpg --decrypt $gpg_base_opts 3< <(systemd-creds --quiet --name=restic-login decrypt $restic_login_pass -) -o - "$kpxc_key")
+    done < <(gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-login decrypt $restic_login_pass -) -o - "$kpxc_key")
   done
 fi
 
@@ -65,6 +65,7 @@ if [ "$nvidia_driver" != "$nvidia_driver_inst" ]; then
   if [ -n "$nvidia_driver" ]; then
     # always prefer the dkms package and not the pre-packaged kernel-specific modules
     nvidia_dkms="${nvidia_driver/-driver-/-dkms-/}"
+    nala update
     nala install "$nvidia_dkms" "$nvidia_driver" nvidia-prime nvidia-settings --no-install-recommends -y
     apt-mark auto "$nvidia_dkms" nvidia-prime nvidia-settings
     systemctl mask nvidia-persistence.service
