@@ -48,10 +48,10 @@ if systemd-analyze has-tpm2 --quiet; then
       echo "$dec_line" >> "$target_file"
       if [ "$dec_line" = "PASSWORD:" ]; then
         IFS= read -rd '' kpxc_pass
-        printf '%s' "$kpxc_pass" | systemd-creds --with-key=host+tpm2 --name="$kpxc_name" encrypt - - >> "$target_file"
+        printf '%s' "$kpxc_pass" | systemd-creds --quiet --with-key=host+tpm2 --name="$kpxc_name" encrypt - - >> "$target_file"
         break
       fi
-    done < <(gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-login decrypt $restic_login_pass -) -o - "$kpxc_key")
+    done < <(gpg --decrypt $gpg_base_opts 3< <(systemd-creds --quiet --name=restic-login decrypt $restic_login_pass -) -o - "$kpxc_key")
   done
 fi
 
@@ -76,6 +76,9 @@ elif [ -n "$nvidia_driver_inst" ]; then
   nvidia_dkms="${nvidia_driver_inst/-driver-/-dkms-/}"
   dpkg-reconfigure dkms "$nvidia_dkms"
 fi
+
+# kill lingering gpg processes
+gpgconf --kill all
 
 # disable restic timers
 systemctl disable restic-backup.timer
