@@ -13,7 +13,7 @@
 #
 # The installation can be an existing one being used or an entirely fresh one.
 # The script makes no assumption of any existing data on the system apart from
-# a minimal Ubuntu/Debian/openSUSE/... having basic utilities like ssh, git, curl
+# a minimal Ubuntu/Debian/openSUSE/... having basic utilities like ssh, wget
 # and essential ones like awk/sed/... that are present in all usable installations.
 # It makes use of restic, resticprofile, rclone which are downloaded from the latest
 # bundle uploaded by the last backup process and relevant configuration files to a public
@@ -43,7 +43,7 @@ dev_by_uuid=/dev/disk/by-uuid
 restic_bundle_name=restic-bundle.tar.zst.gpg
 
 declare -a all_mounts
-declare -a bind_dirs
+declare -a bind_paths
 
 function mount_tmp() {
   mnt_dir="${tmp_mnt_prefix}$1"
@@ -71,10 +71,10 @@ function cleanup() {
   rmdir $final_mnt_prefix* 2>/dev/null || /bin/true
 
   if [ -n "$root_mnt" -a -d "$root_mnt" ]; then
-    for (( idx=${#bind_dirs[@]}-1; idx>=0; idx-- )); do
-      umount "$root_mnt${bind_dirs[idx]}"
+    for (( idx=${#bind_paths[@]}-1; idx>=0; idx-- )); do
+      umount "$root_mnt${bind_paths[idx]}"
     done
-    rmdir "$root_mnt"
+    rmdir "$root_mnt" 2>/dev/null
   fi
 
   exit $1
@@ -233,7 +233,7 @@ if [ -z "$restic_bundle_url" ]; then
   echo "Failed due to invalid remote login password."
   exit 2
 fi
-curl -fsSL "$restic_bundle_url" > $restic_bundle_name
+wget -q --show-progress "$restic_bundle_url" -O - > $restic_bundle_name
 
 for i in {1..3}; do
   ask_restic_store_pass
@@ -251,9 +251,10 @@ if [ -z "$RCLONE_CONFIG" -o ! -f "$RCLONE_CONFIG" ]; then
 fi
 
 # setup environment and start the restore
-echo "Starting restic restore for the entire data in $root_mnt.\n"
+echo -e "Starting restic restore for the entire data in $root_mnt.\n"
 source /etc/environment.d/99backup.conf
 export RESTIC_BACKUP_SERVER
+ssh-keyscan -H "$RESTIC_BACKUP_SERVER" >> ~/.ssh/known_hosts
 # remove some known directories that have changed to symlinks in the backup that cause
 # failures during restore
 check_dirs="/home/*/.config/gtk-3.0 /home/*/.config/gtk-4.0 /usr/share/X11/xkb"
@@ -265,18 +266,18 @@ for check_dir in $check_dirs; do
     fi
   done
 done
-resticprofile remote.restore --target "$root_mnt"
+resticprofile remote.restore latest --target "$root_mnt"
 
 # chroot to the target directory and run the finish script for grub install and other
 # post-restore system configurations
-echo "Finishing up after the restore.\n"
-bind_dirs=(/dev /dev/pts /proc /sys)
+echo -e "Finishing up after the restore.\n"
+bind_paths=(/dev /dev/pts /proc /run /sys /etc/resolv.conf)
 if [ -d /sys/firmware/efi/efivars ]; then
-  bind_dirs+=(/sys/firmware/efi/efivars)
+  bind_paths+=(/sys/firmware/efi/efivars)
 fi
-for bind_dir in ${bind_dirs[@]}; do
-  mount -o bind $bind_dir "$root_mnt$bind_dir"
-do
+for bind_path in ${bind_paths[@]}; do
+  mount -o bind $bind_path "$root_mnt$bind_path"
+done
 if [ ! -f "$root_mnt/var/lib/systemd/credential.secret" ]; then
   chroot "$root_mnt" systemd-creds setup
 fi
@@ -293,7 +294,7 @@ chmod 0400 "$root_mnt$restic_login_pass" "$root_mnt$restic_store_pass"
 rm -f $restic_login_pass $restic_store_pass
 chroot "$root_mnt" /usr/local/sbin/restic-restore-finish
 
-echo "All Done.\n\n"
+echo -e "\n\nAll Done.\n\n"
 echo -n "1. If there have been any errors in the restic restore process before due to "
 echo "directory not being replaced by symlink, then those need to be resolved manually."
 echo -n "2. The systemd service timers for restic services namely restic-backup.timer "
@@ -301,7 +302,10 @@ echo -n "and restic-prune.timer have been disabled. Ensure that everything works
 echo "by logging into the restored system and then enable the two."
 echo -n "3. Ubuntu pro advantage was not enabled on the new system, so if it was not "
 echo -n "enabled previously, then you may want to enable it using 'pro attach ...' "
-echo "after obtaining the required key from https://ubuntu.com/pro/dashboard.\n"
+echo "after obtaining the required key from https://ubuntu.com/pro/dashboard."
+echo -n "4. You may also want to re-run 'sudo gen-local-checksums.sh' after login "
+echo -n "since the checksums in /etc, /boot will have changed significantly after "
+echo -e "the restore.\n"
 
 
 cleanup 0
