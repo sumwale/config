@@ -1,4 +1,15 @@
-This is the set of current configuration files on my Manjaro Linux installation including those for awesome, conky, kitty, neovim, borgmatic backup, custom scripts, customized themes among others. Some of these are specific to my hardware so cannot be used without modifications on other systems.
+> [!NOTE]
+> Most of the information below is now outdated since I have not been using Manjaro
+> or Awesome WM for many years, rather switched to Kubutu with its KDE environment.
+> As for the theme, I have switched to the official
+> [catppuccin theme](https://github.com/catppuccin/kde) for KDE as well as firefox,
+> betterbird, VS code etc. Currently prefer the macchiato flamingo variant.
+> The notes below are only for historical reference, or if someone wants to have an
+> Awesome desktop on Arch/CachyOS/EndevourOS -- I will not recommend anyone to use
+> Manjaro anymore since I have had multiple issues with packages in their repos
+> (broken/outdated/lagging security patches etc).
+
+This is the set of current configuration files on my Manjaro Linux installation including those for awesome, conky, kitty, neovim, restic backup, custom scripts, customized themes among others. Some of these are specific to my hardware so cannot be used without modifications on other systems.
 
 Some of the specific customizations include:
 
@@ -6,7 +17,7 @@ Some of the specific customizations include:
 * .Xresources, .xsettingsd use 120dpi and whitesur-purple-dark theme with tela-circle-purple-dark icons
 * .gitconfig obviously contains my information in the [user] section and requires git-credential-libsecret to be installed (Arch package has it while for others it may need to be built e.g. ubunu/debian have the source in /usr/share/doc/git/contrib)
 * .asound.state is specific to my soundcard configuration and is restored on startup overriding any changes that pulseaudio may have done
-* borgmatic backup configuration is specific to my borgbase account and uses secret-tool to obtain password
+* restic backup configuration is specific to my setup which uses systemd-creds to obtain password
 * conky configuration uses:
   * CPU count of 12 (from /proc/cpuinfo which includes hyper-threading) is specific to my hardware so change the count/layout as per your setup
   * network devices named enp2s0 and wlp3s0 that may need to be changed
@@ -14,7 +25,7 @@ Some of the specific customizations include:
   * nitrogen with random wallpaper picked from ~/Pictures/wallpapers
   * update-notifier.sh script in .local/bin for awesome wm which assumes ARCH based system having pamac and dunstify installed
   * touchpad-settings.sh in .local/bin to setup touchpad
-  * user-services.sh in .local/bin that invokes the borgmatic service timer to ensure that backup is never missed and loads .asound.state
+  * user-services.sh in .local/bin that loads .asound.state and some other actions
 * awesome wm configuration has many machine specific customizations noted in the next section
 
 
@@ -133,11 +144,11 @@ Use equivalent for other distributions.
 
 If you have a touchpad, then update the .local/bin/touchpad-settings.sh touchpad variable with your device (search for TouchPad in the output of "xinput list") and change the script to add/remove any other touchpad settings as per your preferences (e.g. the script enables "natural scrolling" by default but you may disable it if you prefer otherwise). If you do not have a touchpad, then remove or comment out the touchpad-settings.sh script invocation in ~/.config/awesome/configuration/apps.lua.
 
-The .local/bin/user-services.sh script launches few custom services for borgmatic backup. You would want to remove those but can retain nm-applet. This is launched as as a respawnable service because on my system this occasionally crashes after suspend. To use that copy the service file from .config/systemd/user/nm-applet.service to your ~/.config/systemd/user directory (create latter if not present). Additionally it overrides the alsa settings from ~/.asound.state since in my system pulseaudio overrides those in a way that disables seemless switching between internal speaker and headphones. If you want to also override then you can do the required setup using alsamixer (enable auto-mute mode) and then save using "alsactl store -f ~/.asound.state".
+You would want to remove those but can retain nm-applet. This is launched as as a respawnable service because on my system this occasionally crashes after suspend. To use that copy the service file from .config/systemd/user/nm-applet.service to your ~/.config/systemd/user directory (create latter if not present). Additionally it overrides the alsa settings from ~/.asound.state since in my system pulseaudio overrides those in a way that disables seemless switching between internal speaker and headphones. If you want to also override then you can do the required setup using alsamixer (enable auto-mute mode) and then save using "alsactl store -f ~/.asound.state".
 
 #### Optional apps in configuration/apps.lua
 
- * the following custom scripts from .local/bin: borgmatic-setup, borgmatic-backup, kitty-custom.sh, update-notifier.sh, touchpad-settings.sh, user-services.sh
+ * the following custom scripts from .local/bin: kitty-custom.sh, update-notifier.sh, touchpad-settings.sh, user-services.sh
  * Kitty for terminal. Instead of doing tiled windows manually, I find kitty or terminator that provide split windows and saved layouts to be way better. I will highly recommend using one of these two. Besides the first tag is supposed to be for terminal which is deliberately in floating mode for conky to work acceptably. The default session in kitty uses a single terminal with split layout, no tab bar or window decorations etc so looks identical in all DEs. Use Ctrl-Shift-Tab to create a new tab, Ctrl-Shift-Enter to add a new vertical split terminal, Ctrl-Shift-p for horizontal split. Use Ctrl-Shift-l to go to next layout which is Stack by default that will effectively maximize the current window (and hit the same again to go back to Split layout). The apps.lua uses kitty with custom.session that uses a specific layout with directories specific to my home that will not work OOTB for you, so change that as per your needs. Else change terminal in apps.lua to use just kitty instead of kitty-cusom.sh. Use Ctrl-Shift-F10 to maximize kitty window. See kitty.conf for other custom keyboard shortcuts.
  * Firefox for the browser. Personally I find firefox to be the most comfortable to use with the best look and feel.
  * Thunderbird for email. Still the best email client with Monterail and Conversations extensions giving it the modern touch.

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#systemctl --user start borgmatic-backup.timer
-#systemctl --user start borgmatic-check.timer
+#systemctl --user start restic-backup.timer
+#systemctl --user start restic-prune.timer
 
 if [ "$DESKTOP_SESSION" = "awesome" ]; then
   systemctl --user start nm-applet.service

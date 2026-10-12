@@ -1,0 +1,307 @@
+#!/bin/bash
+
+#
+# Script to sync/restore data from a remote restic backup to local directory.
+# This script is meant to be run as the root user.
+#
+# This will update/restore the entire OS, so it should not be an active one
+# rather the machine should be booted off a USB, for example, and the system to be
+# upgraded will be mounted somewhere. This script will try to auto-detect the
+# directories to be mounted for simpler layouts, but for more complex ones
+# (like /usr, /var or parts of them also mounted elsewhere) the user will need
+# to mount all the required partitions on some path.
+#
+# The installation can be an existing one being used or an entirely fresh one.
+# The script makes no assumption of any existing data on the system apart from
+# a minimal Ubuntu/Debian/openSUSE/... having basic utilities like ssh, git, curl
+# and essential ones like awk/sed/... that are present in all usable installations.
+# It makes use of restic, resticprofile, rclone which are downloaded from the latest
+# bundle uploaded by the last backup process and relevant configuration files to a public
+# google drive location.
+#
+
+set -o pipefail
+
+# ensure that only system paths are searched for all the utilities
+export PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/sbin:/usr/local/bin"
+# set umask to default so that root operations create readable entities
+umask 022
+
+if [ $(id -u) -ne 0 ]; then
+  echo "This script should be run as root"
+  exit 1
+fi
+if [ "$#" -gt 1 ]; then
+  echo "Usage: one optional argument for the target directory"
+  exit 1
+fi
+root_mnt="$1"
+
+tmp_mnt_prefix=/tmp/restic-sync-tmpmount-
+final_mnt_prefix=/restic-sync-target-
+dev_by_uuid=/dev/disk/by-uuid
+restic_bundle_name=restic-bundle.tar.zst.gpg
+
+declare -a all_mounts
+declare -a bind_dirs
+
+function mount_tmp() {
+  mnt_dir="${tmp_mnt_prefix}$1"
+  mkdir "$mnt_dir"
+  mount "$dev_by_uuid/$1" "$mnt_dir"
+  printf '%s' "$mnt_dir"
+}
+
+function umount_tmp() {
+  umount "$1" 2>/dev/null
+  rmdir "$1"
+  return 0
+}
+
+function cleanup() {
+  rm -f "$restic_bundle_name"
+  for mnt_dir in "${tmp_mnt_prefix}"*; do
+    [ -d "$mnt_dir" ] && umount_tmp "$mnt_dir"
+  done
+  # unmount in reverse order
+  for (( idx=${#all_mounts[@]}-1; idx>=0; idx-- )); do
+    echo "Unmounting ${all_mounts[idx]}"
+    umount "${all_mounts[idx]}"
+  done
+  rmdir $final_mnt_prefix* 2>/dev/null || /bin/true
+
+  if [ -n "$root_mnt" -a -d "$root_mnt" ]; then
+    for (( idx=${#bind_dirs[@]}-1; idx>=0; idx-- )); do
+      umount "$root_mnt${bind_dirs[idx]}"
+    done
+    rmdir "$root_mnt"
+  fi
+
+  exit $1
+}
+
+for sig in 1 2 3 4 6 8 11 14 15; do
+  trap "cleanup $sig" $sig
+done
+
+function check_root() {
+  mnt_dir=$(mount_tmp "$1")
+  detect_dirs="dev sys usr var"
+  for d in $detect_dirs; do
+    [ ! -d "$mnt_dir/$d" ] && umount_tmp "$mnt_dir" && return 1
+  done
+  umount_tmp "$mnt_dir"
+  return 0
+}
+
+function check_boot() {
+  mnt_dir=$(mount_tmp "$1")
+  { compgen -G "$mnt_dir/initrd*" && compgen -G "$mnt_dir/vmlinu*"; } >/dev/null
+  ret_code=$?
+  umount_tmp "$mnt_dir"
+  return $ret_code
+}
+
+function check_home() {
+  mnt_dir=$(mount_tmp "$1")
+  # distros will have at least one of .profile or .bashrc in user's home directory
+  { compgen -G "$mnt_dir/*/.bashrc" || compgen -G "$mnt_dir/*/.profile"; } >/dev/null
+  ret_code=$?
+  umount_tmp "$mnt_dir"
+  return $ret_code
+}
+
+function check_efi() {
+  mnt_dir=$(mount_tmp "$1")
+  [ -d "$mnt_dir/EFI/BOOT" ]
+  ret_code=$?
+  umount_tmp "$mnt_dir"
+  return $ret_code
+}
+
+
+declare -a root_uuids
+declare -a boot_uuids
+declare -a home_uuids
+declare -a efi_uuids
+
+function determine_mount_uuids() {
+  while read -r fs_type uuid; do
+    case "$fs_type" in
+      ext4|ext3|ext2|btrfs|xfs|zfs|jfs|f2fs)
+        if check_root "$uuid"; then
+          root_uuids+=("$uuid")
+        elif check_boot "$uuid"; then
+          boot_uuids+=("$uuid")
+        elif check_home "$uuid"; then
+          home_uuids+=("$uuid")
+        fi
+        ;;
+      *fat*)
+        check_efi "$uuid" && efi_uuids+=("$uuid")
+        ;;
+    esac
+  done < <(lsblk -n -o FSTYPE,UUID)
+  return 0
+}
+
+if [ -z "$root_mnt" ]; then
+  echo No target directory provided. Trying to auto-detect...
+
+  determine_mount_uuids
+
+  if [ ${#root_uuids[@]} -eq 1 -a ${#boot_uuids[@]} -le 1 -a ${#home_uuids[@]} -le 1 -a ${#efi_uuids[@]} -le 1 ]; then
+    root_mnt="${final_mnt_prefix}${root_uuids[0]}"
+    echo "Mounting root device $(blkid --uuid ${root_uuids[0]}) on $root_mnt"
+    mkdir -p "$root_mnt"
+    mount "$dev_by_uuid/${root_uuids[0]}" "$root_mnt"
+    all_mounts+=("$root_mnt")
+    if [ ${#boot_uuids[@]} -eq 1 ]; then
+      echo "Mounting device $(blkid --uuid ${boot_uuids[0]}) on $root_mnt/boot"
+      mount "$dev_by_uuid/${boot_uuids[0]}" "$root_mnt/boot"
+      all_mounts+=("$root_mnt/boot")
+    fi
+    if [ ${#efi_uuids[@]} -eq 1 ]; then
+      echo "Mounting device $(blkid --uuid ${efi_uuids[0]}) on $root_mnt/boot/efi"
+      mount "$dev_by_uuid/${efi_uuids[0]}" "$root_mnt/boot/efi"
+      all_mounts+=("$root_mnt/boot/efi")
+    fi
+    if [ ${#home_uuids[@]} -eq 1 ]; then
+      echo "Mounting device $(blkid --uuid ${home_uuids[0]}) on $root_mnt/home"
+      mount "$dev_by_uuid/${home_uuids[0]}" "$root_mnt/home"
+      all_mounts+=("$root_mnt/home")
+    fi
+    echo -n "Hit <Enter> to proceed with the above setup, else hit <Ctrl-c> to abort."
+    read resp
+  elif [ ${#root_uuids[@]} -gt 1 ]; then
+    echo Found multiple root device candidates:
+    for root_uuid in ${root_uuids[@]}; do
+      echo "  $(blkid --uuid $root_uuid) (UUID=$root_uuid)"
+    done
+    echo Mount one of these manually as well as required sub-mounts and \
+      run the script providing the target directory as an argument.
+    exit 1
+  else
+    echo Could not detect any root device candidate. Please mount manually and \
+      run the script providing the target directory as an argument.
+    exit 1
+  fi
+fi
+
+# setup systemd-creds encryption if not initialized
+if [ ! -f /var/lib/systemd/credential.secret ]; then
+  systemd-creds setup
+fi
+creds_dir=/etc/credstore.encrypted
+restic_login_pass=$creds_dir/restic-login
+restic_store_pass=$creds_dir/restic-store
+mkdir -p $creds_dir && chmod 0700 $creds_dir
+
+# ask and test the restic login/store passwords multiple times:
+#   - attempt to decrypt the URL using the provided restic login password
+#   - pull restic-bundle and attempt to decrypt using the provided restic store password
+function ask_restic_login_pass() {
+  rm -f $restic_login_pass
+  systemd-ask-password 'Password for remote login:' | \
+    systemd-creds --name=restic-login encrypt - $restic_login_pass
+  chmod 0400 $restic_login_pass
+}
+function ask_restic_store_pass() {
+  rm -f $restic_store_pass
+  systemd-ask-password 'Password for the data store:' | \
+    systemd-creds --name=restic-store encrypt - $restic_store_pass
+  chmod 0400 $restic_store_pass
+}
+
+gpg_base_opts="--quiet --batch --no-tty --no-symkey-cache --pinentry-mode loopback --passphrase-fd 3"
+restic_bundle_url_enc='-----BEGIN PGP MESSAGE-----
+
+jA0ECQMKpFzzOY8ELt7/0osBoSQ1QJ688PszQA74a70mwjzWEBe9hOzV0tiluYNF
+FnIN2q5Wqi69jcd7qx3WstoBWhuoDM4Qdk9ecGZoyOczuvdJpkjVZ42A6YQjVMOZ
+w8OU9qK57Wb+fFsfNciEzeuZY0Rk1OclRq7Ww5+Pacto2KE9+sXS6NH+X8PiufqC
+j3GVTEngc69be4Uz
+=PR+W
+-----END PGP MESSAGE-----'
+for i in {1..3}; do
+  ask_restic_login_pass
+  # test the password for URL decryption
+  restic_bundle_url=$(echo "$restic_bundle_url_enc" | gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-login decrypt $restic_login_pass -) -o - -)
+  [ -n "$restic_bundle_url" ] && break
+  echo "Failed to decrypt gdrive URL using this password. Please try again."
+done
+if [ -z "$restic_bundle_url" ]; then
+  echo "Failed due to invalid remote login password."
+  exit 2
+fi
+curl -fsSL "$restic_bundle_url" > $restic_bundle_name
+
+for i in {1..3}; do
+  ask_restic_store_pass
+  # decrypt and untar the package
+  if gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-store decrypt $restic_store_pass -) -o - $restic_bundle_name | tar -C / --zstd -xpf -; then
+    export RCLONE_CONFIG=/var/lib/restic/rclone.conf
+    rm -f $restic_bundle_name
+    break
+  fi
+  echo "Failed to decrypt $restic_bundle_name using this password. Please try again."
+done
+if [ -z "$RCLONE_CONFIG" -o ! -f "$RCLONE_CONFIG" ]; then
+  echo "Failed due to invalid data store password."
+  exit 2
+fi
+
+# setup environment and start the restore
+echo "Starting restic restore for the entire data in $root_mnt.\n"
+source /etc/environment.d/99backup.conf
+export RESTIC_BACKUP_SERVER
+# remove some known directories that have changed to symlinks in the backup that cause
+# failures during restore
+check_dirs="/home/*/.config/gtk-3.0 /home/*/.config/gtk-4.0 /usr/share/X11/xkb"
+for check_dir in $check_dirs; do
+  resolved_dirs=$(compgen -G "$root_mnt$check_dir")
+  for resolved_dir in $resolved_dirs; do
+    if [ -d "$resolved_dir" ]; then
+      rm -rf "$resolved_dir"
+    fi
+  done
+done
+resticprofile remote.restore --target "$root_mnt"
+
+# chroot to the target directory and run the finish script for grub install and other
+# post-restore system configurations
+echo "Finishing up after the restore.\n"
+bind_dirs=(/dev /dev/pts /proc /sys)
+if [ -d /sys/firmware/efi/efivars ]; then
+  bind_dirs+=(/sys/firmware/efi/efivars)
+fi
+for bind_dir in ${bind_dirs[@]}; do
+  mount -o bind $bind_dir "$root_mnt$bind_dir"
+do
+if [ ! -f "$root_mnt/var/lib/systemd/credential.secret" ]; then
+  chroot "$root_mnt" systemd-creds setup
+fi
+if chroot "$root_mnt" systemd-analyze has-tpm2 --quiet; then
+  key_arg="--with-key=host+tpm2"
+fi
+rm -f "$root_mnt$restic_login_pass"
+systemd-creds --name=restic-login decrypt $restic_login_pass - | \
+  chroot "$root_mnt" systemd-creds $key_arg --name=restic-login encrypt - $restic_login_pass
+rm -f "$root_mnt$restic_store_pass"
+systemd-creds --name=restic-store decrypt $restic_store_pass - | \
+  chroot "$root_mnt" systemd-creds $key_arg --name=restic-store encrypt - $restic_store_pass
+chmod 0400 "$root_mnt$restic_login_pass" "$root_mnt$restic_store_pass"
+rm -f $restic_login_pass $restic_store_pass
+chroot "$root_mnt" /usr/local/sbin/restic-restore-finish
+
+echo "All Done.\n\n"
+echo -n "1. If there have been any errors in the restic restore process before due to "
+echo "directory not being replaced by symlink, then those need to be resolved manually."
+echo -n "2. The systemd service timers for restic services namely restic-backup.timer "
+echo -n "and restic-prune.timer have been disabled. Ensure that everything works fine "
+echo "by logging into the restored system and then enable the two."
+echo -n "3. Ubuntu pro advantage was not enabled on the new system, so if it was not "
+echo -n "enabled previously, then you may want to enable it using 'pro attach ...' "
+echo "after obtaining the required key from https://ubuntu.com/pro/dashboard.\n"
+
+
+cleanup 0
