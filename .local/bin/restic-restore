@@ -76,13 +76,9 @@ function cleanup() {
     done
     rmdir "$root_mnt" 2>/dev/null
   fi
-
-  exit $1
 }
 
-for sig in 1 2 3 4 6 8 11 14 15; do
-  trap "cleanup $sig" $sig
-done
+trap "cleanup" EXIT
 
 function check_root() {
   mnt_dir=$(mount_tmp "$1")
@@ -305,6 +301,3 @@ echo "after obtaining the required key from https://ubuntu.com/pro/dashboard."
 echo -n "4. You may also want to re-run 'sudo gen-local-checksums.sh' after login "
 echo -n "since some of the checksums in /etc, /boot will have changed significantly "
 echo -e "after the restore.\n"
-
-
-cleanup 0
