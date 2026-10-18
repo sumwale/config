@@ -33,7 +33,7 @@ umask 022
 fg_red='\033[31m'
 fg_green='\033[32m'
 fg_orange='\033[33m'
-fg_reset='\033[00m'
+fg0='\033[00m'
 
 root_mnt="$1"
 tmp_mnt_prefix=/tmp/restic-sync-tmpmount-
@@ -64,7 +64,7 @@ function cleanup() {
   done
   # unmount in reverse order
   for (( idx=${#all_mounts[@]}-1; idx>=0; idx-- )); do
-    echo -e "${fg_green}Unmounting ${all_mounts[idx]}$fg_reset"
+    echo -e "${fg_green}Unmounting ${all_mounts[idx]}$fg0"
     umount "${all_mounts[idx]}"
   done
   rmdir $final_mnt_prefix* 2>/dev/null || /bin/true
@@ -147,38 +147,38 @@ if [ -z "$root_mnt" ]; then
 
   if [ ${#root_uuids[@]} -eq 1 -a ${#boot_uuids[@]} -le 1 -a ${#home_uuids[@]} -le 1 -a ${#efi_uuids[@]} -le 1 ]; then
     root_mnt="${final_mnt_prefix}${root_uuids[0]}"
-    echo -e "${fg_green}Mounting root device $(blkid --uuid ${root_uuids[0]}) on $root_mnt$fg_reset"
+    echo -e "${fg_green}Mounting root device $(blkid --uuid ${root_uuids[0]}) on $root_mnt$fg0"
     mkdir -p "$root_mnt"
     mount "$dev_by_uuid/${root_uuids[0]}" "$root_mnt"
     all_mounts+=("$root_mnt")
     if [ ${#boot_uuids[@]} -eq 1 ]; then
-      echo "Mounting device $(blkid --uuid ${boot_uuids[0]}) on $root_mnt/boot"
+      echo -e "${fg_green}Mounting device $(blkid --uuid ${boot_uuids[0]}) on $root_mnt/boot$fg0"
       mount "$dev_by_uuid/${boot_uuids[0]}" "$root_mnt/boot"
       all_mounts+=("$root_mnt/boot")
     fi
     if [ ${#efi_uuids[@]} -eq 1 ]; then
-      echo "Mounting device $(blkid --uuid ${efi_uuids[0]}) on $root_mnt/boot/efi"
+      echo -e "${fg_green}Mounting device $(blkid --uuid ${efi_uuids[0]}) on $root_mnt/boot/efi$fg0"
       mount "$dev_by_uuid/${efi_uuids[0]}" "$root_mnt/boot/efi"
       all_mounts+=("$root_mnt/boot/efi")
     fi
     if [ ${#home_uuids[@]} -eq 1 ]; then
-      echo "Mounting device $(blkid --uuid ${home_uuids[0]}) on $root_mnt/home"
+      echo -e "${fg_green}Mounting device $(blkid --uuid ${home_uuids[0]}) on $root_mnt/home$fg0"
       mount "$dev_by_uuid/${home_uuids[0]}" "$root_mnt/home"
       all_mounts+=("$root_mnt/home")
     fi
-    echo -en "${fg_orange}Hit <Enter> to proceed with the above setup, else hit <Ctrl-c> to abort.$fg_reset"
+    echo -en "${fg_orange}Hit <Enter> to proceed with the above setup, else hit <Ctrl-c> to abort.$fg0"
     read resp
   elif [ ${#root_uuids[@]} -gt 1 ]; then
-    echo -e "${fg_orange}Found multiple root device candidates:$fg_reset"
+    echo -e "${fg_orange}Found multiple root device candidates:$fg0"
     for root_uuid in ${root_uuids[@]}; do
-      echo -e "$fg_orange  $(blkid --uuid $root_uuid) (UUID=$root_uuid)$fg_reset"
+      echo -e "$fg_orange  $(blkid --uuid $root_uuid) (UUID=$root_uuid)$fg0"
     done
-    echo -e "${fg_red}Mount one of these manually as well as required sub-mounts and " \
-      "run the script providing the target directory as an argument.$fg_reset"
+    echo -e "${fg_red}Mount one of these manually as well as required sub-mounts and" \
+      "run the script providing the target directory as an argument.$fg0"
     exit 1
   else
-    echo -e "${fg_red}Could not detect any root device candidate. Please mount manually " \
-      "and run the script providing the target directory as an argument.$fg_reset"
+    echo -e "${fg_red}Could not detect any root device candidate. Please mount manually" \
+      "and run the script providing the target directory as an argument.$fg0"
     exit 1
   fi
 fi
@@ -221,10 +221,10 @@ for i in {1..3}; do
   # test the password for URL decryption
   restic_bundle_url=$(printf '%s' "$restic_bundle_url_enc" | gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-login decrypt $restic_login_pass -) -o - -)
   [ -n "$restic_bundle_url" ] && break
-  echo -e "${fg_orange}Failed to decrypt gdrive URL using this password. Please try again.$fg_reset"
+  echo -e "${fg_orange}Failed to decrypt gdrive URL using this password. Please try again.$fg0"
 done
 if [ -z "$restic_bundle_url" ]; then
-  echo -e "${fg_red}Failed due to invalid remote login password.$fg_reset"
+  echo -e "${fg_red}Failed due to invalid remote login password.$fg0"
   exit 2
 fi
 wget -q --show-progress "$restic_bundle_url" -O - > $restic_bundle_name
@@ -237,16 +237,16 @@ for i in {1..3}; do
     rm -f $restic_bundle_name
     break
   fi
-  echo -e "${fg_orange}Failed to decrypt $restic_bundle_name using this password. " \
-    "Please try again.$fg_reset"
+  echo -e "${fg_orange}Failed to decrypt $restic_bundle_name using this password." \
+    "Please try again.$fg0"
   done
   if [ -z "$RCLONE_CONFIG" -o ! -f "$RCLONE_CONFIG" ]; then
-    echo -e "${fg_red}Failed due to invalid data store password.$fg_reset"
+    echo -e "${fg_red}Failed due to invalid data store password.$fg0"
     exit 2
   fi
 
 # setup environment and start the restore
-echo -e "${fg_orange}\nStarting restic restore for the entire data overwriting $root_mnt\n$fg_reset"
+echo -e "${fg_orange}\nStarting restic restore for the entire data overwriting $root_mnt\n$fg0"
 source /etc/environment.d/99backup.conf
 export RESTIC_BACKUP_SERVER
 ssh-keyscan -H "$RESTIC_BACKUP_SERVER" >> ~/.ssh/known_hosts
@@ -265,7 +265,7 @@ resticprofile remote.restore latest --target "$root_mnt"
 
 # chroot to the target directory and run the finish script for grub install and other
 # post-restore system configurations
-echo -e "${fg_green}Finishing up after the restore.\n$fg_reset"
+echo -e "${fg_green}Finishing up after the restore.\n$fg0"
 bind_paths=(/dev /dev/pts /proc /run /sys /etc/resolv.conf)
 if [ -d /sys/firmware/efi/efivars ]; then
   bind_paths+=(/sys/firmware/efi/efivars)
@@ -290,14 +290,14 @@ rm -f $restic_login_pass $restic_store_pass
 chroot "$root_mnt" /usr/local/sbin/restic-restore-finish
 
 echo -e "${fg_green}\n\nALL DONE.\n\n" \
-  "1. If there have been any errors in the restic restore process before due to " \
+  "\b1. If there have been any errors in the restic restore process before due to" \
   "directory not being replaced by symlink, then those need to be resolved manually.\n" \
-  "2. The systemd service timers for restic services namely restic-backup.timer " \
-  "and restic-prune.timer have been disabled. Ensure that everything works fine " \
+  "\b2. The systemd service timers for restic services namely restic-backup.timer" \
+  "and restic-prune.timer have been disabled. Ensure that everything works fine" \
   "by logging into the restored system and then enable the two.\n" \
-  "3. Ubuntu pro advantage was not enabled on the new system, so if it was not " \
-  "enabled previously, then you may want to enable it using 'pro attach ...' " \
+  "\b3. Ubuntu pro advantage was not enabled on the new system, so if it was not" \
+  "enabled previously, then you may want to enable it using 'pro attach ...'" \
   "after obtaining the required key from https://ubuntu.com/pro/dashboard.\n" \
-  "4. You may also want to re-run 'sudo gen-local-checksums.sh' after login " \
-  "since some of the checksums in /etc, /boot will have changed significantly " \
-  "after the restore.\n\n$fg_reset"
+  "\b4. You may also want to re-run 'sudo gen-local-checksums.sh' after login" \
+  "since some of the checksums in /etc, /boot will have changed significantly" \
+  "after the restore.\n\n$fg0"
