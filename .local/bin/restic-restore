@@ -289,15 +289,19 @@ chmod 0400 "$root_mnt$restic_login_pass" "$root_mnt$restic_store_pass"
 rm -f $restic_login_pass $restic_store_pass
 chroot "$root_mnt" /usr/local/sbin/restic-restore-finish
 
-echo -e "${fg_green}\n\nALL DONE.\n\n" \
+echo -e "${fg_green}\n\nALL DONE.\n\n\n" \
   "\b1. If there have been any errors in the restic restore process before due to" \
-  "directory not being replaced by symlink, then those need to be resolved manually.\n" \
+  "directory not being replaced by symlink, then those need to be resolved manually." \
+  "The usual way to resolve those will be to check that those directories don't have" \
+  "any custom changes, check which package it belongs to using 'dpkg -S <full path>'," \
+  "reinstall the package using 'apt reinstall <package>'. If reinstall also causes" \
+  "trouble with the directory, then delete the directory and reinstall again.\n\n" \
   "\b2. The systemd service timers for restic services namely restic-backup.timer" \
   "and restic-prune.timer have been disabled. Ensure that everything works fine" \
-  "by logging into the restored system and then enable the two.\n" \
+  "by logging into the restored system and then enable the two.\n\n" \
   "\b3. Ubuntu pro advantage was not enabled on the new system, so if it was not" \
   "enabled previously, then you may want to enable it using 'pro attach ...'" \
-  "after obtaining the required key from https://ubuntu.com/pro/dashboard.\n" \
+  "after obtaining the required key from https://ubuntu.com/pro/dashboard.\n\n" \
   "\b4. You may also want to re-run 'sudo gen-local-checksums.sh' after login" \
-  "since some of the checksums in /etc, /boot will have changed significantly" \
-  "after the restore.\n\n$fg0"
+  "since some of the checksums in /etc, /boot will have definitely changed after" \
+  "the restore.\n\n$fg0"
