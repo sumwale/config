@@ -141,7 +141,7 @@ function determine_mount_uuids() {
 }
 
 if [ -z "$root_mnt" ]; then
-  echo No target directory provided. Trying to auto-detect...
+  echo "No target directory provided. Trying to auto-detect..."
 
   determine_mount_uuids
 
@@ -184,9 +184,9 @@ if [ -z "$root_mnt" ]; then
 fi
 
 creds_dir=/etc/credstore.encrypted
-restic_login_pass=$creds_dir/restic-login
-restic_store_pass=$creds_dir/restic-store
-mkdir -p $creds_dir && chmod 0700 $creds_dir
+restic_login_pass="$creds_dir/restic-login"
+restic_store_pass="$creds_dir/restic-store"
+[ ! -d "$creds_dir" ] && mkdir "$creds_dir" && chmod 0700 "$creds_dir"
 
 # ask and test the restic login/store passwords multiple times:
 #   - attempt to decrypt the URL using the provided restic login password
@@ -194,17 +194,12 @@ mkdir -p $creds_dir && chmod 0700 $creds_dir
 if systemd-analyze has-tpm2 --quiet; then
   host_key_arg="--with-key=tpm2"
 fi
-function ask_restic_login_pass() {
-  rm -f $restic_login_pass
-  systemd-ask-password 'Password for remote login:' | \
-    systemd-creds $host_key_arg --name=restic-login encrypt - $restic_login_pass
-  chmod 0400 $restic_login_pass
-}
-function ask_restic_store_pass() {
-  rm -f $restic_store_pass
-  systemd-ask-password 'Password for the data store:' | \
-    systemd-creds $host_key_arg --name=restic-store encrypt - $restic_store_pass
-  chmod 0400 $restic_store_pass
+function ask_restic_pass() {
+  pass_file="$1"
+  rm -f "$pass_file"
+  systemd-ask-password "Password for $2:" | \
+    systemd-creds $host_key_arg --name="$(basename "$pass_file")" encrypt - "$pass_file"
+  chmod 0400 "$pass_file"
 }
 
 gpg_base_opts="--quiet --batch --no-tty --no-symkey-cache --pinentry-mode loopback --passphrase-fd 3"
@@ -217,9 +212,9 @@ j3GVTEngc69be4Uz
 =PR+W
 -----END PGP MESSAGE-----'
 for i in {1..3}; do
-  ask_restic_login_pass
+  ask_restic_pass "$restic_login_pass" "remote login"
   # test the password for URL decryption
-  restic_bundle_url=$(printf '%s' "$restic_bundle_url_enc" | gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-login decrypt $restic_login_pass -) -o - -)
+  restic_bundle_url=$(printf '%s' "$restic_bundle_url_enc" | gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-login decrypt "$restic_login_pass" -) -o - -)
   [ -n "$restic_bundle_url" ] && break
   echo -e "${fg_orange}Failed to decrypt gdrive URL using this password. Please try again.$fg0"
 done
@@ -227,14 +222,14 @@ if [ -z "$restic_bundle_url" ]; then
   echo -e "${fg_red}Failed due to invalid remote login password.$fg0"
   exit 2
 fi
-wget -q --show-progress "$restic_bundle_url" -O - > $restic_bundle_name
+wget -q --show-progress "$restic_bundle_url" -O - > "$restic_bundle_name"
 
 for i in {1..3}; do
-  ask_restic_store_pass
+  ask_restic_pass "$restic_store_pass" "data store"
   # decrypt and untar the package
-  if gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-store decrypt $restic_store_pass -) -o - $restic_bundle_name | tar -C / --zstd -xpf -; then
+  if gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-store decrypt $restic_store_pass -) -o - "$restic_bundle_name" | tar -C / --zstd -xpf -; then
     export RCLONE_CONFIG=/var/lib/restic/rclone.conf
-    rm -f $restic_bundle_name
+    rm -f "$restic_bundle_name"
     break
   fi
   echo -e "${fg_orange}Failed to decrypt $restic_bundle_name using this password." \
@@ -279,14 +274,14 @@ fi
 if chroot "$root_mnt" systemd-analyze has-tpm2 --quiet; then
   key_arg="--with-key=host+tpm2"
 fi
-rm -f "$root_mnt$restic_login_pass"
-systemd-creds --name=restic-login decrypt $restic_login_pass - | \
-  chroot "$root_mnt" systemd-creds --quiet $key_arg --name=restic-login encrypt - $restic_login_pass
-rm -f "$root_mnt$restic_store_pass"
-systemd-creds --name=restic-store decrypt $restic_store_pass - | \
-  chroot "$root_mnt" systemd-creds --quiet $key_arg --name=restic-store encrypt - $restic_store_pass
-chmod 0400 "$root_mnt$restic_login_pass" "$root_mnt$restic_store_pass"
-rm -f $restic_login_pass $restic_store_pass
+for pass_file in "$restic_login_pass" "$restic_store_pass"; do
+  rm -f "$root_mnt$pass_file"
+  pass_name=$(basename "$pass_file")
+  systemd-creds --name="$pass_name" decrypt "$pass_file" - | \
+    chroot "$root_mnt" systemd-creds --quiet $key_arg --name="$pass_name" encrypt - "$pass_file"
+  chmod 0400 "$root_mnt$pass_file"
+  rm -f "$pass_file"
+done
 chroot "$root_mnt" /usr/local/sbin/restic-restore-finish
 
 echo -e "${fg_green}\n\nALL DONE.\n\n\n" \
