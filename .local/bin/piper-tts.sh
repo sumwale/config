@@ -17,7 +17,9 @@ if type piper-tts 2>/dev/null >/dev/null; then
 else
   PIPER=piper
 fi
-echo "$DATA" | $PIPER --model "$VOICE_PATH/$VOICE.onnx" --output-raw | \
-  aplay -q -r "$ADJ_RATE" -f S16_LE -t raw -
 
-wait
+rawfile=$(mktemp)
+trap '/bin/rm -f "$rawfile"' EXIT INT HUP TERM
+printf '%s' "$DATA" | sed -z 's/\\n/ /g' \
+  | $PIPER -q -m "$VOICE_PATH/$VOICE.onnx" --output-raw > "$rawfile"
+/usr/bin/pw-play --rate=$ADJ_RATE --format=s16 --channel-map=LE --raw "$rawfile"
