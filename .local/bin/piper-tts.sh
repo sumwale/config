@@ -18,8 +18,15 @@ else
   PIPER=piper
 fi
 
-rawfile=$(mktemp)
-trap '/bin/rm -f "$rawfile"' EXIT INT HUP TERM
-printf '%s' "$DATA" | sed -z 's/\\n/ /g' \
-  | $PIPER -q -m "$VOICE_PATH/$VOICE.onnx" --output-raw > "$rawfile"
-/usr/bin/pw-play --rate=$ADJ_RATE --format=s16 --channel-map=LE --raw "$rawfile"
+# for surround sound output, use sox to remap to 4 channels
+if type -p sox > /dev/null && /usr/bin/pactl get-default-sink | grep -q surround-; then
+  channel_map=$(/usr/bin/pactl get-default-sink | sed 's/^.*\(surround-[0-9]*\).*$/\1/')
+  printf '%s' "$DATA" | sed -z 's/\\n/ /g' \
+    | $PIPER -q -m "$VOICE_PATH/$VOICE.onnx" --output-raw \
+    | sox -t raw -r $ADJ_RATE -e signed -b 16 -c 1 - -t raw -c 4 - \
+    | /usr/bin/paplay --raw --rate=$ADJ_RATE --format=s16le --channels=4 --channel-map=$channel_map
+else
+  printf '%s' "$DATA" | sed -z 's/\\n/ /g' \
+    | $PIPER -q -m "$VOICE_PATH/$VOICE.onnx" --output-raw \
+    | /usr/bin/paplay --raw --rate=$ADJ_RATE --format=s16le --channels=1
+fi
