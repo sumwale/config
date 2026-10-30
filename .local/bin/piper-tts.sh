@@ -9,8 +9,13 @@ if [[ ${VOICE: -3} = low ]]; then
 else
   ADJ_RATE=22050
 fi
-if [[ ${#RATE} -gt 3 ]]; then
-  ADJ_RATE=$((${RATE::-3} * 30 + $ADJ_RATE))
+if [[ -n $RATE ]]; then
+  AWK=awk
+  type -p mawk >/dev/null && AWK=mawk
+  if NEW_ADJ_RATE=$($AWK -v RATE="$RATE" -v ADJ_RATE=$ADJ_RATE 'BEGIN { \
+      if (RATE != RATE + 0) exit 1; printf "%.0f", (RATE * 30.0) + ADJ_RATE }'); then
+    ADJ_RATE=$NEW_ADJ_RATE
+  fi
 fi
 if type piper-tts 2>/dev/null >/dev/null; then
   PIPER=piper-tts
