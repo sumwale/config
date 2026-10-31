@@ -17,12 +17,9 @@ if [[ -n $RATE ]]; then
     ADJ_RATE=$NEW_ADJ_RATE
   fi
 fi
-if type piper-tts 2>/dev/null >/dev/null; then
-  PIPER=piper-tts
-else
-  PIPER=piper
-fi
 
+PIPER=piper
+type -p piper-tts >/dev/null && PIPER=piper-tts
 # for surround sound output, use sox to remap to 4 channels
 if type -p sox > /dev/null && /usr/bin/pactl get-default-sink | grep -q surround-; then
   channel_map=$(/usr/bin/pactl get-default-sink | sed 's/^.*\(surround-[0-9]*\).*$/\1/')
