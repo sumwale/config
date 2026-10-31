@@ -1,34 +1,51 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
-VOICE_PATH="$HOME/software/piper-tts"
+# search utilities in only the standard paths
+export PATH="/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin:$HOME/.local/bin"
 
-if [[ ${VOICE: -3} = low ]]; then
-  ADJ_RATE=16000
-else
-  ADJ_RATE=22050
-fi
-if [[ -n $RATE ]]; then
-  AWK=awk
-  type -p mawk >/dev/null && AWK=mawk
-  if NEW_ADJ_RATE=$($AWK -v RATE="$RATE" -v ADJ_RATE=$ADJ_RATE 'BEGIN { \
-      if (RATE != RATE + 0) exit 1; printf "%.0f", (RATE * 30.0) + ADJ_RATE }'); then
-    ADJ_RATE=$NEW_ADJ_RATE
-  fi
-fi
+VOICE_PATH="$HOME/software/piper-tts"
+[ -f "$VOICE_PATH/$VOICE.onnx" ] || { echo "$0: voice $VOICE not found" >&2; exit 1; }
+
+# kill whole process group
+trap "trap - INT TERM; kill 0" HUP INT TERM
+
+process_text() {
+  printf '%s' "$DATA" | sed -zE 's/\\n/ /g; s/([.!?])[[:space:]]+/\1\n/g'
+}
+
+AWK=awk
+[ -x /usr/bin/mawk ] && AWK=/usr/bin/mawk
+
+ADJ_RATE=$(sed -n 's/.*"sample_rate": *\([0-9]\+\).*/\1/p' "$VOICE_PATH/$VOICE.onnx.json" 2>/dev/null | head -n1)
+: "${ADJ_RATE:=22050}"
+LS=$($AWK -v RATE="$RATE" 'BEGIN { \
+  if (RATE != RATE + 0) exit 1; printf "%.3f", exp(-RATE / 100 * log(2)) }') || LS=1
 
 PIPER=piper
-type -p piper-tts >/dev/null && PIPER=piper-tts
-# for surround sound output, use sox to remap to 4 channels
-if type -p sox > /dev/null && /usr/bin/pactl get-default-sink | grep -q surround-; then
-  channel_map=$(/usr/bin/pactl get-default-sink | sed 's/^.*\(surround-[0-9]*\).*$/\1/')
-  printf '%s' "$DATA" | sed -z 's/\\n/ /g' \
-    | $PIPER -q -m "$VOICE_PATH/$VOICE.onnx" --output-raw \
-    | sox -t raw -r $ADJ_RATE -e signed -b 16 -c 1 - -t raw -c 4 - \
-    | /usr/bin/paplay --raw --rate=$ADJ_RATE --format=s16le --channels=4 --channel-map=$channel_map
+command -v piper-tts >/dev/null 2>&1 && PIPER=piper-tts
+# for surround sound output, use sox to remap to required channels
+if command -v sox >/dev/null 2>&1 && surround_type=$(pactl get-default-sink | \
+    sed -n 's/^.*surround-\([0-9]\+\).*$/\1/p;tx;q1;:x'); then
+  channel_map="surround-$surround_type"
+  case "$surround_type" in
+    21) channels=3 ;;
+    40) channels=4 ;;
+    41|50) channels=5 ;;
+    51) channels=6 ;;
+    71) channels=8 ;;
+    *) channels=2; channel_map=stereo ;;
+  esac
+  process_text \
+    | $PIPER -q -m "$VOICE_PATH/$VOICE.onnx" --length_scale "$LS" --output-raw \
+    | pipesz --fd 0 --set 1M -- \
+      sox -q -t raw -r $ADJ_RATE -e signed -b 16 -c 1 - -t raw -e signed -b 16 -c $channels - \
+    | pipesz --fd 0 --set 1M -- \
+      pw-play --raw --rate=$ADJ_RATE --format=s16 --channels=$channels --channel-map=$channel_map -
 else
-  printf '%s' "$DATA" | sed -z 's/\\n/ /g' \
-    | $PIPER -q -m "$VOICE_PATH/$VOICE.onnx" --output-raw \
-    | /usr/bin/paplay --raw --rate=$ADJ_RATE --format=s16le --channels=1
+  process_text \
+    | $PIPER -q -m "$VOICE_PATH/$VOICE.onnx" --length_scale "$LS" --output-raw \
+    | pipesz --fd 0 --set 1M -- \
+      pw-play --raw --rate=$ADJ_RATE --format=s16 --channels=1 -
 fi
