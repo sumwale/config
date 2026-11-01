@@ -17,21 +17,15 @@ process_text() {
 
 AWK=awk
 [ -x /usr/bin/mawk ] && AWK=/usr/bin/mawk
+PIPER=piper
+command -v piper-tts >/dev/null 2>&1 && PIPER=piper-tts
+PIPE_SZ="pipesz --fd 0 --set 1M --"
 
 ADJ_RATE=$(sed -n 's/.*"sample_rate": *\([0-9]\+\).*/\1/p' "$VOICE_PATH/$VOICE.onnx.json" 2>/dev/null | head -n1)
 : "${ADJ_RATE:=22050}"
 LS=$($AWK -v RATE="$RATE" 'BEGIN { \
   if (RATE != RATE + 0) exit 1; printf "%.3f", exp(-RATE / 100 * log(2)) }') || LS=1
 
-PIPER=piper
-PIPE_SZ=
-if piper_tts=$(command -v piper-tts 2>/dev/null); then
-  PIPER=piper-tts
-  # if piper-tts is in $HOME/..., then assume it uses podman/docker and needs pipesz
-  case "$piper_tts" in
-    "$HOME"/*) PIPE_SZ="pipesz --fd 0 --set 1M --" ;;
-  esac
-fi
 # for surround sound output, use sox to remap to required channels
 if command -v sox >/dev/null 2>&1 && surround_type=$(pactl get-default-sink | \
     sed -n 's/^.*surround-\([0-9]\+\).*$/\1/p;tx;q1;:x'); then
