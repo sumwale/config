@@ -9,17 +9,17 @@ VOICE_PATH="$HOME/software/piper-tts"
 [ -f "$VOICE_PATH/$VOICE.onnx" ] || { echo "$0: voice $VOICE not found" >&2; exit 1; }
 
 # kill whole process group
-trap "trap - INT TERM; kill 0" HUP INT TERM
+trap "trap - INT TERM; kill 0" INT TERM
 
 process_text() {
   printf '%s' "$DATA" | sed -zE 's/\\n/ /g; s/([.!?])[[:space:]]+/\1\n/g'
 }
 
 AWK=awk
-[ -x /usr/bin/mawk ] && AWK=/usr/bin/mawk
 PIPER=piper
-command -v piper-tts >/dev/null 2>&1 && PIPER=piper-tts
 PIPE_SZ="pipesz --fd 0 --set 1M --"
+command -v mawk >/dev/null 2>&1 && AWK=mawk
+command -v piper-tts >/dev/null 2>&1 && PIPER=piper-tts
 
 ADJ_RATE=$(sed -n 's/.*"sample_rate": *\([0-9]\+\).*/\1/p' "$VOICE_PATH/$VOICE.onnx.json" 2>/dev/null | head -n1)
 : "${ADJ_RATE:=22050}"

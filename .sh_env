@@ -2,11 +2,6 @@
 umask 027
 # set PATH to include user's private bin and cargo
 GCMDIR=/gcm
-if [ -e /usr/local/jdk11 ]; then
-  IDEA_JDK=/usr/local/jdk11
-  export IDEA_JDK
-fi
-JAVA8_HOME=/usr/local/jdk8
 #JAVA_HOME=$JAVA8_HOME
 BROWSER=firefox
 if which chromium 2>/dev/null >/dev/null; then
