@@ -256,7 +256,7 @@ for check_dir in $check_dirs; do
     fi
   done
 done
-resticprofile remote.restore latest --target "$root_mnt"
+resticprofile gdrive.restore latest --target "$root_mnt"
 
 # chroot to the target directory and run the finish script for grub install and other
 # post-restore system configurations

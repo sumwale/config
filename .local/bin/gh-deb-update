@@ -1,0 +1,61 @@
+#!/bin/sh
+
+set -e
+
+[ $# -ne 2 ] && { echo "Usage: $0 <github URL> <app name for display>"; exit 1; }
+
+app_url="$1"
+app_name="$2"
+name_url=$(/usr/bin/curl -s -L -H 'Accept: application/vnd.github+json' "$app_url" | /usr/bin/jq -r '.assets | .[] | select(.name | test(".*.deb")) | "\(.name) \(.browser_download_url)"')
+[ -z "$name_url" ] && /usr/bin/notify-send -u critical -t 0 "ERROR" "Failed to find the latest release of $app_name in $1" && exit 1
+
+while read -r name url || [ -n "$name" ]; do
+  case "$name" in
+    *headless*) ;;  # skip headless packages, if any
+    *x86-64* | *amd64*)
+      rel_name="$name"; rel_url="$url"
+      x64_rel_name="$name"
+      case "$name" in
+        *ubuntu*26*04*) break ;;
+        *) ;;
+      esac
+      ;;
+    *)
+      [ -z "$x64_rel_name" ] && { rel_name="$name"; rel_url="$url"; }
+      ;;
+  esac
+done << EOF
+$name_url
+EOF
+
+# check currently installed version
+pkg_name=$(echo "$rel_name" | sed 's/[_-][0-9].*//')
+while read -r status _ version __ || [ -n "$status" ]; do
+  [ "$status" = "ii" ] && inst_version="$version" && break
+done << EOF
+$(/usr/bin/dpkg -l "$pkg_name" 2>/dev/null)
+EOF
+
+cleanup() {
+  /bin/rm -f "$1/$2"
+  /bin/rmdir "$1" 2>/dev/null
+}
+
+case "$rel_name" in
+  *[_-]${inst_version}[_.-]*) ;;  # already installed
+  *)
+    /usr/bin/notify-send -u normal -t 10000 "Updating $app_name" "Downloading new version $rel_name"
+    tmp_dir=$(/usr/bin/mktemp -d)
+    trap 'cleanup "$tmp_dir" "$rel_name"' EXIT INT HUP TERM
+    cd "$tmp_dir"
+    /usr/bin/aria2c -o "$rel_name" "$rel_url"
+
+    /usr/bin/notify-send -u normal -t 5000 "Installing $app_name" "Installing and launching the new version $rel_name"
+    askpass=/usr/bin/ssh-askpass
+    [ -n "$SSH_ASKPASS" ] && askpass="$SSH_ASKPASS"
+    SUDO_ASKPASS="$askpass" /usr/bin/sudo -A /usr/bin/apt-get -y install "$tmp_dir/$rel_name"
+    cleanup "$tmp_dir" "$rel_name"
+    ;;
+esac
+
+exec "/usr/bin/$pkg_name"
