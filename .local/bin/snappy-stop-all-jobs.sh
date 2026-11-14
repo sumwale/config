@@ -18,7 +18,7 @@ if [ -n "$SNAPPY_JOB_SCRIPT" ]; then
     exit 1
   fi
 else
-  if type snappy-job.sh 2>/dev/null >/dev/null; then
+  if command -v snappy-job.sh >/dev/null 2>&1; then
     SNAPPY_JOB_SCRIPT="snappy-job.sh"
   elif [ -x "./snappy-job.sh" ]; then
     SNAPPY_JOB_SCRIPT="./snappy-job.sh"
@@ -28,7 +28,7 @@ else
   fi
 fi
 
-if ! type jq 2>/dev/null >/dev/null; then
+if ! command -v jq >/dev/null 2>&1; then
   echo "This script needs jq command-line JSON processor to be installed."
   exit 1
 fi

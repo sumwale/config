@@ -6,7 +6,7 @@
 if [ "$DESKTOP_SESSION" = "awesome" ]; then
   systemctl --user start nm-applet.service
   # run ibus explicitly if required (ibus preferences from GUI)
-  if type ibus 2>/dev/null >/dev/null; then
+  if command -v ibus >/dev/null 2>&1; then
     ibus exit 2>/dev/null
   fi
 fi

@@ -165,7 +165,7 @@ sudo env DEBIAN_FRONTEND=noninteractive apt-get install $APT_COMMON_OPTS rsync g
 sudo env DEBIAN_FRONTEND=noninteractive apt-get install $APT_COMMON_OPTS apt dpkg
 
 AWK=awk
-type -p mawk >/dev/null && AWK=mawk
+command -v mawk >/dev/null 2>&1 && AWK=mawk
 
 # add temporary key-pair for public key authentication without password
 rm -f $tmp_keyfile*

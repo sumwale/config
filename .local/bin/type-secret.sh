@@ -3,7 +3,7 @@
 set -e
 
 # delay in keystrokes is to avoid missing keys in some rare cases
-if type ydotool 2>/dev/null >/dev/null; then
+if command -v ydotool >/dev/null 2>&1; then
   sleep 0.5
   ydotool type -d 10 "$(secret-tool lookup "$@")"
 else

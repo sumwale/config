@@ -4,7 +4,7 @@ set -e
 
 # Script that uses either brightnessctl or xbacklight to set the screen brightness
 
-if type brightnessctl 2>/dev/null >/dev/null; then
+if command -v brightnessctl >/dev/null 2>&1; then
   while [ -n "$1" ]; do
     case "$1" in
       -get) exec brightnessctl g ;;

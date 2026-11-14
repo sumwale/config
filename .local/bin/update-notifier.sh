@@ -10,20 +10,20 @@ APT_SYSTEM=
 
 if [ -x /usr/lib/update-notifier/apt-check ]; then
   APT_SYSTEM=1
-  if ! type -p plasma-discover >/dev/null && ! type -p update-manager >/dev/null; then
+  if ! command -v plasma-discover >/dev/null 2>&1 && ! command -v update-manager >/dev/null 2>&1; then
     echo "neither plasma-discover nor update-manager is installed"
     exit 1
   fi
-  if ! type -p notify-send >/dev/null; then
+  if ! command -v notify-send >/dev/null 2>&1; then
     echo "notify-send not available"
     exit 1
   fi
 else
-  if ! type -p pamac >/dev/null; then
+  if ! command -v pamac >/dev/null 2>&1; then
     echo "pamac not available"
     exit 1
   fi
-  if ! type -p dunstify >/dev/null; then
+  if ! command -v dunstify >/dev/null 2>&1; then
     echo "dunstify not available"
     exit 1
   fi

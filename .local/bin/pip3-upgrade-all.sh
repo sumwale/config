@@ -7,7 +7,7 @@ if [ "$1" = "--sys" ]; then
 fi
 
 PIP=pip
-if type pip3 2>/dev/null >/dev/null; then
+if command -v pip3 >/dev/null 2>&1; then
   PIP=pip3
 fi
 

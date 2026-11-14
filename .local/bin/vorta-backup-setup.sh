@@ -23,9 +23,9 @@ gpg --encrypt -r sumwale@gmail.com -o $HOME/Documents/others.key.gpg $HOME/other
 
 rm -f $HOME/others.key
 
-if type pacman 2>/dev/null >/dev/null; then
+if command -v pacman >/dev/null 2>&1; then
   pacman -Qe > $HOME/pkgs.list
-elif type dpkg 2>/dev/null >/dev/null; then
+elif command -v dpkg >/dev/null 2>&1; then
   dpkg -l > $HOME/pkgs.list
 else
   rpm -ql > $HOME/pkgs.list

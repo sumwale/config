@@ -2,7 +2,7 @@
 
 set -e
 
-if [ "$DESKTOP_SESSION" = plasma ] && type -p qdbus6 >/dev/null; then
+if [ "$DESKTOP_SESSION" = plasma ] && command -v qdbus6 >/dev/null 2>&1; then
   ws_znum=$(qdbus6 org.kde.KWin /KWin currentDesktop)
 else
   ws_znum=$(wmctrl -d | awk '{ if ($2 == "*") print $1 }')
@@ -16,7 +16,7 @@ fi
 notify-send -i tools -u normal -t 2000 "Launching workspace app" \
   "Launching workspace app for desktop $ws_znum"
 
-if [ "$DESKTOP_SESSION" = plasma ] && type -p gtk-launch >/dev/null; then
+if [ "$DESKTOP_SESSION" = plasma ] && command -v gtk-launch >/dev/null 2>&1; then
   # ydotool/xdotool are not that reliable, so this path for KDE plasma reads the
   # task manager applet configuration and launches the application configured
   launchers=$(sed -n 's/^launchers=//p' "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc")
@@ -28,7 +28,7 @@ if [ "$DESKTOP_SESSION" = plasma ] && type -p gtk-launch >/dev/null; then
     fi
   fi
 fi
-if type -p ydotool >/dev/null; then
+if command -v ydotool >/dev/null 2>&1; then
   input_key_num=$((ws_znum + 1))
   # simulate <Alt>+{num} keypress (somehow single cmd with -d does not work reliably)
   ydotool key 56:1 && sleep 0.5 && \
