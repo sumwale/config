@@ -62,22 +62,25 @@ function cleanup() {
   for mnt_dir in "${tmp_mnt_prefix}"*; do
     [ -d "$mnt_dir" ] && umount_tmp "$mnt_dir"
   done
-  # unmount in reverse order
-  for (( idx=${#all_mounts[@]}-1; idx>=0; idx-- )); do
-    echo -e "${fg_green}Unmounting ${all_mounts[idx]}$fg0"
-    umount "${all_mounts[idx]}"
-  done
-  rmdir $final_mnt_prefix* 2>/dev/null || /bin/true
-
   if [ -n "$root_mnt" -a -d "$root_mnt" ]; then
     for (( idx=${#bind_paths[@]}-1; idx>=0; idx-- )); do
       umount "$root_mnt${bind_paths[idx]}"
     done
     rmdir "$root_mnt" 2>/dev/null
   fi
+  # unmount in reverse order
+  for (( idx=${#all_mounts[@]}-1; idx>=0; idx-- )); do
+    echo -e "${fg_green}Unmounting ${all_mounts[idx]}$fg0"
+    for i in {1..3}; do
+      umount "${all_mounts[idx]}" && break
+      sleep 3
+    done
+  done
+  rmdir $final_mnt_prefix* 2>/dev/null || /bin/true
 }
 
 trap "cleanup" EXIT
+trap "cleanup" INT HUP TERM
 
 function check_root() {
   mnt_dir=$(mount_tmp "$1")
@@ -234,18 +237,16 @@ for i in {1..3}; do
   fi
   echo -e "${fg_orange}Failed to decrypt $restic_bundle_name using this password." \
     "Please try again.$fg0"
-  done
-  if [ -z "$RCLONE_CONFIG" -o ! -f "$RCLONE_CONFIG" ]; then
-    echo -e "${fg_red}Failed due to invalid data store password.$fg0"
-    exit 2
-  fi
+done
+if [ -z "$RCLONE_CONFIG" -o ! -f "$RCLONE_CONFIG" ]; then
+  echo -e "${fg_red}Failed due to invalid data store password.$fg0"
+  exit 2
+fi
 
-# setup environment and start the restore
-echo -e "${fg_orange}\nStarting restic restore for the entire data overwriting $root_mnt\n$fg0"
 # remove some known directories that have changed to symlinks in the backup that cause
 # failures during restore
-check_dirs="/home/*/.config/gtk-3.0 /home/*/.config/gtk-4.0 /usr/share/X11/xkb"
-for check_dir in $check_dirs; do
+check_dirs=("/home/*/.config/gtk-3.0" "/home/*/.config/gtk-4.0" "/usr/share/X11/xkb")
+for check_dir in "${check_dirs[@]}"; do
   resolved_dirs=$(compgen -G "$root_mnt$check_dir")
   for resolved_dir in $resolved_dirs; do
     if [ -d "$resolved_dir" ]; then
@@ -253,6 +254,10 @@ for check_dir in $check_dirs; do
     fi
   done
 done
+# setup environment and start the restore
+echo -e "${fg_orange}\nStarting restic restore for the entire data overwriting $root_mnt\n"
+echo -en "Press <Enter> to continue...$fg0"
+read -r dummy
 resticprofile gdrive.restore latest --target "$root_mnt"
 
 # chroot to the target directory and run the finish script for grub install and other
