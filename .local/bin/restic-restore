@@ -242,9 +242,6 @@ for i in {1..3}; do
 
 # setup environment and start the restore
 echo -e "${fg_orange}\nStarting restic restore for the entire data overwriting $root_mnt\n$fg0"
-source /etc/environment.d/99backup.conf
-export RESTIC_BACKUP_SERVER
-ssh-keyscan -H "$RESTIC_BACKUP_SERVER" >> ~/.ssh/known_hosts
 # remove some known directories that have changed to symlinks in the backup that cause
 # failures during restore
 check_dirs="/home/*/.config/gtk-3.0 /home/*/.config/gtk-4.0 /usr/share/X11/xkb"
@@ -295,7 +292,7 @@ echo -e "${fg_green}\n\nALL DONE.\n\n\n" \
   "and restic-prune.timer have been disabled. Ensure that everything works fine" \
   "by logging into the restored system and then enable the two.\n\n" \
   "\b3. Ubuntu pro advantage was not enabled on the new system, so if it was not" \
-  "enabled previously, then you may want to enable it using 'pro attach ...'" \
+  "enabled previously, then you may want to enable it using 'sudo pro attach ...'" \
   "after obtaining the required key from https://ubuntu.com/pro/dashboard.\n\n" \
   "\b4. You may also want to re-run 'sudo gen-local-checksums.sh' after login" \
   "since some of the checksums in /etc, /boot will have definitely changed after" \
