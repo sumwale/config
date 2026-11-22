@@ -33,6 +33,7 @@ umask 022
 fg_red='\033[31m'
 fg_green='\033[32m'
 fg_orange='\033[33m'
+fg_cyan='\033[36m'
 fg0='\033[00m'
 
 root_mnt="$1"
@@ -145,24 +146,23 @@ function detect_and_mount_volumes() {
   if [ -n "$found_root" ]; then
     root_mnt="${final_mnt_prefix}$found_root"
     echo -e "${fg_green}Mounting devices listed in /etc/fstab copied from " \
-      "device $(blkid --uuid $found_root) on $root_mnt:\n"
+      "device $(blkid --uuid $found_root) on $root_mnt:$fg_cyan\n"
     cat "$tmp_fstab"
     echo
     echo -en "${fg_orange}Hit <Enter> to proceed with the above setup, else hit <Ctrl-c> to abort.$fg0"
     read resp
-    $AWK -v supported_fs="$supported_fs vfat msdos auto " '/^[^#].*/ {
-      if (NF >= 4 && NF <= 6 && $2 ~ /^\// && index(supported_fs, " " $3 " ")) {
-        print length($2),$1,$2,$3,$4
-      }
-    }' "$tmp_fstab" | sort -ns | \
-      while read -r _ fs_dev fs_mnt fs_type fs_opts; do
-        dev_resolved=$(findfs "$fs_dev" 2>/dev/null || printf '%s' "$fs_dev")
-        mnt_point="$root_mnt$(printf '%b' "$fs_mnt")"  # printf resolves fstab escapes
-        [ ! -d "$mnt_point" ] && mkdir -p "$mnt_point"
-        echo -e "${fg_green}Mounting device $dev_resolved on $mnt_point$fg0"
-        mount -t "$fs_type" -o "$fs_opts" "$dev_resolved" "$mnt_point"
-        all_mounts+=("$mnt_point")
-      done
+    while read -r _ fs_dev fs_mnt fs_type fs_opts; do
+      dev_resolved=$(findfs "$fs_dev" 2>/dev/null || printf '%s' "$fs_dev")
+      mnt_point="$root_mnt$(printf '%b' "$fs_mnt")"  # printf resolves fstab escapes
+      [ ! -d "$mnt_point" ] && mkdir -p "$mnt_point"
+      echo -e "${fg_green}Mounting device $dev_resolved on $mnt_point$fg0"
+      mount -t "$fs_type" -o "$fs_opts" "$dev_resolved" "$mnt_point"
+      all_mounts+=("$mnt_point")
+    done < <($AWK -v supported_fs="$supported_fs vfat msdos auto " '/^[^#].*/ {
+        if (NF >= 4 && NF <= 6 && $2 ~ /^\// && index(supported_fs, " " $3 " ")) {
+          print length($2),$1,$2,$3,$4
+        }
+      }' "$tmp_fstab" | sort -ns)
   else
     echo -e "${fg_red}Could not detect any root device candidate. If it is on an encrypted" \
       "device then decrypt and open the devices (e.g. using 'cryptsetup luksOpen') and run the" \
