@@ -261,6 +261,9 @@ bind_paths=(/dev /dev/pts /proc /run /sys /etc/resolv.conf)
 if [ -d /sys/firmware/efi/efivars ]; then
   bind_paths+=(/sys/firmware/efi/efivars)
 fi
+if [ -d /sys/fs/selinux ]; then
+  bind_paths+=(/sys/fs/selinux)
+fi
 for bind_path in ${bind_paths[@]}; do
   mount -o bind $bind_path "$root_mnt$bind_path"
 done
