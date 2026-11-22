@@ -43,12 +43,19 @@ restic_bundle_name=restic-bundle.tar.zst.gpg
 
 declare -a all_mounts
 declare -a bind_paths
+tmp_fstab=$(mktemp /tmp/fstab.XXXXXX)
+
+AWK=awk
+command -v mawk >/dev/null 2>&1 && AWK=mawk
 
 function mount_tmp() {
-  mnt_dir="${tmp_mnt_prefix}$1"
-  mkdir "$mnt_dir"
-  mount "$dev_by_uuid/$1" "$mnt_dir"
-  printf '%s' "$mnt_dir"
+  mnt_dev="$1"
+  shift
+  mnt_dir="${tmp_mnt_prefix}$mnt_dev"
+  mkdir -p "$mnt_dir" 2>/dev/null
+  if mount "$@" "$dev_by_uuid/$mnt_dev" "$mnt_dir" 2>/dev/null; then
+    printf '%s' "$mnt_dir"
+  fi
 }
 
 function umount_tmp() {
@@ -58,7 +65,7 @@ function umount_tmp() {
 }
 
 function cleanup() {
-  rm -f "$restic_bundle_name"
+  rm -f "$restic_bundle_name" "$tmp_fstab"
   for mnt_dir in "${tmp_mnt_prefix}"*; do
     [ -d "$mnt_dir" ] && umount_tmp "$mnt_dir"
   done
@@ -80,110 +87,96 @@ function cleanup() {
 }
 
 trap "cleanup" EXIT
-trap "cleanup" INT HUP TERM
 
-function check_root() {
-  mnt_dir=$(mount_tmp "$1")
-  detect_dirs="dev sys usr var"
-  for d in $detect_dirs; do
-    [ ! -d "$mnt_dir/$d" ] && umount_tmp "$mnt_dir" && return 1
+function find_btrfs_root_copy_fstab() {
+  local found_root
+  # temporarily mount the top-level partition to search for the root subvolume
+  mnt_dir=$(mount_tmp "$1" -t btrfs -o subvolid=5)
+  [ -z "$mnt_dir" ] && return 1
+  readarray -t sub_volumes < <(btrfs subvolume list "$mnt_dir" | sed -n 's/^ID .* path //p')
+  for d in "" "${sub_volumes[@]}"; do
+    if [ -d "$mnt_dir/$d/usr" ] && [ -f "$mnt_dir/$d/etc/fstab" ]; then
+      if [ -z "$found_root" ]; then
+        found_root="$d"
+      elif [ -z "$has_multiple_roots" ]; then
+        has_multiple_roots=yes
+      else
+        break
+      fi
+    fi
   done
-  umount_tmp "$mnt_dir"
-  return 0
-}
-
-function check_boot() {
-  mnt_dir=$(mount_tmp "$1")
-  { compgen -G "$mnt_dir/initrd*" && compgen -G "$mnt_dir/vmlinu*"; } >/dev/null
-    ret_code=$?
-    umount_tmp "$mnt_dir"
-    return $ret_code
-  }
-
-function check_home() {
-  mnt_dir=$(mount_tmp "$1")
-  # distros will have at least one of .profile or .bashrc in user's home directory
-  { compgen -G "$mnt_dir/*/.bashrc" || compgen -G "$mnt_dir/*/.profile"; } >/dev/null
-    ret_code=$?
-    umount_tmp "$mnt_dir"
-    return $ret_code
-  }
-
-function check_efi() {
-  mnt_dir=$(mount_tmp "$1")
-  [ -d "$mnt_dir/EFI/BOOT" ]
-  ret_code=$?
+  ret_code=1
+  if [ -n "$found_root" ]; then
+    if [ -n "$has_multiple_roots" ]; then
+      echo "${fg_orange}Found multiple root subvolume candidates for device $(blkid --uuid $1), "\
+        "using first one in subvolume '$found_root'$fg0"
+    fi
+    cp "$mnt_dir/$found_root/etc/fstab" "$tmp_fstab"
+    ret_code=0
+  fi
   umount_tmp "$mnt_dir"
   return $ret_code
 }
 
+function find_root_copy_fstab() {
+  if [ "$2" = "btrfs" ]; then
+    find_btrfs_root_copy_fstab "$1"
+    return $?
+  fi
+  mnt_dir=$(mount_tmp "$1" -t "$2")
+  [ -z "$mnt_dir" ] && return 1
+  ret_code=1
+  if [ -d "$mnt_dir/usr" ] && [ -f "$mnt_dir/etc/fstab" ]; then
+    cp "$mnt_dir/etc/fstab" "$tmp_fstab"
+    ret_code=0
+  fi
+  umount_tmp "$mnt_dir"
+  return $ret_code
+}
 
-declare -a root_uuids
-declare -a boot_uuids
-declare -a home_uuids
-declare -a efi_uuids
-
-function determine_mount_uuids() {
+function detect_and_mount_volumes() {
+  supported_fs=" ext4 btrfs ext3 ext2 xfs jfs f2fs "
+  local found_root
   while read -r fs_type uuid; do
-    case "$fs_type" in
-      ext4|ext3|ext2|btrfs|xfs|zfs|jfs|f2fs)
-        if check_root "$uuid"; then
-          root_uuids+=("$uuid")
-        elif check_boot "$uuid"; then
-          boot_uuids+=("$uuid")
-        elif check_home "$uuid"; then
-          home_uuids+=("$uuid")
-        fi
-        ;;
-      *fat*)
-        check_efi "$uuid" && efi_uuids+=("$uuid")
-        ;;
-    esac
+    if [[ $supported_fs == *" $fs_type "* ]]; then
+      find_root_copy_fstab "$uuid" "$fs_type" && found_root="$uuid" && break
+    fi
   done < <(lsblk -n -o FSTYPE,UUID)
-  return 0
+  if [ -n "$found_root" ]; then
+    root_mnt="${final_mnt_prefix}$found_root"
+    echo -e "${fg_green}Mounting devices listed in /etc/fstab copied from " \
+      "device $(blkid --uuid $found_root) on $root_mnt:\n"
+    cat "$tmp_fstab"
+    echo
+    echo -en "${fg_orange}Hit <Enter> to proceed with the above setup, else hit <Ctrl-c> to abort.$fg0"
+    read resp
+    $AWK -v supported_fs="$supported_fs vfat msdos auto " '/^[^#].*/ {
+      if (NF >= 4 && NF <= 6 && $2 ~ /^\// && index(supported_fs, " " $3 " ")) {
+        print length($2),$1,$2,$3,$4
+      }
+    }' "$tmp_fstab" | sort -ns | \
+      while read -r _ fs_dev fs_mnt fs_type fs_opts; do
+        dev_resolved=$(findfs "$fs_dev" 2>/dev/null || printf '%s' "$fs_dev")
+        mnt_point="$root_mnt$(printf '%b' "$fs_mnt")"  # printf resolves fstab escapes
+        [ ! -d "$mnt_point" ] && mkdir -p "$mnt_point"
+        echo -e "${fg_green}Mounting device $dev_resolved on $mnt_point$fg0"
+        mount -t "$fs_type" -o "$fs_opts" "$dev_resolved" "$mnt_point"
+        all_mounts+=("$mnt_point")
+      done
+  else
+    echo -e "${fg_red}Could not detect any root device candidate. If it is on an encrypted" \
+      "device then decrypt and open the devices (e.g. using 'cryptsetup luksOpen') and run the" \
+      "script again, else if on an unsupported FS like zfs or other special setup then mount" \
+      "the volumes manually and run the script providing the target directory as an argument.$fg0"
+    return 1
+  fi
 }
 
 if [ -z "$root_mnt" ]; then
   echo "No target directory provided. Trying to auto-detect..."
-
-  determine_mount_uuids
-
-  if [ ${#root_uuids[@]} -eq 1 -a ${#boot_uuids[@]} -le 1 -a ${#home_uuids[@]} -le 1 -a ${#efi_uuids[@]} -le 1 ]; then
-    root_mnt="${final_mnt_prefix}${root_uuids[0]}"
-    echo -e "${fg_green}Mounting root device $(blkid --uuid ${root_uuids[0]}) on $root_mnt$fg0"
-    mkdir -p "$root_mnt"
-    mount "$dev_by_uuid/${root_uuids[0]}" "$root_mnt"
-    all_mounts+=("$root_mnt")
-    if [ ${#boot_uuids[@]} -eq 1 ]; then
-      echo -e "${fg_green}Mounting device $(blkid --uuid ${boot_uuids[0]}) on $root_mnt/boot$fg0"
-      mount "$dev_by_uuid/${boot_uuids[0]}" "$root_mnt/boot"
-      all_mounts+=("$root_mnt/boot")
-    fi
-    if [ ${#efi_uuids[@]} -eq 1 ]; then
-      echo -e "${fg_green}Mounting device $(blkid --uuid ${efi_uuids[0]}) on $root_mnt/boot/efi$fg0"
-      mount "$dev_by_uuid/${efi_uuids[0]}" "$root_mnt/boot/efi"
-      all_mounts+=("$root_mnt/boot/efi")
-    fi
-    if [ ${#home_uuids[@]} -eq 1 ]; then
-      echo -e "${fg_green}Mounting device $(blkid --uuid ${home_uuids[0]}) on $root_mnt/home$fg0"
-      mount "$dev_by_uuid/${home_uuids[0]}" "$root_mnt/home"
-      all_mounts+=("$root_mnt/home")
-    fi
-    echo -en "${fg_orange}Hit <Enter> to proceed with the above setup, else hit <Ctrl-c> to abort.$fg0"
-    read resp
-  elif [ ${#root_uuids[@]} -gt 1 ]; then
-    echo -e "${fg_orange}Found multiple root device candidates:$fg0"
-    for root_uuid in ${root_uuids[@]}; do
-      echo -e "$fg_orange  $(blkid --uuid $root_uuid) (UUID=$root_uuid)$fg0"
-    done
-    echo -e "${fg_red}Mount one of these manually as well as required sub-mounts and" \
-      "run the script providing the target directory as an argument.$fg0"
-    exit 1
-  else
-    echo -e "${fg_red}Could not detect any root device candidate. Please mount manually" \
-      "and run the script providing the target directory as an argument.$fg0"
-    exit 1
-  fi
+  detect_and_mount_volumes
+  ret_code=$?
+  [ "$ret_code" -ne 0 ] && exit $ret_code
 fi
 
 creds_dir=/etc/credstore.encrypted
@@ -200,7 +193,7 @@ fi
 function ask_restic_pass() {
   pass_file="$1"
   rm -f "$pass_file"
-  systemd-ask-password "Password for $2:" | \
+  systemd-ask-password "Password for $2:" | tr -d '\n' | \
     systemd-creds $host_key_arg --name="$(basename "$pass_file")" encrypt - "$pass_file"
   chmod 0400 "$pass_file"
 }
@@ -225,7 +218,8 @@ if [ -z "$restic_bundle_url" ]; then
   echo -e "${fg_red}Failed due to invalid remote login password.$fg0"
   exit 2
 fi
-wget -q --show-progress "$restic_bundle_url" -O - > "$restic_bundle_name"
+rm -f "$restic_bundle_name"
+wget -q --show-progress "$restic_bundle_url" -O "$restic_bundle_name"
 
 for i in {1..3}; do
   ask_restic_pass "$restic_store_pass" "data store"
