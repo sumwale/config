@@ -28,6 +28,14 @@ dpkg-reconfigure grub-efi-amd64
 dpkg-reconfigure -p critical dma nvme-cli openssh-server shim-signed
 printf '%s\n' "$mail_name" > /etc/mailname
 
+# re-create mandb cache
+rm -rf /var/cache/man/*
+mandb -c >/dev/null 2>&1
+
+# strip out security.selinux xattrs from rootless containers, if present
+find /home/*/.local/share/containers -print0 | \
+  xargs -0 -r setfattr -h -x security.selinux 2>/dev/null
+
 # re-encrypt keepassxc-unlock passwords
 creds_dir=/etc/credstore.encrypted
 restic_login_pass="$creds_dir/restic-login"

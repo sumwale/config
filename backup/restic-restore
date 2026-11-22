@@ -140,7 +140,9 @@ function detect_and_mount_volumes() {
   local found_root
   while read -r fs_type uuid; do
     if [[ $supported_fs == *" $fs_type "* ]]; then
-      find_root_copy_fstab "$uuid" "$fs_type" && found_root="$uuid" && break
+      if find_root_copy_fstab "$uuid" "$fs_type"; then
+        found_root="$uuid" && root_fs_type="$fs_type" && break
+      fi
     fi
   done < <(lsblk -n -o FSTYPE,UUID)
   if [ -n "$found_root" ]; then
@@ -149,7 +151,7 @@ function detect_and_mount_volumes() {
       "device $(blkid --uuid $found_root) on $root_mnt:$fg_cyan\n"
     cat "$tmp_fstab"
     echo
-    echo -en "${fg_orange}Hit <Enter> to proceed with the above setup, else hit <Ctrl-c> to abort.$fg0"
+    echo -en "${fg_orange}Hit <Enter> to proceed with the above setup, else <Ctrl-c> to abort.$fg0"
     read resp
     while read -r _ fs_dev fs_mnt fs_type fs_opts; do
       dev_resolved=$(findfs "$fs_dev" 2>/dev/null || printf '%s' "$fs_dev")
@@ -198,7 +200,7 @@ function ask_restic_pass() {
   chmod 0400 "$pass_file"
 }
 
-gpg_base_opts="--quiet --batch --no-tty --no-symkey-cache --pinentry-mode loopback --passphrase-fd 3"
+gpg_base_opts="-q --batch --no-tty --no-symkey-cache --pinentry-mode loopback --passphrase-fd 3"
 restic_bundle_url_enc='-----BEGIN PGP MESSAGE-----
 
 jA0ECQMKpFzzOY8ELt7/0osBoSQ1QJ688PszQA74a70mwjzWEBe9hOzV0tiluYNF
@@ -210,7 +212,8 @@ j3GVTEngc69be4Uz
 for i in {1..3}; do
   ask_restic_pass "$restic_login_pass" "remote login"
   # test the password for URL decryption
-  restic_bundle_url=$(printf '%s' "$restic_bundle_url_enc" | gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-login decrypt "$restic_login_pass" -) -o - -)
+  restic_bundle_url=$(printf '%s' "$restic_bundle_url_enc" | gpg --decrypt $gpg_base_opts 3< \
+    <(systemd-creds --name=restic-login decrypt "$restic_login_pass" -) -o - -)
   [ -n "$restic_bundle_url" ] && break
   echo -e "${fg_orange}Failed to decrypt gdrive URL using this password. Please try again.$fg0"
 done
@@ -224,7 +227,8 @@ wget -q --show-progress "$restic_bundle_url" -O "$restic_bundle_name"
 for i in {1..3}; do
   ask_restic_pass "$restic_store_pass" "data store"
   # decrypt and untar the package
-  if gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-store decrypt $restic_store_pass -) -o - "$restic_bundle_name" | tar -C / --zstd -xpf -; then
+  if gpg --decrypt $gpg_base_opts 3< <(systemd-creds --name=restic-store decrypt \
+      $restic_store_pass -) -o - "$restic_bundle_name" | tar -C / --zstd -xpf -; then
     export RCLONE_CONFIG=/var/lib/restic/rclone.conf
     rm -f "$restic_bundle_name"
     break
@@ -239,7 +243,8 @@ fi
 
 # remove some known directories that have changed to symlinks in the backup that cause
 # failures during restore
-check_dirs=("/home/*/.config/gtk-3.0" "/home/*/.config/gtk-4.0" "/usr/share/X11/xkb")
+check_dirs=("/home/*/.config/gtk-3.0" "/home/*/.config/gtk-4.0" \
+	    "/usr/share/X11/xkb" "/usr/share/doc/*")
 for check_dir in "${check_dirs[@]}"; do
   resolved_dirs=$(compgen -G "$root_mnt$check_dir")
   for resolved_dir in $resolved_dirs; do
@@ -281,6 +286,16 @@ for pass_file in "$restic_login_pass" "$restic_store_pass"; do
   chmod 0400 "$root_mnt$pass_file"
   rm -f "$pass_file"
 done
+if [ "$root_fs_type" = "btrfs" ]; then
+  fs_prog=btrfs-progs
+elif [ "$root_fs_type" = "xfs" ]; then
+  fs_prog=xfsprogs
+elif [ "$root_fs_type" = "jfs" ]; then
+  fs_prog=jfsutils
+fi
+if [ -n "$fs_prog" ]; then
+  chroot "$root_mnt" /usr/bin/apt install "$fs_prog" -y --install-recommends --install-suggests
+fi
 chroot "$root_mnt" /usr/local/sbin/restic-restore-finish
 
 echo -e "${fg_green}\n\nALL DONE.\n\n\n" \
