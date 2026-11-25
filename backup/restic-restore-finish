@@ -90,7 +90,7 @@ if [ "$nvidia_driver" != "$nvidia_driver_inst" ]; then
   fi
 elif [ -n "$nvidia_driver_inst" ]; then
   # reconfigure the dkms to regenerate the modules and possibly setup MOK registration
-  nvidia_dkms="${nvidia_driver_inst/-driver-/-dkms-/}"
+  nvidia_dkms="${nvidia_driver_inst/-driver-/-dkms-}"
   dpkg-reconfigure dkms "$nvidia_dkms"
 fi
 
